@@ -38,12 +38,15 @@ struct option_values parse_args(int argc, char** argv) {
     }
     printf("using network: %s\n", argv[2]);
 
+    options.verbose = 0;
     if (argc > 3) {
         for (int i = 3; i < argc; i++) {
             if (strcmp(argv[i], "--help") == 0) {
                 printf("%s", help_string);
                 printf("%s", help_extra_string);
-                exit(1);
+                exit(0);
+            } else if (strcmp(argv[i], "--verbose") == 0) {
+                options.verbose = 1;
             } else {
                 printf("Unknown flag: %s\n", argv[i]);
                 printf("%s", help_string);
