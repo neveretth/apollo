@@ -37,12 +37,15 @@ struct rate_library* rate_library_create(struct option_values options) {
     rates->reactant_idx = malloc(sizeof(int*) * ALLOC_CHUNK);
     rates->product_idx = malloc(sizeof(int*) * ALLOC_CHUNK);
 
+    rates->rate = malloc(sizeof(int) * ALLOC_CHUNK);
+    rates->flux = malloc(sizeof(int) * ALLOC_CHUNK);
+
     char line[120];
     char reaction_token[LABELSIZE];
     float p0, p1, p2, p3, p4, p5, p6, q, sf;
     int i0, i1, i2, i3, i4, i5, i6;
     int ii[6];
-
+    
     /*
     Read in the file line by line and parse into variables. The expected
     structure of each line is:
@@ -209,6 +212,16 @@ struct network* network_create(struct option_values options) {
     int z, n, a;
     float y, mass;
     float pf0, pf1, pf2, pf3, pf4, pf5, pf6, pf7;
+    
+    // Genuinely atrocious... do NOT let this into release.
+    float temp[24] = {0.1f, 0.15f, 0.2f, 0.3f, 0.4f, 0.5f,
+                                      0.6f, 0.7f,  0.8f, 0.9f, 1.0f, 1.5f,
+                                      2.0f, 2.5f,  3.0f, 3.5f, 4.0f, 4.5f,
+                                      5.0f, 6.0f,  7.0f, 8.0f, 9.0f, 10.0f};
+    network->part_func_temp = malloc(sizeof(float) * PF_ALLOC_CHUNK);
+    for (int i = 0; i < 24; i++) {
+        network->part_func_temp[i] = temp[i];
+    }
 
     int iso_idx = -1;
     int iso_subindex = 3;
