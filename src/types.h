@@ -111,6 +111,11 @@ int rate_library_print(const struct rate_library* rates,
                        const struct network* network);
 
 // Print abundances present in network.
-int abundances_print(const struct network* network);
+int print_abundances(const struct network* network);
+
+// Print result data.
+int print_results(const struct rate_library* rates,
+                  const struct network* network,
+                  const struct problem_parameters* params);
 
 #endif

@@ -10,7 +10,6 @@ int main(int argc, char** argv) {
     struct network* network = network_create(options);
 
     network_print(network);
-    rate_library_print(rates, network);
 
     // ************************
 
@@ -50,6 +49,12 @@ int main(int argc, char** argv) {
 
     struct problem_parameters* params =
         problem_parameters_create(rates, network, options);
+    
+    rate_library_print(rates, network);
+
+    print_results(rates, network, params);
+    
+    print_abundances(network);
 
     // ************************
 
