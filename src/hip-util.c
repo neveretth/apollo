@@ -99,24 +99,14 @@ int benchmark_device(struct hipDeviceProp_t* device) {
         return 0;
     }
 
-    // if (hipSetupArgument(&d_A, 3 * sizeof(float), 0) != hipSuccess) {
-    //     printf("==apollo== encountered error initializing kernel argument\n");
-    //     return 0;
-    // }
-    // hipSetupArgument(&d_B, 3 * sizeof(float), 1);
-    // hipSetupArgument(&d_C, 3 * sizeof(float), 2);
-
     void** args = malloc(sizeof(void*) * 3);
     args[0] = &d_A;
     args[1] = &d_B;
     args[2] = &d_C;
 
-    // if ((error = hipLaunchByPtr(vector_mult_kernel)) != hipSuccess) {
-        if ((error = hipLaunchKernel(vector_mult_kernel, griddim, blockdim,
-        args,
-                                     sharedmem_allocation, hipStreamDefault))
-                                     !=
-            hipSuccess) {
+    if ((error = hipLaunchKernel(vector_mult_kernel, griddim, blockdim, args,
+                                 sharedmem_allocation, hipStreamDefault)) !=
+        hipSuccess) {
         printf("==apollo== encountered error launching kernel: %i\n", error);
         return 0;
     }

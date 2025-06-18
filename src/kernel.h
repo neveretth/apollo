@@ -38,4 +38,13 @@ float compute_keff(float Fminus, float Y);
 // temp kernel for debugging
 __global__ void vector_mult_kernel(float* A, float* B, float* C);
 
+__global__ void integration_kernel_hip(
+float* P0, float* P1, float* P2,
+        float* P3, float* P4, float* P5, float* P6, float* Prefac, float* Q,
+        float* Rate, float* Flux, float* Fplus, float* Fminus, float* FplusFac,
+        float* FminusFac, float* FplusSum, float* FminusSum, int* FplusMax,
+        int* FminusMax, int* MapFplus, int* MapFminus, float* Y,
+        int* NumReactingSpecies, int* Reactant1, int* Reactant2,
+        int* Reactant3, int* int_val, float* float_val);
+
 #endif

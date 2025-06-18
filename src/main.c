@@ -22,8 +22,7 @@ int main(int argc, char** argv) {
 
     // ************************
 
-    options.halt = 100;
-    options.rocm_accel = 0;
+    options.halt = 1000;
 
     network_print(network);
 
