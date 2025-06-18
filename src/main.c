@@ -2,11 +2,19 @@
 #include "kernel-driver.h"
 #include "parameters.h"
 #include "parse-data.h"
+#include "hip-util.h"
 
 #include <stdlib.h>
 
 int main(int argc, char** argv) {
     struct option_values options = parse_args(argc, argv);
+
+    if (options.rocm_debug) {
+        struct hipDeviceProp_t* device = get_hip_device();
+        benchmark_device(device);
+        free(device);
+        return EXIT_SUCCESS;
+    }
 
     struct rate_library* rates = rate_library_create(options);
 
@@ -15,6 +23,7 @@ int main(int argc, char** argv) {
     // ************************
 
     options.halt = 100;
+    options.rocm_accel = 0;
 
     network_print(network);
 

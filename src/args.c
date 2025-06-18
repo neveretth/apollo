@@ -7,7 +7,10 @@
 static char* help_string = "apollo: An astrophysics solver.\n\n  usage: apollo "
                            "<rate-library-file> <network-file> --<flags>\n";
 
-static char* help_extra_string = "\n  --help      print this info\n";
+static char* help_extra_string =
+    "\n  --help        print this info\n"
+    "  --rocm-accel  accelerate with rocm\n"
+    "  --rocm-debug  debug rocm without running compute kernel\n";
 
 struct option_values parse_args(int argc, char** argv) {
     if (argc < 3) {
@@ -39,6 +42,8 @@ struct option_values parse_args(int argc, char** argv) {
     printf("using network: %s\n", argv[2]);
 
     options.verbose = 0;
+    options.rocm_debug = 0;
+    options.rocm_accel = 0;
     if (argc > 3) {
         for (int i = 3; i < argc; i++) {
             if (strcmp(argv[i], "--help") == 0) {
@@ -47,6 +52,10 @@ struct option_values parse_args(int argc, char** argv) {
                 exit(0);
             } else if (strcmp(argv[i], "--verbose") == 0) {
                 options.verbose = 1;
+            } else if (strcmp(argv[i], "--rocm-debug") == 0) {
+                options.rocm_debug = 1;
+            } else if (strcmp(argv[i], "--rocm-accel") == 0) {
+                options.rocm_accel = 1;
             } else {
                 printf("Unknown flag: %s\n", argv[i]);
                 printf("%s", help_string);

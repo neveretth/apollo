@@ -8,6 +8,8 @@ struct option_values {
     FILE* rate_library_file;
     FILE* network_file;
     int verbose;
+    int rocm_accel;
+    int rocm_debug;
     int halt;
     float t9;
     float rho;
