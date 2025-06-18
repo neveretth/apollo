@@ -177,7 +177,7 @@ int print_results(const struct rate_library* rates,
         printf("\nF+[%d] = %7.4e  Increases Y[%s] through %s  MapIndex=%d  "
                "FplusFac=%3.1f",
                i, params->f_plus[i],
-               network->iso_label[params->f_minus_isotope_idx[i]],
+               network->iso_label[params->f_plus_isotope_idx[i]],
                rates->reaction_label[params->f_plus_map[i]],
                params->f_plus_map[i], params->f_plus_factor[i]);
     }

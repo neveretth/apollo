@@ -26,7 +26,7 @@ problem_parameters_create(struct rate_library* rates, struct network* network,
 
     // reaction_mask_create() was formerly parse_f()
     params->reaction_mask =
-        reaction_mask_create(rates, network, params, options);
+        reaction_mask_create(rates, network, params, options, temp_int1, temp_int2);
 
     // Create 1D arrays to hold non-zero F+ and F- for all reactions for all
     // isotopes, the arrays holding the species factors params->f_plus_factor
@@ -76,18 +76,18 @@ problem_parameters_create(struct rate_library* rates, struct network* network,
             params->f_minus_number[i] + params->f_minus_isotope_cut[i - 1];
     }
 
-    int currentIso = 0;
+    int current_iso = 0;
     for (int i = 0; i < params->f_plus_total; i++) {
-        params->f_plus_isotope_idx[i] = currentIso;
-        if (i == (params->f_plus_isotope_cut[currentIso] - 1))
-            currentIso++;
+        params->f_plus_isotope_idx[i] = current_iso;
+        if (i == (params->f_plus_isotope_cut[current_iso] - 1))
+            current_iso++;
     }
 
-    currentIso = 0;
+    current_iso = 0;
     for (int i = 0; i < params->f_minus_total; i++) {
-        params->f_minus_isotope_idx[i] = currentIso;
-        if (i == (params->f_minus_isotope_cut[currentIso] - 1))
-            currentIso++;
+        params->f_minus_isotope_idx[i] = current_iso;
+        if (i == (params->f_minus_isotope_cut[current_iso] - 1))
+            current_iso++;
     }
 
     // Diagnostic output
@@ -213,7 +213,7 @@ problem_parameters_create(struct rate_library* rates, struct network* network,
 
 int** reaction_mask_create(struct rate_library* rates, struct network* network,
                            struct problem_parameters* params,
-                           struct option_values options) {
+                           struct option_values options, int* temp_int1, int* temp_int2) {
     int** mask = malloc(sizeof(int*) * network->number_species);
     for (int i = 0; i < network->number_species; i++) {
         mask[i] = malloc(sizeof(int) * rates->number_reactions);
@@ -226,11 +226,6 @@ int** reaction_mask_create(struct rate_library* rates, struct network* network,
 
     int increment_plus = 0;
     int increment_minus = 0;
-
-    int* temp_int1 = malloc(sizeof(int) * network->number_species *
-                            rates->number_reactions / 2);
-    int* temp_int2 = malloc(sizeof(int) * network->number_species *
-                            rates->number_reactions / 2);
 
     for (int i = 0; i < network->number_species; i++) {
         int total = 0;
@@ -375,12 +370,9 @@ int** reaction_mask_create(struct rate_library* rates, struct network* network,
     }
 
     printf("\n\nFLUX SPARSENESS: Non-zero F+ = %d; Non-zero F- = %d, out of %d "
-           "x %d = %d possibilities.",
+           "x %d = %d possibilities.\n",
            params->f_plus_total, params->f_minus_total, rates->number_reactions, network->number_species,
            rates->number_reactions * network->number_species);
-
-    free(temp_int1);
-    free(temp_int2);
 
     return mask;
 }

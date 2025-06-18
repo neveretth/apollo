@@ -8,6 +8,11 @@ struct option_values {
     FILE* rate_library_file;
     FILE* network_file;
     int verbose;
+    int halt;
+    float t9;
+    float rho;
+    float t_max;
+    float dt_init;
 };
 
 // Contain rate library data.

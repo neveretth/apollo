@@ -11,6 +11,6 @@ problem_parameters_create(struct rate_library* rates, struct network* network,
 
 // Return reaction_mask for problem_parameters_create. Alters values in the rate_library, network, and problem_parameters structs.
 int** reaction_mask_create(struct rate_library* rates, struct network* network,
-                           struct problem_parameters* params, struct option_values options);
+                           struct problem_parameters* params, struct option_values options, int* temp_int1, int* temp_int2);
 
 #endif
