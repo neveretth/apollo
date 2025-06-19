@@ -2,8 +2,15 @@
 
 #include <stdlib.h>
 
-// Don't bother setting to NULL becuase they're all inaccessible anyways.
-int rate_library_destroy(struct rate_library* src) {
+int freenptr(void** ptr, int len) {
+    for (int i = 0; i < len; i++) {
+        free(ptr[i]);
+    }
+    return EXIT_SUCCESS;
+}
+
+int rate_library_destroy(struct rate_library** __src) {
+    struct rate_library* src = *__src;
     free(src->rg_class);
     free(src->rg_member_idx);
     free(src->reaction_library_class);
@@ -25,45 +32,46 @@ int rate_library_destroy(struct rate_library* src) {
     free(src->reactant_1);
     free(src->reactant_2);
     free(src->reactant_3);
-    for (int i = 0; i < src->number_reactions; i++) {
-        free(src->reactant_z[i]);
-        free(src->reactant_n[i]);
-        free(src->reactant_idx[i]);
-        free(src->product_z[i]);
-        free(src->product_n[i]);
-        free(src->product_idx[i]);
-        free(src->reaction_label[i]);
-    }
+    freenptr((void**)src->reactant_z, src->number_reactions);
     free(src->reactant_z);
+    freenptr((void**)src->reactant_n, src->number_reactions);
     free(src->reactant_n);
-    free(src->product_z);
+    freenptr((void**)src->reactant_idx, src->number_reactions);
     free(src->reactant_idx);
-    free(src->product_n);
+    freenptr((void**)src->product_z, src->number_reactions);
+    free(src->product_z);
+    freenptr((void**)src->product_idx, src->number_reactions);
     free(src->product_idx);
+    freenptr((void**)src->product_n, src->number_reactions);
+    free(src->product_n);
+    freenptr((void**)src->reaction_label, src->number_reactions);
     free(src->reaction_label);
     free(src);
+    *__src = NULL;
     return EXIT_SUCCESS;
 }
 
-int network_destroy(struct network* src) {
-    free(src->z);
-    free(src->n);
-    free(src->aa);
-    free(src->y);
-    free(src->x);
-    free(src->mass_excess);
-    for (int i = 0; i < src->number_species; i++) {
-        free(src->iso_label[i]);
-        free(src->part_func[i]);
-    }
-    free(src->iso_label);
-    free(src->part_func);
-    free(src->part_func_temp);
+int network_destroy(struct thermo_network** __src) {
+    struct thermo_network* src = *__src;
+    freenptr((void*)src->iptr, 2);
+    freenptr((void*)src->fptr, 4);
+    free(src->iptr);
+    free(src->fptr);
+    freenptr((void**)src->info->iso_label, src->info->number_species);
+    free(src->info->iso_label);
+    freenptr((void**)src->info->part_func, src->info->number_species);
+    free(src->info->part_func);
+    free(src->info->part_func_temp);
+    free(src->info);
+    free(src->f);
     free(src);
+    *__src = NULL;
     return EXIT_SUCCESS;
 }
 
-int problem_parameters_destroy(struct problem_parameters* src, int reactions) {
+int problem_parameters_destroy(struct problem_parameters** __src,
+                               int reactions) {
+    struct problem_parameters* src = *__src;
     free(src->f_plus);
     free(src->f_minus);
     free(src->f_plus_factor);
@@ -82,59 +90,57 @@ int problem_parameters_destroy(struct problem_parameters* src, int reactions) {
     free(src->f_minus_isotope_idx);
     free(src->f_plus_map);
     free(src->f_minus_map);
-    // f_plus_total and f_minus_total should match...
-    for (int i = 0; i < reactions; i++) {
-        free(src->reaction_mask[i]);
-    }
+    freenptr((void**)src->reaction_mask, reactions);
     free(src->reaction_mask);
     free(src);
+    *__src = NULL;
     return EXIT_SUCCESS;
 }
 
-int network_print(const struct network* network) {
-    printf("\n\n%d ISOTOPES IN NETWORK:\n\n", network->number_species);
+int network_print(const struct thermo_network* network) {
+    printf("\n\n%d ISOTOPES IN NETWORK:\n\n", network->info->number_species);
     printf(
         "Index  Isotope   A   Z   N  Abundance Y  MassFrac X  MassXS(MeV)\n");
-    for (int i = 0; i < network->number_species; i++) {
+    for (int i = 0; i < network->info->number_species; i++) {
         printf("%5d %8s %3d %3d %3d  %8.5e   %9.6f   %10.5f\n", i,
-               network->iso_label[i], (int)network->aa[i], network->z[i],
-               network->n[i], network->y[i], network->x[i],
-               network->mass_excess[i]);
+               network->info->iso_label[i], (int)network->fptr->aa[i],
+               network->iptr->z[i], network->iptr->n[i], network->fptr->y[i],
+               network->fptr->x[i], network->fptr->mass_excess[i]);
     }
 
     printf("\nPARTITION FUNCTION TABLE:\n");
     printf(
         "\n T9 = %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f\
  %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f",
-        network->part_func_temp[0], network->part_func_temp[1],
-        network->part_func_temp[2], network->part_func_temp[3],
-        network->part_func_temp[4], network->part_func_temp[5],
-        network->part_func_temp[6], network->part_func_temp[7],
-        network->part_func_temp[8], network->part_func_temp[9],
-        network->part_func_temp[10], network->part_func_temp[11],
-        network->part_func_temp[12], network->part_func_temp[13],
-        network->part_func_temp[14], network->part_func_temp[15],
-        network->part_func_temp[16], network->part_func_temp[17],
-        network->part_func_temp[18], network->part_func_temp[19],
-        network->part_func_temp[20], network->part_func_temp[21],
-        network->part_func_temp[22], network->part_func_temp[23]);
-    for (int j = 0; j < network->number_species; j++) {
+        network->info->part_func_temp[0], network->info->part_func_temp[1],
+        network->info->part_func_temp[2], network->info->part_func_temp[3],
+        network->info->part_func_temp[4], network->info->part_func_temp[5],
+        network->info->part_func_temp[6], network->info->part_func_temp[7],
+        network->info->part_func_temp[8], network->info->part_func_temp[9],
+        network->info->part_func_temp[10], network->info->part_func_temp[11],
+        network->info->part_func_temp[12], network->info->part_func_temp[13],
+        network->info->part_func_temp[14], network->info->part_func_temp[15],
+        network->info->part_func_temp[16], network->info->part_func_temp[17],
+        network->info->part_func_temp[18], network->info->part_func_temp[19],
+        network->info->part_func_temp[20], network->info->part_func_temp[21],
+        network->info->part_func_temp[22], network->info->part_func_temp[23]);
+    for (int j = 0; j < network->info->number_species; j++) {
         printf(
             "\n%-5s %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f\
  %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f",
-            network->iso_label[j], network->part_func[j][0],
-            network->part_func[j][1], network->part_func[j][2],
-            network->part_func[j][3], network->part_func[j][4],
-            network->part_func[j][5], network->part_func[j][6],
-            network->part_func[j][7], network->part_func[j][8],
-            network->part_func[j][9], network->part_func[j][10],
-            network->part_func[j][11], network->part_func[j][12],
-            network->part_func[j][13], network->part_func[j][14],
-            network->part_func[j][15], network->part_func[j][16],
-            network->part_func[j][17], network->part_func[j][18],
-            network->part_func[j][19], network->part_func[j][20],
-            network->part_func[j][21], network->part_func[j][22],
-            network->part_func[j][23]);
+            network->info->iso_label[j], network->info->part_func[j][0],
+            network->info->part_func[j][1], network->info->part_func[j][2],
+            network->info->part_func[j][3], network->info->part_func[j][4],
+            network->info->part_func[j][5], network->info->part_func[j][6],
+            network->info->part_func[j][7], network->info->part_func[j][8],
+            network->info->part_func[j][9], network->info->part_func[j][10],
+            network->info->part_func[j][11], network->info->part_func[j][12],
+            network->info->part_func[j][13], network->info->part_func[j][14],
+            network->info->part_func[j][15], network->info->part_func[j][16],
+            network->info->part_func[j][17], network->info->part_func[j][18],
+            network->info->part_func[j][19], network->info->part_func[j][20],
+            network->info->part_func[j][21], network->info->part_func[j][22],
+            network->info->part_func[j][23]);
     }
 
     printf("\n");
@@ -142,42 +148,43 @@ int network_print(const struct network* network) {
 }
 
 int rate_library_print(const struct rate_library* rates,
-                       const struct network* network) {
+                       const struct thermo_network* network) {
     for (int i = 0; i < rates->number_reactions; i++) {
-        printf(
-            "%d %s Rate=%6.3e Y1=%6.3e Y2=%6.3e Y3=%6.3e Flux=%7.4e Q=%6.3f "
-            "Prefac=%6.3e Reactants=%d\n",
-            i, rates->reaction_label[i], rates->rate[i],
-            network->y[rates->reactant_1[i]], network->y[rates->reactant_2[i]],
-            network->y[rates->reactant_3[i]], rates->flux[i], rates->q_value[i],
-            rates->prefactor[i], rates->num_react_species[i]);
+        printf("%d %s Rate=%6.3e Y1=%6.3e Y2=%6.3e Y3=%6.3e Flux=%7.4e Q=%6.3f "
+               "Prefac=%6.3e Reactants=%d\n",
+               i, rates->reaction_label[i], rates->rate[i],
+               network->fptr->y[rates->reactant_1[i]],
+               network->fptr->y[rates->reactant_2[i]],
+               network->fptr->y[rates->reactant_3[i]], rates->flux[i],
+               rates->q_value[i], rates->prefactor[i],
+               rates->num_react_species[i]);
     }
     return EXIT_SUCCESS;
 }
 
-int print_abundances(const struct network* network) {
+int print_abundances(const struct thermo_network* network) {
     printf("\n\nFINAL ABUNDANCES:\n");
     printf("\nIndex  Isotope   Abundance Y   Mass Frac X");
     float sum_x = 0.0f;
-    for (int i = 0; i < network->number_species; i++) {
-        float x = network->y[i] * network->aa[i];
+    for (int i = 0; i < network->info->number_species; i++) {
+        float x = network->fptr->y[i] * network->fptr->aa[i];
         sum_x += x;
-        printf("\n %4d     %4s    %8.4e    %8.4e", i, network->iso_label[i],
-               network->y[i], x);
+        printf("\n %4d     %4s    %8.4e    %8.4e", i,
+               network->info->iso_label[i], network->fptr->y[i], x);
     }
-    printf("\n\nsum X = %6.4f", sum_x);
+    printf("\n\nsum X = %6.4f\n", sum_x);
     return EXIT_SUCCESS;
 }
 
 int print_results(const struct rate_library* rates,
-                  const struct network* network,
+                  const struct thermo_network* network,
                   const struct problem_parameters* params) {
     printf("\n\nFINAL F+ VALUES:\n");
     for (int i = 0; i < params->f_plus_total; i++) {
         printf("\nF+[%d] = %7.4e  Increases Y[%s] through %s  MapIndex=%d  "
                "FplusFac=%3.1f",
                i, params->f_plus[i],
-               network->iso_label[params->f_plus_isotope_idx[i]],
+               network->info->iso_label[params->f_plus_isotope_idx[i]],
                rates->reaction_label[params->f_plus_map[i]],
                params->f_plus_map[i], params->f_plus_factor[i]);
     }
@@ -186,15 +193,15 @@ int print_results(const struct rate_library* rates,
         printf("\nF-[%d] = %7.4e  Decreases Y[%s] through %s  MapIndex=%d  "
                "FminusFac=%3.1f",
                i, params->f_minus[i],
-               network->iso_label[params->f_minus_isotope_idx[i]],
+               network->info->iso_label[params->f_minus_isotope_idx[i]],
                rates->reaction_label[params->f_minus_map[i]],
                params->f_minus_map[i], params->f_minus_factor[i]);
     }
 
     printf("\n\n\nF+ and F- MIN AND MAX FOR EACH ISOTOPE:\n");
-    for (int i = 0; i < network->number_species; i++) {
+    for (int i = 0; i < network->info->number_species; i++) {
         printf("\n%3d %5s F+min=%3d F+max=%3d F-min=%3d F-max=%d", i,
-               network->iso_label[i], params->f_plus_min[i],
+               network->info->iso_label[i], params->f_plus_min[i],
                params->f_plus_max[i], params->f_minus_min[i],
                params->f_minus_max[i]);
     }
@@ -203,11 +210,12 @@ int print_results(const struct rate_library* rates,
 
     float f_plus_total = 0.0f;
     float f_minus_total = 0.0f;
-    for (int i = 0; i < network->number_species; i++) {
+    for (int i = 0; i < network->info->number_species; i++) {
         printf("\n%3d %5s  sumF+=%10.4e  sumF-=%10.4e Fnet=%10.4e Y=%10.4e", i,
-               network->iso_label[i], params->f_plus_sum[i],
+               network->info->iso_label[i], params->f_plus_sum[i],
                params->f_minus_sum[i],
-               params->f_plus_sum[i] - params->f_minus_sum[i], network->y[i]);
+               params->f_plus_sum[i] - params->f_minus_sum[i],
+               network->fptr->y[i]);
         f_plus_total += params->f_plus_sum[i];
         f_minus_total += params->f_minus_sum[i];
     }

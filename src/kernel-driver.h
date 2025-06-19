@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-int integrate_network(struct rate_library* rates, struct network* network,
+int integrate_network(struct rate_library* rates, struct thermo_network* network,
                       struct problem_parameters* params,
                       struct option_values options);
 

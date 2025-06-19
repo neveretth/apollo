@@ -45,7 +45,7 @@ struct rate_library* rate_library_create(struct option_values options) {
     float p0, p1, p2, p3, p4, p5, p6, q, sf;
     int i0, i1, i2, i3, i4, i5, i6;
     int ii[6];
-    
+
     /*
     Read in the file line by line and parse into variables. The expected
     structure of each line is:
@@ -194,33 +194,40 @@ struct rate_library* rate_library_create(struct option_values options) {
 #define NETWORK_ALLOC_CHUNK 16
 #define PF_ALLOC_CHUNK 24
 
-struct network* network_create(struct option_values options) {
+struct thermo_network* network_create(struct option_values options) {
 
-    struct network* network = malloc(sizeof(struct network));
+    struct thermo_network* network = malloc(sizeof(struct thermo_network));
 
-    network->z = malloc(sizeof(int) * NETWORK_ALLOC_CHUNK);
-    network->n = malloc(sizeof(int) * NETWORK_ALLOC_CHUNK);
-    network->aa = malloc(sizeof(float) * NETWORK_ALLOC_CHUNK);
-    network->x = malloc(sizeof(float) * NETWORK_ALLOC_CHUNK);
-    network->y = malloc(sizeof(float) * NETWORK_ALLOC_CHUNK);
-    network->mass_excess = malloc(sizeof(float) * NETWORK_ALLOC_CHUNK);
-    network->part_func = malloc(sizeof(float*) * NETWORK_ALLOC_CHUNK);
-    network->iso_label = malloc(sizeof(char*) * NETWORK_ALLOC_CHUNK);
+    network->f = malloc(sizeof(struct tnn_f));
+    network->info = malloc(sizeof(struct tnn_info));
+    network->fptr = malloc(sizeof(struct tnn_fptr));
+    network->iptr = malloc(sizeof(struct tnn_iptr));
+
+    network->iptr->z = malloc(sizeof(int) * NETWORK_ALLOC_CHUNK);
+    network->iptr->n = malloc(sizeof(int) * NETWORK_ALLOC_CHUNK);
+
+    network->fptr->aa = malloc(sizeof(float) * NETWORK_ALLOC_CHUNK);
+    network->fptr->x = malloc(sizeof(float) * NETWORK_ALLOC_CHUNK);
+    network->fptr->y = malloc(sizeof(float) * NETWORK_ALLOC_CHUNK);
+    network->fptr->mass_excess =
+        malloc(sizeof(float) * NETWORK_ALLOC_CHUNK);
+
+    network->info->part_func = malloc(sizeof(float*) * NETWORK_ALLOC_CHUNK);
+    network->info->iso_label = malloc(sizeof(char*) * NETWORK_ALLOC_CHUNK);
 
     char line[60];
     char iso_symbol[5];
     int z, n, a;
     float y, mass;
     float pf0, pf1, pf2, pf3, pf4, pf5, pf6, pf7;
-    
+
     // Genuinely atrocious... do NOT let this into release.
-    float temp[24] = {0.1f, 0.15f, 0.2f, 0.3f, 0.4f, 0.5f,
-                                      0.6f, 0.7f,  0.8f, 0.9f, 1.0f, 1.5f,
-                                      2.0f, 2.5f,  3.0f, 3.5f, 4.0f, 4.5f,
-                                      5.0f, 6.0f,  7.0f, 8.0f, 9.0f, 10.0f};
-    network->part_func_temp = malloc(sizeof(float) * PF_ALLOC_CHUNK);
+    float temp[24] = {0.1f, 0.15f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f,
+                      0.8f, 0.9f,  1.0f, 1.5f, 2.0f, 2.5f, 3.0f, 3.5f,
+                      4.0f, 4.5f,  5.0f, 6.0f, 7.0f, 8.0f, 9.0f, 10.0f};
+    network->info->part_func_temp = malloc(sizeof(float) * PF_ALLOC_CHUNK);
     for (int i = 0; i < 24; i++) {
-        network->part_func_temp[i] = temp[i];
+        network->info->part_func_temp[i] = temp[i];
     }
 
     int iso_idx = -1;
@@ -242,15 +249,16 @@ struct network* network_create(struct option_values options) {
             if (options.verbose) {
                 printf("\n%s %d %d %d %f %f\n", iso_symbol, a, z, n, y, mass);
             }
-            network->z[iso_idx] = z;
-            network->n[iso_idx] = n;
-            network->aa[iso_idx] = (float)a;
-            network->y[iso_idx] = y;
-            network->x[iso_idx] = network->aa[iso_idx] * network->y[iso_idx];
-            network->mass_excess[iso_idx] = mass;
-            network->iso_label[iso_idx] =
+            network->iptr->z[iso_idx] = z;
+            network->iptr->n[iso_idx] = n;
+            network->fptr->aa[iso_idx] = (float)a;
+            network->fptr->y[iso_idx] = y;
+            network->fptr->x[iso_idx] = network->fptr->aa[iso_idx] *
+                                              network->fptr->y[iso_idx];
+            network->fptr->mass_excess[iso_idx] = mass;
+            network->info->iso_label[iso_idx] =
                 malloc(sizeof(char) * (strlen(iso_symbol) + 1));
-            strcpy(network->iso_label[iso_idx], iso_symbol);
+            strcpy(network->info->iso_label[iso_idx], iso_symbol);
         } else {
             // Scan and parse a partition function line.
             sscanf(line, "%f %f %f %f %f %f %f %f", &pf0, &pf1, &pf2, &pf3,
@@ -260,21 +268,21 @@ struct network* network_create(struct option_values options) {
                        pf5, pf6, pf7);
             }
             int tin = iso_subindex - 1;
-            if (network->part_func[iso_idx] == NULL) {
-                network->part_func[iso_idx] =
+            if (network->info->part_func[iso_idx] == NULL) {
+                network->info->part_func[iso_idx] =
                     malloc(sizeof(float) * PF_ALLOC_CHUNK);
             }
-            network->part_func[iso_idx][8 * (tin)] = pf0;
-            network->part_func[iso_idx][8 * (tin) + 1] = pf1;
-            network->part_func[iso_idx][8 * (tin) + 2] = pf2;
-            network->part_func[iso_idx][8 * (tin) + 3] = pf3;
-            network->part_func[iso_idx][8 * (tin) + 4] = pf4;
-            network->part_func[iso_idx][8 * (tin) + 5] = pf5;
-            network->part_func[iso_idx][8 * (tin) + 6] = pf6;
-            network->part_func[iso_idx][8 * (tin) + 7] = pf7;
+            network->info->part_func[iso_idx][8 * (tin)] = pf0;
+            network->info->part_func[iso_idx][8 * (tin) + 1] = pf1;
+            network->info->part_func[iso_idx][8 * (tin) + 2] = pf2;
+            network->info->part_func[iso_idx][8 * (tin) + 3] = pf3;
+            network->info->part_func[iso_idx][8 * (tin) + 4] = pf4;
+            network->info->part_func[iso_idx][8 * (tin) + 5] = pf5;
+            network->info->part_func[iso_idx][8 * (tin) + 6] = pf6;
+            network->info->part_func[iso_idx][8 * (tin) + 7] = pf7;
         }
 
-        network->number_species = iso_idx + 1;
+        network->info->number_species = iso_idx + 1;
     }
 
     return network;

@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 struct problem_parameters*
-problem_parameters_create(struct rate_library* rates, struct network* network,
+problem_parameters_create(struct rate_library* rates, struct thermo_network* network,
                           struct option_values options) {
     struct problem_parameters* params =
         malloc(sizeof(struct problem_parameters));
@@ -16,12 +16,12 @@ problem_parameters_create(struct rate_library* rates, struct network* network,
     // reaction_mask_create().
 
     // Number of F+ and F- components for each isotope
-    params->f_plus_number = malloc(sizeof(int) * network->number_species);
-    params->f_minus_number = malloc(sizeof(int) * network->number_species);
+    params->f_plus_number = malloc(sizeof(int) * network->info->number_species);
+    params->f_minus_number = malloc(sizeof(int) * network->info->number_species);
 
-    int* temp_int1 = malloc(sizeof(int) * network->number_species *
+    int* temp_int1 = malloc(sizeof(int) * network->info->number_species *
                             rates->number_reactions / 2);
-    int* temp_int2 = malloc(sizeof(int) * network->number_species *
+    int* temp_int2 = malloc(sizeof(int) * network->info->number_species *
                             rates->number_reactions / 2);
 
     // reaction_mask_create() was formerly parse_f()
@@ -38,24 +38,24 @@ problem_parameters_create(struct rate_library* rates, struct network* network,
     params->f_minus = malloc(sizeof(float) * params->f_minus_total);
     params->f_plus_factor = malloc(sizeof(float) * params->f_plus_total);
     params->f_minus_factor = malloc(sizeof(float) * params->f_minus_total);
-    params->f_plus_sum = malloc(sizeof(float) * network->number_species);
-    params->f_minus_sum = malloc(sizeof(float) * network->number_species);
+    params->f_plus_sum = malloc(sizeof(float) * network->info->number_species);
+    params->f_minus_sum = malloc(sizeof(float) * network->info->number_species);
 
     // Arrays that hold the index of the boundary between different isotopes in
     // the f_plus and f_minus 1D arrays. Since f_plus_max and f_plus_min are
     // related, and likewise f_minus_max and f_minus_min are related, we will
     // only need to pass f_plus_max and f_minus_max to the kernel.
 
-    params->f_plus_max = malloc(sizeof(int) * network->number_species);
-    params->f_plus_min = malloc(sizeof(int) * network->number_species);
-    params->f_minus_max = malloc(sizeof(int) * network->number_species);
-    params->f_minus_min = malloc(sizeof(int) * network->number_species);
+    params->f_plus_max = malloc(sizeof(int) * network->info->number_species);
+    params->f_plus_min = malloc(sizeof(int) * network->info->number_species);
+    params->f_minus_max = malloc(sizeof(int) * network->info->number_species);
+    params->f_minus_min = malloc(sizeof(int) * network->info->number_species);
 
     // Create 1D arrays that will be used to map finite F+ and F- to the Flux
     // array.
 
-    params->f_plus_isotope_cut = malloc(sizeof(int) * network->number_species);
-    params->f_minus_isotope_cut = malloc(sizeof(int) * network->number_species);
+    params->f_plus_isotope_cut = malloc(sizeof(int) * network->info->number_species);
+    params->f_minus_isotope_cut = malloc(sizeof(int) * network->info->number_species);
 
     params->f_plus_isotope_idx =
         (int*)malloc(sizeof(int) * params->f_plus_total);
@@ -69,7 +69,7 @@ problem_parameters_create(struct rate_library* rates, struct network* network,
 
     params->f_plus_isotope_cut[0] = params->f_plus_number[0];
     params->f_minus_isotope_cut[0] = params->f_minus_number[0];
-    for (int i = 1; i < network->number_species; i++) {
+    for (int i = 1; i < network->info->number_species; i++) {
         params->f_plus_isotope_cut[i] =
             params->f_plus_number[i] + params->f_plus_isotope_cut[i - 1];
         params->f_minus_isotope_cut[i] =
@@ -93,10 +93,10 @@ problem_parameters_create(struct rate_library* rates, struct network* network,
     // Diagnostic output
     if (options.verbose) {
         printf("\n\n\nMAX F+ and F- INDEX FOR EACH ISOTOPE:\n");
-        for (int i = 0; i < network->number_species; i++) {
+        for (int i = 0; i < network->info->number_species; i++) {
             printf("\nIsotope index = %d  %s  Max index F+ = %d  Max index F- "
                    "= %d",
-                   i, network->iso_label[i], params->f_plus_isotope_cut[i] - 1,
+                   i, network->info->iso_label[i], params->f_plus_isotope_cut[i] - 1,
                    params->f_minus_isotope_cut[i] - 1);
         }
     }
@@ -112,7 +112,7 @@ problem_parameters_create(struct rate_library* rates, struct network* network,
     // Populate the params->f_plus_min and params->f_plus_max arrays
     params->f_plus_min[0] = 0;
     params->f_plus_max[0] = params->f_plus_number[0] - 1;
-    for (int i = 1; i < network->number_species; i++) {
+    for (int i = 1; i < network->info->number_species; i++) {
         params->f_plus_min[i] = params->f_plus_max[i - 1] + 1;
         params->f_plus_max[i] =
             params->f_plus_min[i] + params->f_plus_number[i] - 1;
@@ -120,7 +120,7 @@ problem_parameters_create(struct rate_library* rates, struct network* network,
     // Populate the params->f_minus_min and params->f_minus_max arrays
     params->f_minus_min[0] = 0;
     params->f_minus_max[0] = params->f_minus_number[0] - 1;
-    for (int i = 1; i < network->number_species; i++) {
+    for (int i = 1; i < network->info->number_species; i++) {
         params->f_minus_min[i] = params->f_minus_max[i - 1] + 1;
         params->f_minus_max[i] =
             params->f_minus_min[i] + params->f_minus_number[i] - 1;
@@ -133,7 +133,7 @@ problem_parameters_create(struct rate_library* rates, struct network* network,
 
     int temp_count_plus = 0;
     int temp_count_minus = 0;
-    for (int i = 0; i < network->number_species; i++) {
+    for (int i = 0; i < network->info->number_species; i++) {
         for (int j = 0; j < rates->number_reactions; j++) {
             if (params->reaction_mask[i][j] > 0) {
                 params->f_plus_factor[temp_count_plus] =
@@ -158,7 +158,7 @@ problem_parameters_create(struct rate_library* rates, struct network* network,
         printf("\n\n\n---------- %d NON-VANISHING F+ SOURCE TERMS ----------\n",
                params->f_plus_total);
         printf("\ndY[%s]/dt = dY[%d]/dt F+ source terms (%d):",
-               network->iso_label[params->f_plus_isotope_idx[0]],
+               network->info->iso_label[params->f_plus_isotope_idx[0]],
                params->f_plus_isotope_idx[0],
                params->f_plus_number[params->f_plus_isotope_idx[0]]);
         for (int i = 0; i < params->f_plus_total; i++) {
@@ -172,7 +172,7 @@ problem_parameters_create(struct rate_library* rates, struct network* network,
                 printf("\n");
                 printf(
                     "\ndY[%s]/dt = dY[%d]/dt F+ source terms (%d):",
-                    network->iso_label[params->f_plus_isotope_idx[i + 1]],
+                    network->info->iso_label[params->f_plus_isotope_idx[i + 1]],
                     params->f_plus_isotope_idx[i + 1],
                     params->f_plus_number[params->f_plus_isotope_idx[i + 1]]);
             }
@@ -181,7 +181,7 @@ problem_parameters_create(struct rate_library* rates, struct network* network,
         printf("\n\n\n---------- %d NON-VANISHING F- SOURCE TERMS ----------\n",
                params->f_minus_total);
         printf("\ndY[%s]/dt = dY[%d]/dt F- source terms (%d):",
-               network->iso_label[params->f_minus_isotope_idx[0]],
+               network->info->iso_label[params->f_minus_isotope_idx[0]],
                params->f_minus_isotope_idx[0],
                params->f_minus_number[params->f_minus_isotope_idx[0]]);
         for (int i = 0; i < params->f_minus_total; i++) {
@@ -196,7 +196,7 @@ problem_parameters_create(struct rate_library* rates, struct network* network,
                 printf("\n");
                 printf(
                     "\ndY[%s]/dt = dY[%d]/dt F- source terms (%d):",
-                    network->iso_label[params->f_minus_isotope_idx[i + 1]],
+                    network->info->iso_label[params->f_minus_isotope_idx[i + 1]],
                     params->f_minus_isotope_idx[i + 1],
                     params->f_minus_number[params->f_minus_isotope_idx[i + 1]]);
             }
@@ -211,11 +211,11 @@ problem_parameters_create(struct rate_library* rates, struct network* network,
     return params;
 }
 
-int** reaction_mask_create(struct rate_library* rates, struct network* network,
+int** reaction_mask_create(struct rate_library* rates, struct thermo_network* network,
                            struct problem_parameters* params,
                            struct option_values options, int* temp_int1, int* temp_int2) {
-    int** mask = malloc(sizeof(int*) * network->number_species);
-    for (int i = 0; i < network->number_species; i++) {
+    int** mask = malloc(sizeof(int*) * network->info->number_species);
+    for (int i = 0; i < network->info->number_species; i++) {
         mask[i] = malloc(sizeof(int) * rates->number_reactions);
     }
 
@@ -227,7 +227,7 @@ int** reaction_mask_create(struct rate_library* rates, struct network* network,
     int increment_plus = 0;
     int increment_minus = 0;
 
-    for (int i = 0; i < network->number_species; i++) {
+    for (int i = 0; i < network->info->number_species; i++) {
         int total = 0;
         int f_plus_number = 0;
         int f_minus_number = 0;
@@ -244,15 +244,15 @@ int** reaction_mask_create(struct rate_library* rates, struct network* network,
 
             // Loop over reactants for this reaction
             for (int k = 0; k < rates->num_react_species[j]; k++) {
-                if (network->z[i] == rates->reactant_z[j][k] &&
-                    network->n[i] == rates->reactant_n[j][k])
+                if (network->iptr->z[i] == rates->reactant_z[j][k] &&
+                    network->iptr->n[i] == rates->reactant_n[j][k])
                     l_total++;
             }
 
             // Loop over products for this reaction
             for (int k = 0; k < rates->num_products[j]; k++) {
-                if (network->z[i] == rates->product_z[j][k] &&
-                    network->n[i] == rates->product_n[j][k])
+                if (network->iptr->z[i] == rates->product_z[j][k] &&
+                    network->iptr->n[i] == rates->product_n[j][k])
                     r_total++;
             }
 
@@ -265,7 +265,7 @@ int** reaction_mask_create(struct rate_library* rates, struct network* network,
                 if (options.verbose) {
                     printf("\n%s reacIndex=%d %s nReac=%d nProd=%d totL=%d "
                            "totR=%d tot=%d F-",
-                           network->iso_label[i], j, rates->reaction_label[j],
+                           network->info->iso_label[i], j, rates->reaction_label[j],
                            rates->num_react_species[j], rates->num_products[j],
                            l_total, r_total, total);
                 }
@@ -276,7 +276,7 @@ int** reaction_mask_create(struct rate_library* rates, struct network* network,
                 if (options.verbose) {
                     printf("\n%s reacIndex=%d %s nReac=%d nProd=%d totL=%d "
                            "totR=%d tot=%d F+",
-                           network->iso_label[i], j, rates->reaction_label[j],
+                           network->info->iso_label[i], j, rates->reaction_label[j],
                            rates->num_react_species[j], rates->num_products[j],
                            l_total, r_total, total);
                 }
@@ -297,7 +297,7 @@ int** reaction_mask_create(struct rate_library* rates, struct network* network,
         increment_minus += f_minus_number;
 
         if (options.verbose) {
-            printf("\n%d %s numF+ = %d numF- = %d", i, network->iso_label[i],
+            printf("\n%d %s numF+ = %d numF- = %d", i, network->info->iso_label[i],
                    f_plus_number, f_minus_number);
         }
     }
@@ -306,7 +306,7 @@ int** reaction_mask_create(struct rate_library* rates, struct network* network,
     printf("\n\nPART OF FLUX-ISOTOPE COMPONENT ARRAY (-n --> F-; +n --> F+ for "
            "given isotope):");
 
-    if (network->number_species != 16 && network->number_species > 25) {
+    if (network->info->number_species != 16 && network->info->number_species > 25) {
         // Comment out this part of the if-block for alpha network to prevent
         // warnings about index being out of bounds. (Doesn't matter in
         // calculation since this block is not reached if it is an alpha network
@@ -315,18 +315,18 @@ int** reaction_mask_create(struct rate_library* rates, struct network* network,
 
         // 		printf("\n\nIndex               Reaction%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s\
 // %5s%5s%5s%5s%5s%5s",
-        // 			network->iso_label[0], network->iso_label[1],
-        // network->iso_label[2], network->iso_label[3], network->iso_label[4],
-        // network->iso_label[5], network->iso_label[6], network->iso_label[7],
-        // network->iso_label[8], network->iso_label[9], network->iso_label[10],
-        // network->iso_label[11], network->iso_label[12],
-        // network->iso_label[13], 			network->iso_label[14],
-        // network->iso_label[15], network->iso_label[16],
-        // network->iso_label[17], network->iso_label[18],
-        // network->iso_label[19], network->iso_label[20],
-        // network->iso_label[21], network->iso_label[22],
-        // network->iso_label[23], network->iso_label[24],
-        // network->iso_label[25]
+        // 			network->info->iso_label[0], network->info->iso_label[1],
+        // network->info->iso_label[2], network->info->iso_label[3], network->info->iso_label[4],
+        // network->info->iso_label[5], network->info->iso_label[6], network->info->iso_label[7],
+        // network->info->iso_label[8], network->info->iso_label[9], network->info->iso_label[10],
+        // network->info->iso_label[11], network->info->iso_label[12],
+        // network->info->iso_label[13], 			network->info->iso_label[14],
+        // network->info->iso_label[15], network->info->iso_label[16],
+        // network->info->iso_label[17], network->info->iso_label[18],
+        // network->info->iso_label[19], network->info->iso_label[20],
+        // network->info->iso_label[21], network->info->iso_label[22],
+        // network->info->iso_label[23], network->info->iso_label[24],
+        // network->info->iso_label[25]
         // 		);
         // 		for(int j=0; j<rates->number_reactions; j++)
         // 		{
@@ -346,18 +346,18 @@ int** reaction_mask_create(struct rate_library* rates, struct network* network,
         // 			);
         // 		}
 
-    } else if (network->number_species > 15) // For alpha networks
+    } else if (network->info->number_species > 15) // For alpha networks
     {
         printf("\n\nIndex               "
                "Reaction%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s",
-               network->iso_label[0], network->iso_label[1],
-               network->iso_label[2], network->iso_label[3],
-               network->iso_label[4], network->iso_label[5],
-               network->iso_label[6], network->iso_label[7],
-               network->iso_label[8], network->iso_label[9],
-               network->iso_label[10], network->iso_label[11],
-               network->iso_label[12], network->iso_label[13],
-               network->iso_label[14], network->iso_label[15]);
+               network->info->iso_label[0], network->info->iso_label[1],
+               network->info->iso_label[2], network->info->iso_label[3],
+               network->info->iso_label[4], network->info->iso_label[5],
+               network->info->iso_label[6], network->info->iso_label[7],
+               network->info->iso_label[8], network->info->iso_label[9],
+               network->info->iso_label[10], network->info->iso_label[11],
+               network->info->iso_label[12], network->info->iso_label[13],
+               network->info->iso_label[14], network->info->iso_label[15]);
         for (int j = 0; j < rates->number_reactions; j++) {
 
             printf("\n %4d %22s %4d %4d %4d %4d %4d %4d %4d %4d %4d %4d %4d "
@@ -371,8 +371,8 @@ int** reaction_mask_create(struct rate_library* rates, struct network* network,
 
     printf("\n\nFLUX SPARSENESS: Non-zero F+ = %d; Non-zero F- = %d, out of %d "
            "x %d = %d possibilities.\n",
-           params->f_plus_total, params->f_minus_total, rates->number_reactions, network->number_species,
-           rates->number_reactions * network->number_species);
+           params->f_plus_total, params->f_minus_total, rates->number_reactions, network->info->number_species,
+           rates->number_reactions * network->info->number_species);
 
     return mask;
 }

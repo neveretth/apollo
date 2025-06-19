@@ -18,7 +18,9 @@ int main(int argc, char** argv) {
 
     struct rate_library* rates = rate_library_create(options);
 
-    struct network* network = network_create(options);
+    struct thermo_network* network = network_create(options);
+    // This could be the approximate form.
+    // ref pass so it can free and reset the ptr.
 
     // ************************
 
@@ -33,22 +35,22 @@ int main(int argc, char** argv) {
     // assuming operator splitting, the temperature and density are assumed
     // constant for the entire network integration on the gPU.
 
-    options.t9 = 6.0f;
-    options.rho = 1.0e8;
+    network->f->t9 = 6.0f;
+    network->f->rho = 1.0e8;
 
     // Set the range of time integration and the initial timestep.  In an
     // operator-split coupling tmax will come from the hydro and dt_init will
     // likely be the last timestep of the previous network integration (for the
     // preceding hydro timestep).
 
-    options.t_max = 1e-11;
-    options.dt_init = 1e-17;
+    network->f->t_max = 1e-11;
+    network->f->dt_init = 1e-17;
 
     float density[3];
 
     density[0] = 1.0f;
-    density[1] = options.rho;
-    density[2] = options.rho * options.rho;
+    density[1] = network->f->rho;
+    density[2] = network->f->rho * network->f->rho;
 
     for (int i = 0; i < rates->number_reactions; i++) {
         rates->prefactor[i] *= (density[rates->num_react_species[i] - 1]);
@@ -64,9 +66,9 @@ int main(int argc, char** argv) {
         problem_parameters_create(rates, network, options);
 
     if (integrate_network(rates, network, params, options) == EXIT_FAILURE) {
-        rate_library_destroy(rates);
-        network_destroy(network);
-        problem_parameters_destroy(params, network->number_species);
+        rate_library_destroy(&rates);
+        network_destroy(&network);
+        problem_parameters_destroy(&params, network->info->number_species);
         fclose(options.rate_library_file);
         fclose(options.network_file);
         return EXIT_FAILURE;
@@ -80,9 +82,9 @@ int main(int argc, char** argv) {
 
     // ************************
 
-    rate_library_destroy(rates);
-    network_destroy(network);
-    problem_parameters_destroy(params, network->number_species);
+    rate_library_destroy(&rates);
+    problem_parameters_destroy(&params, network->info->number_species);
+    network_destroy(&network);
     fclose(options.rate_library_file);
     fclose(options.network_file);
 

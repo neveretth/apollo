@@ -11,10 +11,6 @@ struct option_values {
     int rocm_accel;
     int rocm_debug;
     int halt;
-    float t9;
-    float rho;
-    float t_max;
-    float dt_init;
 };
 
 // Contain rate library data.
@@ -51,22 +47,52 @@ struct rate_library {
     int number_reactions;
 };
 
-// Contain network data.
-struct network {
-    int* z;
-    int* n;
+// Contain thermonuclear network data, intended to be passed between compute
+// kernels. (type float)
+struct thermonuclear_network_float {
+    float t9;
+    float rho;
+    float t_max;
+    float dt_init;
+};
+#define tnn_f thermonuclear_network_float
+
+// Contain thermonuclear network data, intended to be passed between compute
+// kernels. (type float*)
+struct thermonuclear_network_floatptr {
     float* aa;
     float* x;
     float* y;
     float* mass_excess;
-    float* part_func_temp;
-    float** part_func;
-    char** iso_label;
-    int number_species;
 };
+#define tnn_fptr thermonuclear_network_floatptr
 
-// Contain problem parameters,
-// TODO: rename this.
+// Contain thermonuclear network data, intended to be passed between compute
+// kernels. (type int*)
+struct thermonuclear_network_intptr {
+    int* z;
+    int* n;
+};
+#define tnn_iptr thermonuclear_network_intptr
+
+// Contain thermonuclear network info data.
+struct thermonuclear_network_info {
+    int number_species;
+    float* part_func_temp;
+    char** iso_label;
+    float** part_func;
+};
+#define tnn_info thermonuclear_network_info
+
+struct thermonuclear_network {
+    struct tnn_info* info;
+    struct tnn_f* f;
+    struct tnn_fptr* fptr;
+    struct tnn_iptr* iptr;
+};
+#define thermo_network thermonuclear_network
+
+// Contain parameters specific to thermonuclear isotope evolution computation.
 struct problem_parameters {
     int f_plus_total;
     int f_minus_total;
@@ -101,28 +127,31 @@ struct problem_parameters {
     int** reaction_mask;
 };
 
+// Free N pointers at ptr.
+int freenptr(void** ptr, int N);
+
 // Free all memory of source rate_library struct.
-int rate_library_destroy(struct rate_library* src);
+int rate_library_destroy(struct rate_library** src);
 
 // Free all memory of source network struct.
-int network_destroy(struct network* src);
+int network_destroy(struct thermo_network** src);
 
 // Free all memory of source problem_parameters struct.
-int problem_parameters_destroy(struct problem_parameters* src, int species);
+int problem_parameters_destroy(struct problem_parameters** src, int species);
 
-// Print network struct data.
-int network_print(const struct network* network);
+// Print network data.
+int network_print(const struct thermo_network* inter_fptr);
 
 // Print rate_library struct data.
 int rate_library_print(const struct rate_library* rates,
-                       const struct network* network);
+                       const struct thermo_network* network);
 
 // Print abundances present in network.
-int print_abundances(const struct network* network);
+int print_abundances(const struct thermo_network* network);
 
 // Print result data.
 int print_results(const struct rate_library* rates,
-                  const struct network* network,
+                  const struct thermo_network* network,
                   const struct problem_parameters* params);
 
 #endif

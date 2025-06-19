@@ -5,7 +5,7 @@
 
 #include <stdlib.h>
 
-int integrate_network(struct rate_library* rates, struct network* network,
+int integrate_network(struct rate_library* rates, struct thermo_network* network,
                       struct problem_parameters* params,
                       struct option_values options) {
 
@@ -80,24 +80,24 @@ int integrate_network(struct rate_library* rates, struct network* network,
         hipMemcpy(d_f_minus_factor, params->f_minus_factor,
                   sizeof(float) * params->f_minus_total, hipMemcpyHostToDevice);
         void* d_f_plus_sum;
-        hipMalloc(&d_f_plus_sum, sizeof(float) * network->number_species);
+        hipMalloc(&d_f_plus_sum, sizeof(float) * network->info->number_species);
         hipMemcpy(d_f_plus_sum, params->f_plus_sum,
-                  sizeof(float) * network->number_species,
+                  sizeof(float) * network->info->number_species,
                   hipMemcpyHostToDevice);
         void* d_f_minus_sum;
-        hipMalloc(&d_f_minus_sum, sizeof(float) * network->number_species);
+        hipMalloc(&d_f_minus_sum, sizeof(float) * network->info->number_species);
         hipMemcpy(d_f_minus_sum, params->f_minus_sum,
-                  sizeof(float) * network->number_species,
+                  sizeof(float) * network->info->number_species,
                   hipMemcpyHostToDevice);
         void* d_f_plus_max;
-        hipMalloc(&d_f_plus_max, sizeof(float) * network->number_species);
+        hipMalloc(&d_f_plus_max, sizeof(float) * network->info->number_species);
         hipMemcpy(d_f_plus_max, params->f_plus_max,
-                  sizeof(float) * network->number_species,
+                  sizeof(float) * network->info->number_species,
                   hipMemcpyHostToDevice);
         void* d_f_minus_max;
-        hipMalloc(&d_f_minus_max, sizeof(float) * network->number_species);
+        hipMalloc(&d_f_minus_max, sizeof(float) * network->info->number_species);
         hipMemcpy(d_f_minus_max, params->f_minus_max,
-                  sizeof(float) * network->number_species,
+                  sizeof(float) * network->info->number_species,
                   hipMemcpyHostToDevice);
         void* d_f_plus_map;
         hipMalloc(&d_f_plus_map, sizeof(float) * params->f_plus_total);
@@ -108,8 +108,8 @@ int integrate_network(struct rate_library* rates, struct network* network,
         hipMemcpy(d_f_minus_map, params->f_minus_map,
                   sizeof(float) * params->f_minus_total, hipMemcpyHostToDevice);
         void* d_y;
-        hipMalloc(&d_y, sizeof(float) * network->number_species);
-        hipMemcpy(d_y, network->y, sizeof(float) * network->number_species,
+        hipMalloc(&d_y, sizeof(float) * network->info->number_species);
+        hipMemcpy(d_y, network->fptr->y, sizeof(float) * network->info->number_species,
                   hipMemcpyHostToDevice);
         void* d_num_react_species;
         hipMalloc(&d_num_react_species,
@@ -134,7 +134,7 @@ int integrate_network(struct rate_library* rates, struct network* network,
                   hipMemcpyHostToDevice);
         void* d_int_val;
         int* int_val = malloc(sizeof(int) * 5);
-        int_val[0] = network->number_species;
+        int_val[0] = network->info->number_species;
         int_val[1] = rates->number_reactions;
         int_val[2] = params->f_plus_total;
         int_val[3] = params->f_minus_total;
@@ -143,9 +143,9 @@ int integrate_network(struct rate_library* rates, struct network* network,
         hipMemcpy(d_int_val, int_val, sizeof(float) * 5, hipMemcpyHostToDevice);
         void* d_float_val;
         float* float_val = malloc(sizeof(float) * 3);
-        float_val[0] = options.t9;
-        float_val[1] = options.t_max;
-        float_val[2] = options.dt_init;
+        float_val[0] = network->f->t9;
+        float_val[1] = network->f->t_max;
+        float_val[2] = network->f->dt_init;
         hipMalloc(&d_float_val, sizeof(float) * 3);
         hipMemcpy(d_float_val, float_val, sizeof(float) * 3,
                   hipMemcpyHostToDevice);
@@ -207,22 +207,22 @@ int integrate_network(struct rate_library* rates, struct network* network,
         hipMemcpy(params->f_minus_factor, d_f_minus_factor,
                   sizeof(float) * params->f_minus_total, hipMemcpyDeviceToHost);
         hipMemcpy(params->f_plus_sum, d_f_plus_sum,
-                  sizeof(float) * network->number_species,
+                  sizeof(float) * network->info->number_species,
                   hipMemcpyDeviceToHost);
         hipMemcpy(params->f_minus_sum, d_f_minus_sum,
-                  sizeof(float) * network->number_species,
+                  sizeof(float) * network->info->number_species,
                   hipMemcpyDeviceToHost);
         hipMemcpy(params->f_plus_max, d_f_plus_max,
-                  sizeof(float) * network->number_species,
+                  sizeof(float) * network->info->number_species,
                   hipMemcpyDeviceToHost);
         hipMemcpy(params->f_minus_max, d_f_minus_max,
-                  sizeof(float) * network->number_species,
+                  sizeof(float) * network->info->number_species,
                   hipMemcpyDeviceToHost);
         hipMemcpy(params->f_plus_map, d_f_plus_map,
                   sizeof(float) * params->f_plus_total, hipMemcpyDeviceToHost);
         hipMemcpy(params->f_minus_map, d_f_minus_map,
                   sizeof(float) * params->f_minus_total, hipMemcpyDeviceToHost);
-        hipMemcpy(network->y, d_y, sizeof(float) * network->number_species,
+        hipMemcpy(network->fptr->y, d_y, sizeof(float) * network->info->number_species,
                   hipMemcpyDeviceToHost);
         for (int i = 0; i < 34; i++) {
             // I'm just that goddamn lazy.
@@ -238,11 +238,11 @@ int integrate_network(struct rate_library* rates, struct network* network,
                 params->f_plus_factor, params->f_minus_factor,
                 params->f_plus_sum, params->f_minus_sum, params->f_plus_max,
                 params->f_minus_max, params->f_plus_map, params->f_minus_map,
-                network->y, rates->num_react_species, rates->reactant_1,
-                rates->reactant_2, rates->reactant_3, network->number_species,
+                network->fptr->y, rates->num_react_species, rates->reactant_1,
+                rates->reactant_2, rates->reactant_3, network->info->number_species,
                 rates->number_reactions, params->f_plus_total,
-                params->f_minus_total, options.t9, options.t_max,
-                options.dt_init, options.halt) == EXIT_FAILURE) {
+                params->f_minus_total, network->f->t9, network->f->t_max,
+                network->f->dt_init, options.halt) == EXIT_FAILURE) {
             return EXIT_FAILURE;
         }
     }
