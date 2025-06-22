@@ -194,9 +194,9 @@ struct rate_library* rate_library_create(struct option_values options) {
 #define NETWORK_ALLOC_CHUNK 16
 #define PF_ALLOC_CHUNK 24
 
-struct thermo_network* network_create(struct option_values options) {
+struct tnn* network_create(struct option_values options) {
 
-    struct thermo_network* network = malloc(sizeof(struct thermo_network));
+    struct tnn* network = malloc(sizeof(struct tnn));
 
     network->f = malloc(sizeof(struct tnn_f));
     network->info = malloc(sizeof(struct tnn_info));

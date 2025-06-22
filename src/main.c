@@ -18,7 +18,7 @@ int main(int argc, char** argv) {
 
     struct rate_library* rates = rate_library_create(options);
 
-    struct thermo_network* network = network_create(options);
+    struct tnn* network = network_create(options);
     // This could be the approximate form.
     // ref pass so it can free and reset the ptr.
 

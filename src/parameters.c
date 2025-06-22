@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 struct problem_parameters*
-problem_parameters_create(struct rate_library* rates, struct thermo_network* network,
+problem_parameters_create(struct rate_library* rates, struct tnn* network,
                           struct option_values options) {
     struct problem_parameters* params =
         malloc(sizeof(struct problem_parameters));
@@ -211,7 +211,7 @@ problem_parameters_create(struct rate_library* rates, struct thermo_network* net
     return params;
 }
 
-int** reaction_mask_create(struct rate_library* rates, struct thermo_network* network,
+int** reaction_mask_create(struct rate_library* rates, struct tnn* network,
                            struct problem_parameters* params,
                            struct option_values options, int* temp_int1, int* temp_int2) {
     int** mask = malloc(sizeof(int*) * network->info->number_species);

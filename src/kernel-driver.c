@@ -5,7 +5,7 @@
 
 #include <stdlib.h>
 
-int integrate_network(struct rate_library* rates, struct thermo_network* network,
+int integrate_network(struct rate_library* rates, struct tnn* network,
                       struct problem_parameters* params,
                       struct option_values options) {
 
