@@ -13,6 +13,9 @@ struct option_values {
     int rocm_accel;
     int rocm_debug;
     int halt;
+    int thermo_debug;
+    int neutrino_debug;
+    int hydro_debug;
 };
 
 // Free N pointers at ptr.
