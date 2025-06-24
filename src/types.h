@@ -9,6 +9,7 @@
 struct option_values {
     FILE* rate_library_file;
     FILE* network_file;
+    FILE* neutrino_file;
     int verbose;
     int rocm_accel;
     int rocm_debug;

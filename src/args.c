@@ -22,6 +22,8 @@ static char* help_string_thermo =
 
 static char* help_string_neutrino =
     "\n *** Neutrino ***\n"
+    "  --neutrino-file <file>  \n"
+    "                    specify file to use for initial neutrino data\n"
     "  --neutrino-debug  debug neutrino computation\n";
 
 static char* help_string_hydro = "\n *** Hydro ***\n"
@@ -37,6 +39,7 @@ struct option_values parse_args(int argc, char** argv) {
     struct option_values options;
     options.rate_library_file = NULL;
     options.network_file = NULL;
+    options.neutrino_file = NULL;
     options.verbose = 0;
     options.rocm_debug = 0;
     options.rocm_accel = 0;
@@ -82,6 +85,14 @@ struct option_values parse_args(int argc, char** argv) {
                 }
                 printf("using network: %s\n", argv[i + 1]);
                 i++;
+            } else if (strcmp(argv[i], "--neutrino-file") == 0) {
+                options.neutrino_file = fopen(argv[i + 1], "r");
+                if (options.neutrino_file == NULL) {
+                    printf("%s", help_string);
+                    exit(1);
+                }
+                printf("using neutrino file: %s\n", argv[i + 1]);
+                i++;
             } else {
                 printf("unknown flag: %s\n", argv[i]);
                 printf("%s", help_string);
@@ -98,6 +109,10 @@ struct option_values parse_args(int argc, char** argv) {
         }
     }
     if (options.neutrino_debug) {
+        if (options.neutrino_file == NULL) {
+            printf("%s", help_string_neutrino);
+            exit(1);
+        }
     }
     if (options.hydro_debug) {
     }
