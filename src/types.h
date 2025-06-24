@@ -1,6 +1,7 @@
 #ifndef __TYPES_H
 #define __TYPES_H
 
+#include "neutrino-types.h"
 #include "tnn-types.h"
 
 #include <stdio.h>
@@ -26,8 +27,11 @@ int freenptr(void** ptr, int N);
 int print_abundances(const struct tnn* network);
 
 // Print result data.
-int print_results(const struct rate_library* rates,
-                  const struct tnn* network,
+int print_results(const struct rate_library* rates, const struct tnn* network,
                   const struct problem_parameters* params);
+
+// Clean up all options given passed to code, freeing pointers, clearing caches,
+// etc.
+int options_clean(struct option_values options);
 
 #endif

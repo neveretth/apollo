@@ -58,8 +58,6 @@ int thermo_debug(struct option_values options) {
         rate_library_destroy(&rates);
         network_destroy(&network);
         problem_parameters_destroy(&params, network->info->number_species);
-        fclose(options.rate_library_file);
-        fclose(options.network_file);
         return EXIT_FAILURE;
     }
 

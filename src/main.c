@@ -19,26 +19,24 @@ int main(int argc, char** argv) {
 
     if (options.thermo_debug) {
         if (thermo_debug(options) == EXIT_FAILURE) {
+            options_clean(options);
             return EXIT_FAILURE;
         }
     }
     if (options.neutrino_debug) {
         if (neutrino_debug(options) == EXIT_FAILURE) {
+            options_clean(options);
             return EXIT_FAILURE;
         }
     }
     if (options.hydro_debug) {
         if (hydro_debug(options) == EXIT_FAILURE) {
+            options_clean(options);
             return EXIT_FAILURE;
         }
     }
 
-    if (options.rate_library_file != NULL) {
-        fclose(options.rate_library_file);
-    }
-    if (options.network_file != NULL) {
-        fclose(options.network_file);
-    }
+    options_clean(options);
 
     return EXIT_SUCCESS;
 }

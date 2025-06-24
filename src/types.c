@@ -72,3 +72,16 @@ int print_results(const struct rate_library* rates, const struct tnn* network,
     printf("\n\ntotalF+ = %7.4e  totalF- = %7.4e", f_plus_total, f_minus_total);
     return EXIT_SUCCESS;
 }
+
+int options_clean(struct option_values options) {
+    if (options.thermo_debug) {
+        fclose(options.network_file);
+        fclose(options.rate_library_file);
+    }
+    if (options.neutrino_debug) {
+        fclose(options.neutrino_file);
+    }
+    if (options.hydro_debug) {
+    }
+    return EXIT_SUCCESS;
+}
