@@ -3,6 +3,9 @@
 #include <stdlib.h>
 
 int freenptr(void** ptr, int len) {
+    if (ptr == NULL) {
+        return EXIT_SUCCESS;
+    }
     for (int i = 0; i < len; i++) {
         free(ptr[i]);
     }
@@ -23,8 +26,7 @@ int print_abundances(const struct tnn* network) {
     return EXIT_SUCCESS;
 }
 
-int print_results(const struct rate_library* rates,
-                  const struct tnn* network,
+int print_results(const struct rate_library* rates, const struct tnn* network,
                   const struct problem_parameters* params) {
     printf("\n\nFINAL F+ VALUES:\n");
     for (int i = 0; i < params->f_plus_total; i++) {
