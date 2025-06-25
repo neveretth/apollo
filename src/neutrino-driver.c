@@ -22,11 +22,14 @@ int neutrino_debug(struct option_values options) {
     network->f->g_b = 1.0e+02;
     network->f->g_c = sqrt(50.0);
     network->f->err = 0.0;
+    options.halt = 10000;
 
     if (neunet_integrate_network(network, options) == EXIT_FAILURE) {
         neunet_destroy(&network);
         return EXIT_FAILURE;
     }
+
+    neunet_print(network);
 
     neunet_destroy(&network);
     

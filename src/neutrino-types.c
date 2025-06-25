@@ -17,3 +17,11 @@ int neunet_destroy(struct neunet** __src) {
     *__src = NULL;
     return EXIT_SUCCESS;
 }
+
+int neunet_print(struct neunet* src) {
+    for (int i = 0; i < src->info->num_groups; i++) {
+        printf("%f ", src->fptr->n_old[i]);
+    }
+    printf("\n");
+    return EXIT_SUCCESS;
+}

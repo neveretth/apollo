@@ -231,7 +231,7 @@ int tnn_integrate_network(struct rate_library* rates, struct tnn* network,
         free(args);
         free(device);
     } else {
-        if (integration_kernel(
+        if (tnn_integration_kernel(
                 rates->p0, rates->p1, rates->p2, rates->p3, rates->p4,
                 rates->p5, rates->p6, rates->prefactor, rates->q_value,
                 rates->rate, rates->flux, params->f_plus, params->f_minus,
@@ -254,7 +254,9 @@ int neunet_integrate_network(struct neunet* network, struct option_values option
     if (options.rocm_accel) {
         printf("Not implemented\n");
     } else {
-        printf("Not implemented\n");
+        if (neunet_integration_kernel(network->info->rate_in, network->info->rate_out, network->fptr->n_old, network->fptr->ec, network->fptr->dv, network->f->dt, network->f->t_end, network->f->EpsA, network->f->EpsR, network->f->g_a, network->f->g_b, network->f->g_c, network->info->num_groups, options.halt) == EXIT_FAILURE) {
+            return EXIT_FAILURE;
+        }
     }
     return EXIT_SUCCESS;
 }

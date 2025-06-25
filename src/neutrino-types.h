@@ -44,6 +44,10 @@ struct neunet {
     struct neunet_info* info;
 };
 
+// Free all data in neutrino network, setting source to NULL.
 int neunet_destroy(struct neunet** __src);
+
+// Print information in source.
+int neunet_print(struct neunet* src);
 
 #endif

@@ -11,3 +11,4 @@ change regularly.
 
 ## Acknowledgment
 - Dr. Michael Guidry (University of Tennessee, Knoxville)
+- Adam Cole (University of Tennessee, Knoxville)
