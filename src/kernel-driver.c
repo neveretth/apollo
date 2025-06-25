@@ -5,7 +5,7 @@
 
 #include <stdlib.h>
 
-int integrate_network(struct rate_library* rates, struct tnn* network,
+int tnn_integrate_network(struct rate_library* rates, struct tnn* network,
                       struct problem_parameters* params,
                       struct option_values options) {
 
@@ -247,5 +247,14 @@ int integrate_network(struct rate_library* rates, struct tnn* network,
         }
     }
 
+    return EXIT_SUCCESS;
+}
+
+int neunet_integrate_network(struct neunet* network, struct option_values options) {
+    if (options.rocm_accel) {
+        printf("Not implemented\n");
+    } else {
+        printf("Not implemented\n");
+    }
     return EXIT_SUCCESS;
 }

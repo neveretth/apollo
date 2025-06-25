@@ -5,12 +5,13 @@
 #include "tnn-types.h"
 
 #include <stdio.h>
+#include <H5Include.h>
 
 // Contain values for all options when calling program.
 struct option_values {
     FILE* rate_library_file;
     FILE* network_file;
-    FILE* neutrino_file;
+    hid_t neutrino_file;
     int verbose;
     int rocm_accel;
     int rocm_debug;

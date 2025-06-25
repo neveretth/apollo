@@ -3,8 +3,10 @@
 
 #include "types.h"
 
-int integrate_network(struct rate_library* rates, struct tnn* network,
+int tnn_integrate_network(struct rate_library* rates, struct tnn* network,
                       struct problem_parameters* params,
                       struct option_values options);
+
+int neunet_integrate_network(struct neunet* network, struct option_values options);
 
 #endif

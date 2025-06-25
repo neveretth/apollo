@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <H5Include.h>
 
 static char* help_string =
     "apollo: An astrophysics solver.\n\n  help: apollo --help\n";
@@ -26,8 +27,9 @@ static char* help_string_neutrino =
     "                    specify file to use for initial neutrino data\n"
     "  --neutrino-debug  debug neutrino computation\n";
 
-static char* help_string_hydro = "\n *** Hydro ***\n"
-                                 "  --hydro-debug     debug hydro computation\n";
+static char* help_string_hydro =
+    "\n *** Hydro ***\n"
+    "  --hydro-debug     debug hydro computation\n";
 
 struct option_values parse_args(int argc, char** argv) {
 
@@ -39,7 +41,7 @@ struct option_values parse_args(int argc, char** argv) {
     struct option_values options;
     options.rate_library_file = NULL;
     options.network_file = NULL;
-    options.neutrino_file = NULL;
+    options.neutrino_file = 0;
     options.verbose = 0;
     options.rocm_debug = 0;
     options.rocm_accel = 0;
@@ -86,10 +88,18 @@ struct option_values parse_args(int argc, char** argv) {
                 printf("using network: %s\n", argv[i + 1]);
                 i++;
             } else if (strcmp(argv[i], "--neutrino-file") == 0) {
-                options.neutrino_file = fopen(argv[i + 1], "r");
-                if (options.neutrino_file == NULL) {
-                    printf("%s", help_string);
-                    exit(1);
+                hid_t fapl;
+                hsize_t size;
+                if ((fapl = H5Pcreate(H5P_FILE_ACCESS)) == H5I_INVALID_HID) {
+                    printf(
+                        "==apollo== H5 error: cannot find file (dirty exit)");
+                    exit(123);
+                }
+                if ((options.neutrino_file = H5Fopen(argv[i + 1], H5F_ACC_RDONLY, fapl)) ==
+                    H5I_INVALID_HID) {
+                    printf(
+                        "==apollo== H5 error: cannot open file (dirty exit)");
+                    exit(123);
                 }
                 printf("using neutrino file: %s\n", argv[i + 1]);
                 i++;
@@ -109,7 +119,7 @@ struct option_values parse_args(int argc, char** argv) {
         }
     }
     if (options.neutrino_debug) {
-        if (options.neutrino_file == NULL) {
+        if (options.neutrino_file == 0) {
             printf("%s", help_string_neutrino);
             exit(1);
         }

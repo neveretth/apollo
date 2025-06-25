@@ -1,6 +1,7 @@
 #include "types.h"
 
 #include <stdlib.h>
+#include <H5Include.h>
 
 int freenptr(void** ptr, int len) {
     if (ptr == NULL) {
@@ -79,7 +80,7 @@ int options_clean(struct option_values options) {
         fclose(options.rate_library_file);
     }
     if (options.neutrino_debug) {
-        fclose(options.neutrino_file);
+        H5Fclose(options.neutrino_file);
     }
     if (options.hydro_debug) {
     }
