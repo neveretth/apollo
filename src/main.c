@@ -3,6 +3,7 @@
 #include "hydro-driver.h"
 #include "neutrino-driver.h"
 #include "tnn-driver.h"
+#include "full-driver.h"
 
 #include <stdlib.h>
 
@@ -31,6 +32,12 @@ int main(int argc, char** argv) {
     }
     if (options.hydro_debug) {
         if (hydro_debug(options) == EXIT_FAILURE) {
+            options_clean(options);
+            return EXIT_FAILURE;
+        }
+    }
+    if (options.full) {
+        if (full_simple(options) == EXIT_FAILURE) {
             options_clean(options);
             return EXIT_FAILURE;
         }

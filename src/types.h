@@ -20,6 +20,7 @@ struct option_values {
     int thermo_debug;
     int neutrino_debug;
     int hydro_debug;
+    int full;
 };
 
 // Free N pointers at ptr.

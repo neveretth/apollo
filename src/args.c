@@ -48,6 +48,7 @@ struct option_values parse_args(int argc, char** argv) {
     options.thermo_debug = 0;
     options.neutrino_debug = 0;
     options.hydro_debug = 0;
+    options.full = 0;
 
     // Not a lot of safety here...
     if (argc > 1) {
@@ -71,6 +72,8 @@ struct option_values parse_args(int argc, char** argv) {
                 options.neutrino_debug = 1;
             } else if (strcmp(argv[i], "--hydro-debug") == 0) {
                 options.hydro_debug = 1;
+            } else if (strcmp(argv[i], "--full") == 0) {
+                options.full = 1;
             } else if (strcmp(argv[i], "--rate-library") == 0) {
                 options.rate_library_file = fopen(argv[i + 1], "r");
                 if (options.rate_library_file == NULL) {
@@ -125,6 +128,16 @@ struct option_values parse_args(int argc, char** argv) {
         }
     }
     if (options.hydro_debug) {
+    }
+    if (options.full) {
+        if (options.neutrino_file == 0) {
+            printf("%s", help_string_neutrino);
+            exit(1);
+        }
+        if (options.rate_library_file == NULL || options.network_file == NULL) {
+            printf("%s", help_string_thermo);
+            exit(1);
+        }
     }
 
     return options;
