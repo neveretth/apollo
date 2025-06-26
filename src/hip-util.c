@@ -1,5 +1,5 @@
 #include "hip-util.h"
-#include "kernel.h"
+#include "kernel/kernel.h"
 #include <hip/hip_runtime.h>
 
 struct hipDeviceProp_t* get_hip_device() {

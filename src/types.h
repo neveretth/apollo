@@ -1,9 +1,9 @@
 #ifndef __TYPES_H
 #define __TYPES_H
 
-#include "neutrino-types.h"
-#include "tnn-types.h"
-#include "hydro-types.h"
+#include "types/neutrino-types.h"
+#include "types/tnn-types.h"
+#include "types/hydro-types.h"
 
 #include <stdio.h>
 #include <H5Include.h>

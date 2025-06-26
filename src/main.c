@@ -1,9 +1,6 @@
 #include "args.h"
 #include "hip-util.h"
-#include "hydro-driver.h"
-#include "neutrino-driver.h"
-#include "tnn-driver.h"
-#include "full-driver.h"
+#include "driver.h"
 
 #include <stdlib.h>
 

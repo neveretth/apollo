@@ -1,0 +1,19 @@
+test: apollo
+	/bin/time \
+	-f "\n| Time: %e | CPU: %P | User: %U | Kernel: %S | MinPF: %R | MajPF: %F |" \
+	$(APOLLO_RUN_CMD)
+	
+test-mem: apollo
+	@echo "Valgrind WILL BREAK YOUR SYSTEM"
+	@echo "A new mem check solution is being worked on!"
+	# valgrind $(APOLLO_RUN_CMD)
+
+PROFILEFLAGS = CPUPROFILE=/tmp/prof.out
+test-prof: apollo
+	rm $(BUILD_DIR)/apollo
+	$(HIPCC) $(BUILD_DIR)/src/*.o -o $(BUILD_DIR)/apollo $(CLIBS) -lprofiler
+	
+	$(PROFILEFLAGS) $(APOLLO_RUN_CMD)
+	
+	pprof ./build/apollo /tmp/prof.out
+

@@ -1,6 +1,6 @@
 #include "tnn-types.h"
 
-#include "types.h"
+#include "../types.h"
 
 #include <stdlib.h>
 

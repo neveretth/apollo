@@ -1,5 +1,5 @@
 #include "neutrino-types.h"
-#include "types.h"
+#include "../types.h"
 
 #include <stdlib.h>
 

@@ -1,7 +1,7 @@
 #include "kernel-driver.h"
 
-#include "hip-util.h"
-#include "kernel.h"
+#include "../hip-util.h"
+#include "../kernel/kernel.h"
 
 #include <stdlib.h>
 

@@ -1,6 +1,5 @@
 #include "hydro-driver.h"
 #include "kernel-driver.h"
-#include "types.h"
 
 #include <stdlib.h>
 

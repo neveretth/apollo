@@ -1,8 +1,8 @@
 #include "full-driver.h"
 
 #include "kernel-driver.h"
-#include "parameters.h"
-#include "parse-data.h"
+#include "../parameters.h"
+#include "../parse-data.h"
 
 #include <stdlib.h>
 #include <math.h>

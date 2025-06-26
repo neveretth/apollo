@@ -1,6 +1,6 @@
 #include "neutrino-driver.h"
 
-#include "parse-data.h"
+#include "../parse-data.h"
 #include "kernel-driver.h"
 
 #include <stdlib.h>
