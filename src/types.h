@@ -3,6 +3,7 @@
 
 #include "neutrino-types.h"
 #include "tnn-types.h"
+#include "hydro-types.h"
 
 #include <stdio.h>
 #include <H5Include.h>

@@ -4,9 +4,13 @@
 #include "types.h"
 
 int tnn_integrate_network(struct rate_library* rates, struct tnn* network,
-                      struct problem_parameters* params,
-                      struct option_values options);
+                          struct problem_parameters* params,
+                          struct option_values options);
 
-int neunet_integrate_network(struct neunet* network, struct option_values options);
+int neunet_integrate_network(struct neunet* network,
+                             struct option_values options);
+
+int hydro_integrate_mesh(struct hydro_mesh* params,
+                         struct option_values options);
 
 #endif

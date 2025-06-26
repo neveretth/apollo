@@ -19,9 +19,9 @@ test: apollo
 	-f "\n| Time: %e | CPU: %P | User: %U | Kernel: %S | MinPF: %R | MajPF: %F |" \
 	./build/apollo \
 	--hydro-debug \
-	--neutrino-file data/FENNData40M186.h5 \
-	--rate-library data/rateLibrary_alpha.data \
-	--network data/CUDAnet_alpha.inp \
+	# --neutrino-file data/FENNData40M186.h5 \
+	# --rate-library data/rateLibrary_alpha.data \
+	# --network data/CUDAnet_alpha.inp \
 	# --verbose \
 	# --thermo-debug \
 	# --neutrino-debug \

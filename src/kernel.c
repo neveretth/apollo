@@ -340,3 +340,35 @@ float compute_next_timestep(const float* E_O, const float* E_D, float dt_old,
 
     return dt_new;
 }
+
+int hydro_integration_kernel(float* temp, float* density, float volume, float h,
+                             float dt, int dim) {
+    float* delta_temp = malloc(dim * sizeof(float));
+    float c = 1e8;  // Placeholder contribution value.
+    float area = 1; // Placeholder area of interaction.
+    float ntd = 0;  // Nuclear burning temp diff (assume negligible for now)
+    for (int i = 0; i < dim; i++) {
+        float pdvh = 1 / (density[i] * volume * c);
+        float temp_diff = -(2 * temp[i]);
+        // NOTE: these if statments are EXTREMELY FUCKING BAD
+        // but they work for now and are easy to work with...
+        // Do ABSOLUTELY NOT let this into release!
+        if (i > 0) {
+            temp_diff += temp[i - 1];
+        } else {
+            temp_diff += temp[i];
+        }
+        if (i < dim - 1) {
+            temp_diff += temp[i + 1];
+        } else {
+            temp_diff += temp[i];
+        }
+        delta_temp[i] = dt * (pdvh * (ntd + (h * area * temp_diff)));
+    }
+    // Yes, these need to be separate.
+    for (int i = 0; i < dim; i++) {
+        temp[i] += delta_temp[i];
+    }
+
+    return EXIT_SUCCESS;
+}

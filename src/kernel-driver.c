@@ -6,8 +6,8 @@
 #include <stdlib.h>
 
 int tnn_integrate_network(struct rate_library* rates, struct tnn* network,
-                      struct problem_parameters* params,
-                      struct option_values options) {
+                          struct problem_parameters* params,
+                          struct option_values options) {
 
     if (options.rocm_accel) {
         struct hipDeviceProp_t* device = get_hip_device();
@@ -85,7 +85,8 @@ int tnn_integrate_network(struct rate_library* rates, struct tnn* network,
                   sizeof(float) * network->info->number_species,
                   hipMemcpyHostToDevice);
         void* d_f_minus_sum;
-        hipMalloc(&d_f_minus_sum, sizeof(float) * network->info->number_species);
+        hipMalloc(&d_f_minus_sum,
+                  sizeof(float) * network->info->number_species);
         hipMemcpy(d_f_minus_sum, params->f_minus_sum,
                   sizeof(float) * network->info->number_species,
                   hipMemcpyHostToDevice);
@@ -95,7 +96,8 @@ int tnn_integrate_network(struct rate_library* rates, struct tnn* network,
                   sizeof(float) * network->info->number_species,
                   hipMemcpyHostToDevice);
         void* d_f_minus_max;
-        hipMalloc(&d_f_minus_max, sizeof(float) * network->info->number_species);
+        hipMalloc(&d_f_minus_max,
+                  sizeof(float) * network->info->number_species);
         hipMemcpy(d_f_minus_max, params->f_minus_max,
                   sizeof(float) * network->info->number_species,
                   hipMemcpyHostToDevice);
@@ -109,7 +111,8 @@ int tnn_integrate_network(struct rate_library* rates, struct tnn* network,
                   sizeof(float) * params->f_minus_total, hipMemcpyHostToDevice);
         void* d_y;
         hipMalloc(&d_y, sizeof(float) * network->info->number_species);
-        hipMemcpy(d_y, network->fptr->y, sizeof(float) * network->info->number_species,
+        hipMemcpy(d_y, network->fptr->y,
+                  sizeof(float) * network->info->number_species,
                   hipMemcpyHostToDevice);
         void* d_num_react_species;
         hipMalloc(&d_num_react_species,
@@ -222,7 +225,8 @@ int tnn_integrate_network(struct rate_library* rates, struct tnn* network,
                   sizeof(float) * params->f_plus_total, hipMemcpyDeviceToHost);
         hipMemcpy(params->f_minus_map, d_f_minus_map,
                   sizeof(float) * params->f_minus_total, hipMemcpyDeviceToHost);
-        hipMemcpy(network->fptr->y, d_y, sizeof(float) * network->info->number_species,
+        hipMemcpy(network->fptr->y, d_y,
+                  sizeof(float) * network->info->number_species,
                   hipMemcpyDeviceToHost);
         for (int i = 0; i < 34; i++) {
             // I'm just that goddamn lazy.
@@ -239,10 +243,11 @@ int tnn_integrate_network(struct rate_library* rates, struct tnn* network,
                 params->f_plus_sum, params->f_minus_sum, params->f_plus_max,
                 params->f_minus_max, params->f_plus_map, params->f_minus_map,
                 network->fptr->y, rates->num_react_species, rates->reactant_1,
-                rates->reactant_2, rates->reactant_3, network->info->number_species,
-                rates->number_reactions, params->f_plus_total,
-                params->f_minus_total, network->f->t9, network->f->t_max,
-                network->f->dt_init, options.halt) == EXIT_FAILURE) {
+                rates->reactant_2, rates->reactant_3,
+                network->info->number_species, rates->number_reactions,
+                params->f_plus_total, params->f_minus_total, network->f->t9,
+                network->f->t_max, network->f->dt_init,
+                options.halt) == EXIT_FAILURE) {
             return EXIT_FAILURE;
         }
     }
@@ -250,11 +255,31 @@ int tnn_integrate_network(struct rate_library* rates, struct tnn* network,
     return EXIT_SUCCESS;
 }
 
-int neunet_integrate_network(struct neunet* network, struct option_values options) {
+int neunet_integrate_network(struct neunet* network,
+                             struct option_values options) {
     if (options.rocm_accel) {
         printf("Not implemented\n");
     } else {
-        if (neunet_integration_kernel(network->info->rate_in, network->info->rate_out, network->fptr->n_old, network->fptr->ec, network->fptr->dv, network->f->dt, network->f->t_end, network->f->EpsA, network->f->EpsR, network->f->g_a, network->f->g_b, network->f->g_c, network->info->num_groups, options.halt) == EXIT_FAILURE) {
+        if (neunet_integration_kernel(
+                network->info->rate_in, network->info->rate_out,
+                network->fptr->n_old, network->fptr->ec, network->fptr->dv,
+                network->f->dt, network->f->t_end, network->f->EpsA,
+                network->f->EpsR, network->f->g_a, network->f->g_b,
+                network->f->g_c, network->info->num_groups,
+                options.halt) == EXIT_FAILURE) {
+            return EXIT_FAILURE;
+        }
+    }
+    return EXIT_SUCCESS;
+}
+
+int hydro_integrate_mesh(struct hydro_mesh* params,
+                         struct option_values options) {
+    if (options.rocm_accel) {
+        printf("Not implemented\n");
+    } else {
+        if (hydro_integration_kernel(params->temp, params->density, params->volume, params->h, params->dt,
+                                     params->dim) == EXIT_FAILURE) {
             return EXIT_FAILURE;
         }
     }

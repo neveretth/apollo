@@ -55,6 +55,9 @@ void QSS1(float* N_p, float* Alpha, float* F, float* k, float dt, float* Nold, i
 // Neutrino integration function.
 float compute_next_timestep(const float* E_O, const float* E_D, float dt_old, int n_g);
 
+int hydro_integration_kernel(float* temp, float* density, float volume, float h,
+                             float dt, int dim);
+
 // *****************************
 
 // temp kernel for debugging
