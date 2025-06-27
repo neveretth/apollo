@@ -4,6 +4,9 @@ CFLAGS = -std=c99 -O3 -Wall -Wextra --pedantic -g3
 HIPFLAGS = -x c
 CLIBS = -lm -lhdf5
 
+# Comment out TIME_CMD if you don't want to time Apollo
+TIME_CMD = /bin/time -f "\n| Time: %e | CPU: %P | User: %U | Kernel: %S | MinPF: %R | MajPF: %F |"
+
 APOLLO_RUN_CMD = $(BUILD_DIR)/apollo \
 	--neutrino-file data/FENNData40M186.h5 \
 	--rate-library data/rateLibrary_alpha.data \

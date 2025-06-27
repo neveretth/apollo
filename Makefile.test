@@ -1,6 +1,5 @@
 test: apollo
-	/bin/time \
-	-f "\n| Time: %e | CPU: %P | User: %U | Kernel: %S | MinPF: %R | MajPF: %F |" \
+	$(TIME_CMD) \
 	$(APOLLO_RUN_CMD)
 	
 test-mem: apollo
