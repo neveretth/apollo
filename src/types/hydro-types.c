@@ -13,8 +13,14 @@ int hydro_mesh_destroy(struct hydro_mesh** __src) {
 }
 
 void hydro_mesh_print(struct hydro_mesh* mesh) {
+    printf("Temp: ");
     for (int i = 0; i < mesh->dim; i++) {
         printf("%f ", mesh->temp[i]);
+    }
+    printf("\n");
+    printf("Density: ");
+    for (int i = 0; i < mesh->dim; i++) {
+        printf("%f ", mesh->density[i]);
     }
     printf("\n");
 }

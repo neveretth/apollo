@@ -20,10 +20,12 @@ problem_parameters_create(struct rate_library* rates, struct tnn* network,
     params->f_minus_number =
         malloc(sizeof(int) * network->info->number_species);
 
-    int* temp_int1 = malloc(sizeof(int) * network->info->number_species *
-                            rates->number_reactions / 2);
-    int* temp_int2 = malloc(sizeof(int) * network->info->number_species *
-                            rates->number_reactions / 2);
+    int* temp_int1 =
+        calloc(network->info->number_species * rates->number_reactions / 2,
+               sizeof(int));
+    int* temp_int2 =
+        calloc(network->info->number_species * rates->number_reactions / 2,
+               sizeof(int));
 
     // reaction_mask_create() was formerly parse_f()
     params->reaction_mask = reaction_mask_create(rates, network, params,

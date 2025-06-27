@@ -12,8 +12,8 @@ APOLLO_RUN_CMD = $(BUILD_DIR)/apollo \
 	--rate-library data/rateLibrary_alpha.data \
 	--network data/CUDAnet_alpha.inp \
 	--full \
-	# --neutrino-debug \
 	# --hydro-debug \
+	# --neutrino-debug \
 	# --verbose \
 	# --thermo-debug \
 	

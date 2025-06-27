@@ -204,7 +204,7 @@ struct tnn* network_create(struct option_values options) {
     struct tnn* network = malloc(sizeof(struct tnn));
 
     network->f = malloc(sizeof(struct tnn_f));
-    network->info = malloc(sizeof(struct tnn_info));
+    network->info = calloc(1, sizeof(struct tnn_info));
     network->fptr = malloc(sizeof(struct tnn_fptr));
     network->iptr = malloc(sizeof(struct tnn_iptr));
 
