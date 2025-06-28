@@ -129,4 +129,10 @@ int network_print(const struct tnn* inter_fptr);
 int rate_library_print(const struct rate_library* rates,
                        const struct tnn* network);
 
+// Return pointer to clone of source rate_library.
+struct rate_library* rate_library_clone(const struct rate_library* src);
+
+// Return pointer to clone of source tnn.
+struct tnn* tnn_clone( const struct tnn* src);
+
 #endif

@@ -14,15 +14,14 @@ int full_simple(struct option_values options) {
     // Assume a linear arrangement of zones (1D) of size DIM
 
     struct tnn** thermo = malloc(DIM * sizeof(struct tnn*));
-    struct rate_library** rates = malloc(DIM * sizeof(struct rate_library*));
+    struct rate_library* rates = malloc(DIM * sizeof(struct rate_library*));
     struct neunet** neutrino = malloc(DIM * sizeof(struct neunet*));
+    rates = rate_library_create(options);
+    thermo[0] = network_create(options);
+    neutrino[0] = neunet_create(options);
     for (int i = 0; i < DIM; i++) {
-        thermo[i] = network_create(options);
-        rates[i] = rate_library_create(options);
-        neutrino[i] = neunet_create(options);
-        // BLOODY AWFUL hack in lieu of a proper clone func...
-        fseek(options.rate_library_file, 0, SEEK_SET);
-        fseek(options.network_file, 0, SEEK_SET);
+        thermo[i] = tnn_clone(thermo[0]);
+        neutrino[i] = neunet_clone(neutrino[0]);
     }
 
     struct hydro_mesh* mesh = malloc(sizeof(struct hydro_mesh));
@@ -47,7 +46,7 @@ int full_simple(struct option_values options) {
         neutrino[i]->f->dt = mesh->dt;
         neutrino[i]->f->dt_new = neutrino[i]->f->dt;
         thermo[i]->f->dt_init = 1e-17;
-        // Density must be very low for the hydro to work correctly in 
+        // Density must be very low for the hydro to work correctly in
         // it's current form... this is a bug.
         // thermo[i]->f->rho = 1.0e8;
         thermo[i]->f->rho = 1.0e0;
@@ -59,7 +58,7 @@ int full_simple(struct option_values options) {
 
     float t = 0;
     float t_end = 1e-08;
-    
+
     for (int i = 0; i < mesh->dim; i++) {
         print_abundances(thermo[i]);
         neunet_print(neutrino[i]);
@@ -98,12 +97,12 @@ int full_simple(struct option_values options) {
             density[0] = 1.0f;
             density[1] = thermo[i]->f->rho;
             density[2] = thermo[i]->f->rho * thermo[i]->f->rho;
-            for (int k = 0; k < rates[i]->number_reactions; k++) {
-                rates[i]->prefactor[k] *=
-                    (density[rates[i]->num_react_species[k] - 1]);
+            for (int k = 0; k < rates->number_reactions; k++) {
+                rates->prefactor[k] *=
+                    (density[rates->num_react_species[k] - 1]);
             }
-            params = problem_parameters_create(rates[i], thermo[i], options);
-            if (tnn_integrate_network(rates[i], thermo[i], params, options) ==
+            params = problem_parameters_create(rates, thermo[i], options);
+            if (tnn_integrate_network(rates, thermo[i], params, options) ==
                 EXIT_FAILURE) {
                 return EXIT_FAILURE;
             }
@@ -128,9 +127,9 @@ int full_simple(struct option_values options) {
 
     for (int i = 0; i < DIM; i++) {
         network_destroy(&(thermo[i]));
-        rate_library_destroy(&(rates[i]));
         neunet_destroy(&(neutrino[i]));
     }
+    rate_library_destroy(&rates);
     hydro_mesh_destroy(&mesh);
 
     return EXIT_SUCCESS;

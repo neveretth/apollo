@@ -16,3 +16,5 @@ test-prof: apollo
 	
 	pprof ./build/apollo /tmp/prof.out
 
+test-gdb: apollo
+	gdb --args $(APOLLO_RUN_CMD)
