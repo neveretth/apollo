@@ -11,7 +11,8 @@ static char* help_string =
 static char* help_string_extra =
     "\n  --help            print this info\n"
     "  --rocm-accel      accelerate with rocm\n"
-    "  --rocm-debug      debug rocm without running compute kernel\n";
+    "  --rocm-debug      debug rocm without running compute kernel\n"
+    "  --full            run full-scale simulation\n";
 
 static char* help_string_thermo =
     "\n *** Thermonuclear ***\n"
@@ -113,18 +114,20 @@ struct option_values parse_args(int argc, char** argv) {
             }
         }
     }
+    
+    int fail = 0;
 
     // Review dependencies...
     if (options.thermo_debug) {
         if (options.rate_library_file == NULL || options.network_file == NULL) {
             printf("%s", help_string_thermo);
-            exit(1);
+            fail++;
         }
     }
     if (options.neutrino_debug) {
         if (options.neutrino_file == 0) {
             printf("%s", help_string_neutrino);
-            exit(1);
+            fail++;
         }
     }
     if (options.hydro_debug) {
@@ -132,12 +135,16 @@ struct option_values parse_args(int argc, char** argv) {
     if (options.full) {
         if (options.neutrino_file == 0) {
             printf("%s", help_string_neutrino);
-            exit(1);
+            fail++;
         }
         if (options.rate_library_file == NULL || options.network_file == NULL) {
             printf("%s", help_string_thermo);
-            exit(1);
+            fail++;
         }
+    }
+
+    if (fail) {
+        exit(1);
     }
 
     return options;
