@@ -81,7 +81,7 @@ struct option_values parse_args(int argc, char** argv) {
                     printf("%s", help_string);
                     exit(1);
                 }
-                printf("using rate library: %s\n", argv[i + 1]);
+                printf("==apollo== using rate library: %s\n", argv[i + 1]);
                 i++;
             } else if (strcmp(argv[i], "--network") == 0) {
                 options.network_file = fopen(argv[i + 1], "r");
@@ -89,26 +89,26 @@ struct option_values parse_args(int argc, char** argv) {
                     printf("%s", help_string);
                     exit(1);
                 }
-                printf("using network: %s\n", argv[i + 1]);
+                printf("==apollo== using network: %s\n", argv[i + 1]);
                 i++;
             } else if (strcmp(argv[i], "--neutrino-file") == 0) {
                 hid_t fapl;
                 hsize_t size;
                 if ((fapl = H5Pcreate(H5P_FILE_ACCESS)) == H5I_INVALID_HID) {
                     printf(
-                        "==apollo== H5 error: cannot find file (dirty exit)");
+                        "==apollo== ERROR: cannot find file (dirty exit)");
                     exit(123);
                 }
                 if ((options.neutrino_file = H5Fopen(argv[i + 1], H5F_ACC_RDONLY, fapl)) ==
                     H5I_INVALID_HID) {
                     printf(
-                        "==apollo== H5 error: cannot open file (dirty exit)");
+                        "==apollo== ERROR: cannot open file (dirty exit)");
                     exit(123);
                 }
-                printf("using neutrino file: %s\n", argv[i + 1]);
+                printf("==apollo== using neutrino file: %s\n", argv[i + 1]);
                 i++;
             } else {
-                printf("unknown flag: %s\n", argv[i]);
+                printf("==apollo== ERROR: unknown flag: %s\n", argv[i]);
                 printf("%s", help_string);
                 exit(1);
             }

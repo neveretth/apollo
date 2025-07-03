@@ -5,7 +5,7 @@
 struct hipDeviceProp_t* get_hip_device() {
     int num_devices = 0;
     if (hipGetDeviceCount(&num_devices)) {
-        printf("apollo: error getting number of devices\n");
+        printf("==apollo== ERROR: getting number of devices\n");
         return NULL;
     }
 
@@ -16,7 +16,7 @@ struct hipDeviceProp_t* get_hip_device() {
     for (int i = 0; i < num_devices; i++) {
         struct hipDeviceProp_t temp_device;
         if (hipGetDevicePropertiesR0600(&temp_device, i)) {
-            printf("apollo: error getting device properties\n");
+            printf("==apollo== ERROR: cannot get device properties\n");
             exit(1);
         }
         // clockRate * 1000 since HIP reports it in kHz
@@ -36,7 +36,7 @@ struct hipDeviceProp_t* get_hip_device() {
         (struct hipDeviceProp_t*)malloc(sizeof(struct hipDeviceProp_t));
 
     if (hipGetDevicePropertiesR0600(device, best_device_id)) {
-        printf("apollo: error getting device properties\n");
+        printf("==apollo== ERROR: cannot get device properties\n");
         return NULL;
     }
 
@@ -76,17 +76,17 @@ int benchmark_device(struct hipDeviceProp_t* device) {
     hipMalloc(&d_A, sizeof(float) * 3);
     hipMalloc(&d_B, sizeof(float) * 3);
     if ((error = hipMalloc(&d_C, sizeof(float) * 3)) != hipSuccess) {
-        printf("==apollo== encountered error allocating device mem: %i\n",
+        printf("==apollo== ERROR: encountered error allocating device mem: %i\n",
                error);
-        return 0;
+        return EXIT_FAILURE;
     }
 
     hipMemcpy(d_A, h_A, 3 * sizeof(float), hipMemcpyHostToDevice);
     hipMemcpy(d_C, h_C, 3 * sizeof(float), hipMemcpyHostToDevice);
     if ((error = hipMemcpy(d_B, h_B, 3 * sizeof(float),
                            hipMemcpyHostToDevice)) != hipSuccess) {
-        printf("==apollo== encountered error hip memcpy: %i\n", error);
-        return 0;
+        printf("==apollo== ERROR: encountered error hip memcpy: %i\n", error);
+        return EXIT_FAILURE;
     }
 
     int sharedmem_allocation = 0 * sizeof(float);
@@ -95,8 +95,8 @@ int benchmark_device(struct hipDeviceProp_t* device) {
     struct dim3 griddim = {1, 1, 1};
     if ((error = hipConfigureCall(griddim, blockdim, sharedmem_allocation,
                                   hipStreamDefault)) != hipSuccess) {
-        printf("==apollo== encountered error configuring kernel: %i\n", error);
-        return 0;
+        printf("==apollo== ERROR: encountered error configuring kernel: %i\n", error);
+        return EXIT_FAILURE;
     }
 
     void** args = malloc(sizeof(void*) * 3);
@@ -107,17 +107,17 @@ int benchmark_device(struct hipDeviceProp_t* device) {
     if ((error = hipLaunchKernel(vector_mult_kernel, griddim, blockdim, args,
                                  sharedmem_allocation, hipStreamDefault)) !=
         hipSuccess) {
-        printf("==apollo== encountered error launching kernel: %i\n", error);
+        printf("==apollo== ERROR: encountered error launching kernel: %i\n", error);
         return 0;
     }
 
     hipMemcpy(h_C, d_C, 3 * sizeof(float), hipMemcpyDeviceToHost);
 
-    printf("Output: {  ");
+    printf("==apollo== Output: {  ");
     for (int i = 0; i < 3; i++) {
         printf("%f  ", h_C[i]);
     }
     printf("}\n");
 
-    return 1;
+    return EXIT_SUCCESS;
 }
