@@ -8,14 +8,14 @@ CLIBS = -lm -lhdf5
 TIME_CMD = /bin/time -f "\n| Time: %e | CPU: %P | User: %U | Kernel: %S | MinPF: %R | MajPF: %F |"
 
 APOLLO_RUN_CMD = $(BUILD_DIR)/apollo \
-	--neutrino-file data/FENNData40M186.h5 \
-	--rate-library data/rateLibrary_alpha.data \
-	--network data/CUDAnet_alpha.inp \
-	--full \
+	--rate-library data/ratelibrary-365.aad \
+	--network data/network-365.aad \
+	--thermo-debug \
+	# --neutrino-file data/FENNData40M186.h5 \
+	# --full \
 	# --neutrino-debug \
 	# --hydro-debug \
 	# --verbose \
-	# --thermo-debug \
 	
 BUILD_DIR = $(PWD)/build
 SOURCE_DIR = $(PWD)/src

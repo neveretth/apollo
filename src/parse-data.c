@@ -9,41 +9,50 @@
 #include <hdf5_hl.h>
 
 #define LABELSIZE 35
-#define ALLOC_CHUNK 48 // for dynamic allocation, 48 is sufficient for alpha
 
 struct rate_library* rate_library_create(struct option_values options) {
+    
+    char* rate_library_filesig = malloc(256 * sizeof(char));
+    fscanf(options.rate_library_file, "%s\n", rate_library_filesig);
+    if (strcmp(rate_library_filesig, "%AAD") != 0) {
+        printf("==apollo== ERROR: given rate library file is invalid.\n");
+        return NULL;
+    }
+
+    int size = 0;
+    fscanf(options.rate_library_file, "%i\n", &size);
 
     struct rate_library* rates = malloc(sizeof(struct rate_library));
 
-    rates->rg_member_idx = malloc(sizeof(int) * ALLOC_CHUNK);
-    rates->rg_class = malloc(sizeof(int) * ALLOC_CHUNK);
-    rates->reaction_label = malloc(sizeof(char*) * ALLOC_CHUNK);
-    rates->reaction_library_class = malloc(sizeof(int) * ALLOC_CHUNK);
-    rates->num_react_species = malloc(sizeof(int) * ALLOC_CHUNK);
-    rates->num_products = malloc(sizeof(int) * ALLOC_CHUNK);
-    rates->is_ec = malloc(sizeof(int) * ALLOC_CHUNK);
-    rates->is_reverse = malloc(sizeof(int) * ALLOC_CHUNK);
-    rates->prefactor = malloc(sizeof(float) * ALLOC_CHUNK);
-    rates->q_value = malloc(sizeof(float) * ALLOC_CHUNK);
-    rates->p0 = malloc(sizeof(float) * ALLOC_CHUNK);
-    rates->p1 = malloc(sizeof(float) * ALLOC_CHUNK);
-    rates->p2 = malloc(sizeof(float) * ALLOC_CHUNK);
-    rates->p3 = malloc(sizeof(float) * ALLOC_CHUNK);
-    rates->p4 = malloc(sizeof(float) * ALLOC_CHUNK);
-    rates->p5 = malloc(sizeof(float) * ALLOC_CHUNK);
-    rates->p6 = malloc(sizeof(float) * ALLOC_CHUNK);
-    rates->reactant_n = malloc(sizeof(int*) * ALLOC_CHUNK);
-    rates->reactant_z = malloc(sizeof(int*) * ALLOC_CHUNK);
-    rates->product_n = malloc(sizeof(int*) * ALLOC_CHUNK);
-    rates->product_z = malloc(sizeof(int*) * ALLOC_CHUNK);
-    rates->reactant_1 = malloc(sizeof(int*) * ALLOC_CHUNK);
-    rates->reactant_2 = malloc(sizeof(int*) * ALLOC_CHUNK);
-    rates->reactant_3 = malloc(sizeof(int*) * ALLOC_CHUNK);
-    rates->reactant_idx = malloc(sizeof(int*) * ALLOC_CHUNK);
-    rates->product_idx = malloc(sizeof(int*) * ALLOC_CHUNK);
+    rates->rg_member_idx = malloc(size * sizeof(int));
+    rates->rg_class = malloc(size * sizeof(int));
+    rates->reaction_label = malloc(size * sizeof(char*));
+    rates->reaction_library_class = malloc(size * sizeof(int));
+    rates->num_react_species = malloc(size * sizeof(int));
+    rates->num_products = malloc(size * sizeof(int));
+    rates->is_ec = malloc(size * sizeof(int));
+    rates->is_reverse = malloc(size * sizeof(int));
+    rates->prefactor = malloc(size * sizeof(float));
+    rates->q_value = malloc(size * sizeof(float));
+    rates->p0 = malloc(size * sizeof(float));
+    rates->p1 = malloc(size * sizeof(float));
+    rates->p2 = malloc(size * sizeof(float));
+    rates->p3 = malloc(size * sizeof(float));
+    rates->p4 = malloc(size * sizeof(float));
+    rates->p5 = malloc(size * sizeof(float));
+    rates->p6 = malloc(size * sizeof(float));
+    rates->reactant_n = malloc(size * sizeof(int*));
+    rates->reactant_z = malloc(size * sizeof(int*));
+    rates->product_n = malloc(size * sizeof(int*));
+    rates->product_z = malloc(size * sizeof(int*));
+    rates->reactant_1 = malloc(size * sizeof(int*));
+    rates->reactant_2 = malloc(size * sizeof(int*));
+    rates->reactant_3 = malloc(size * sizeof(int*));
+    rates->reactant_idx = malloc(size * sizeof(int*));
+    rates->product_idx = malloc(size * sizeof(int*));
 
-    rates->rate = malloc(sizeof(int) * ALLOC_CHUNK);
-    rates->flux = malloc(sizeof(int) * ALLOC_CHUNK);
+    rates->rate = malloc(size * sizeof(int));
+    rates->flux = malloc(size * sizeof(int));
 
     char line[120];
     char reaction_token[LABELSIZE];
@@ -196,10 +205,19 @@ struct rate_library* rate_library_create(struct option_values options) {
     return rates;
 }
 
-#define NETWORK_ALLOC_CHUNK 16
 #define PF_ALLOC_CHUNK 24
 
 struct tnn* network_create(struct option_values options) {
+
+    char* network_filesig = malloc(256 * sizeof(char));
+    fscanf(options.network_file, "%s\n", network_filesig);
+    if (strcmp(network_filesig, "%AAD") != 0) {
+        printf("==apollo== ERROR: given network file is invalid.\n");
+        return NULL;
+    }
+
+    int size = 0;
+    fscanf(options.network_file, "%i\n", &size);
 
     struct tnn* network = malloc(sizeof(struct tnn));
 
@@ -208,16 +226,16 @@ struct tnn* network_create(struct option_values options) {
     network->fptr = malloc(sizeof(struct tnn_fptr));
     network->iptr = malloc(sizeof(struct tnn_iptr));
 
-    network->iptr->z = malloc(sizeof(int) * NETWORK_ALLOC_CHUNK);
-    network->iptr->n = malloc(sizeof(int) * NETWORK_ALLOC_CHUNK);
+    network->iptr->z = malloc(size * sizeof(int));
+    network->iptr->n = malloc(size * sizeof(int));
 
-    network->fptr->aa = malloc(sizeof(float) * NETWORK_ALLOC_CHUNK);
-    network->fptr->x = malloc(sizeof(float) * NETWORK_ALLOC_CHUNK);
-    network->fptr->y = malloc(sizeof(float) * NETWORK_ALLOC_CHUNK);
-    network->fptr->mass_excess = malloc(sizeof(float) * NETWORK_ALLOC_CHUNK);
+    network->fptr->aa = malloc(size * sizeof(float));
+    network->fptr->x = malloc(size * sizeof(float));
+    network->fptr->y = malloc(size * sizeof(float));
+    network->fptr->mass_excess = malloc(size * sizeof(float));
 
-    network->info->part_func = malloc(sizeof(float*) * NETWORK_ALLOC_CHUNK);
-    network->info->iso_label = malloc(sizeof(char*) * NETWORK_ALLOC_CHUNK);
+    network->info->part_func = malloc(size * sizeof(float*));
+    network->info->iso_label = malloc(size * sizeof(char*));
 
     char line[60];
     char iso_symbol[5];
@@ -293,7 +311,6 @@ struct tnn* network_create(struct option_values options) {
 }
 
 // "Temporary" workaround until HDF5 is fully integrated..
-// OR dynamic allocation...
 #define NUM_GROUPS 40
 
 // Yet another "temporary" workaround.
@@ -339,8 +356,7 @@ struct neunet* neunet_create(struct option_values options) {
 
     network->fptr->ec =
         hdf5_read_1d(options.neutrino_file, "ProfileInfo/Energy");
-    float* de =
-        hdf5_read_1d(options.neutrino_file, "ProfileInfo/EnergyWidths");
+    float* de = hdf5_read_1d(options.neutrino_file, "ProfileInfo/EnergyWidths");
 
     // Calculating dv based on ec and de
     network->fptr->dv = malloc(sizeof(float) * network->info->num_groups);
@@ -354,16 +370,14 @@ struct neunet* neunet_create(struct option_values options) {
                                3.0;
     }
 
-    
     // Reading in Rho, T, Ye, Mu
-    network->f->mu = hdf5_read(options.neutrino_file,
-                                      "ProfileInfo/Chemical_Potential");
+    network->f->mu =
+        hdf5_read(options.neutrino_file, "ProfileInfo/Chemical_Potential");
     network->f->kt =
         hdf5_read(options.neutrino_file, "ProfileInfo/Temperature");
-    network->f->rho =
-        hdf5_read(options.neutrino_file, "ProfileInfo/Density");
-    network->f->ye = hdf5_read(options.neutrino_file,
-                                      "ProfileInfo/Electron_Fraction");
+    network->f->rho = hdf5_read(options.neutrino_file, "ProfileInfo/Density");
+    network->f->ye =
+        hdf5_read(options.neutrino_file, "ProfileInfo/Electron_Fraction");
 
     char dataset_name[128];
 
@@ -379,9 +393,8 @@ struct neunet* neunet_create(struct option_values options) {
     } else if (scattering_kernel == 4) {
         strcpy(dataset_name, "Opacities/NES_MuonTau"); // Muon-Tau Scattering
     }
-    
-    network->info->rate_in =
-        hdf5_read_2d(options.neutrino_file, dataset_name);
+
+    network->info->rate_in = hdf5_read_2d(options.neutrino_file, dataset_name);
 
     // Invert the bastard. This is slow but it really doesn't matter (for now).
     // O(who cares)
@@ -422,7 +435,8 @@ struct neunet* neunet_create(struct option_values options) {
         }
     }
 
-    network->info->rate_out = malloc(sizeof(float*) * network->info->num_groups);
+    network->info->rate_out =
+        malloc(sizeof(float*) * network->info->num_groups);
     for (int i = 0; i < network->info->num_groups; i++) {
         network->info->rate_out[i] =
             malloc(sizeof(float) * network->info->num_groups);
