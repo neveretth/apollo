@@ -1,7 +1,7 @@
 #ifndef __PARAMETERS_H
 #define __PARAMETERS_H
 
-#include "types.h"
+#include "../types.h"
 
 // Return pointer to problem_parameters struct containing parameters for a
 // simulation from the given network and rate_library.

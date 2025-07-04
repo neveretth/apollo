@@ -25,7 +25,7 @@ default-target: apollo
 clean:
 	rm -rf $(BUILD_DIR)/*
 
-apollo: builddir source kernel driver types
+apollo: builddir source kernel driver types parser
 	$(HIPCC) $(BUILD_DIR)/src/*.o -o $(BUILD_DIR)/apollo $(CLIBS)
 	
 builddir:

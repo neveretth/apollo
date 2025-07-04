@@ -1,7 +1,6 @@
 #include "full-driver.h"
 
-#include "../parameters.h"
-#include "../parse-data.h"
+#include "../parser.h"
 #include "kernel-driver.h"
 
 #include <math.h>

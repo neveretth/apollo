@@ -1,4 +1,4 @@
-#include "parameters.h"
+#include "tnn-parameters.h"
 
 #include <stdio.h>
 #include <stdlib.h>
