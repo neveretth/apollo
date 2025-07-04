@@ -1,5 +1,7 @@
 #include "tnn-parser.h"
 
+#include "validate.h"
+
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,10 +14,7 @@
 
 struct tnn* network_create(struct option_values options) {
 
-    char* network_filesig = malloc(256 * sizeof(char));
-    fscanf(options.network_file, "%s\n", network_filesig);
-    if (strcmp(network_filesig, "%AAD") != 0) {
-        printf("==apollo== ERROR: given network file is invalid.\n");
+    if (validate_file(options.network_file) == EXIT_FAILURE) {
         return NULL;
     }
 

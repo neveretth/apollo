@@ -1,23 +1,22 @@
 #include "rate-library-parser.h"
 
-#include <math.h>
+#include "validate.h"
+
 #include <stdlib.h>
 #include <string.h>
 
 #define LABELSIZE 35
 
 struct rate_library* rate_library_create(struct option_values options) {
-    
-    char* rate_library_filesig = malloc(256 * sizeof(char));
-    fscanf(options.rate_library_file, "%s\n", rate_library_filesig);
-    if (strcmp(rate_library_filesig, "%AAD") != 0) {
-        printf("==apollo== ERROR: given rate library file is invalid.\n");
+
+    if (validate_file(options.rate_library_file) == EXIT_FAILURE) {
         return NULL;
     }
-
+    
+    // This _should_ probably be a library function.
     int size = 0;
     fscanf(options.rate_library_file, "%i\n", &size);
-
+    
     struct rate_library* rates = malloc(sizeof(struct rate_library));
 
     rates->rg_member_idx = malloc(size * sizeof(int));
