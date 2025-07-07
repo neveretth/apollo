@@ -30,7 +30,11 @@ int full_simple(struct option_values options) {
 
     // ************************
 
-    mesh->dt = 1e-11;
+    float t = 0;
+    float t_end = 1e-05;
+
+    mesh->dt = 1e-07;
+    mesh->t_end = 0; // Single-step hydro
     mesh->h = 10e+12;
     mesh->volume = 1;
 
@@ -46,8 +50,8 @@ int full_simple(struct option_values options) {
         neutrino[i]->f->dt_new = neutrino[i]->f->dt;
         thermo[i]->f->dt_init = 1e-17;
         // Density must be very low for the hydro to work correctly in
-        // it's current form... this is a bug.
-        // thermo[i]->f->rho = 1.0e8;
+        // it's current form. When volume/area (size) is implemented, this
+        // _should_ work. (value should be ~1e08)
         thermo[i]->f->rho = 1.0e0;
         // Apply some difference for the sake of testing.
         thermo[i]->f->t9 = 6.0f + (rand() % (2));
@@ -55,36 +59,22 @@ int full_simple(struct option_values options) {
 
     options.halt = 10000;
 
-    float t = 0;
-    float t_end = 1e-08;
-
-    for (int i = 0; i < mesh->dim; i++) {
-        print_abundances(thermo[i]);
-        neunet_print(neutrino[i]);
-    }
-
     // If this fails, it exits in a bloody massacre of memory leaks...
     struct problem_parameters* params;
     while (t < t_end) {
-        printf("Time: %f/%f\n", t, t_end);
+        // printf("Time: %f/%f\n", t, t_end);
         // Transfer data from thermo/neutrino to hydro
         for (int i = 0; i < mesh->dim; i++) {
-            // dt is not updated by the hydro timestep...
-            //  but this is how the dataflow will work.
             thermo[i]->f->t_max = mesh->dt;
             neutrino[i]->f->t_end = mesh->dt;
-            // The Thermonuclear code assumes a unit of 10^9, so account for
-            // that. This is obviously inefficient as all hell, we will must fix
-            // it before release!
+            // Thermo code assumes a unit of 10^9, so account for that.
             mesh->temp[i] = thermo[i]->f->t9 * 1e09;
             mesh->density[i] = thermo[i]->f->rho;
         }
-        hydro_mesh_print(mesh);
         // Hydro integration step
         if (hydro_integrate_mesh(mesh, options) == EXIT_FAILURE) {
             return EXIT_FAILURE;
         }
-        hydro_mesh_print(mesh);
         // Transfer data from hydro to thermo/neutrino
         for (int i = 0; i < mesh->dim; i++) {
             thermo[i]->f->t9 = mesh->temp[i] / 1e09;

@@ -6,6 +6,7 @@ struct hydro_mesh {
     float* density;
     float volume;
     float dt;
+    float t_end;
     float h;
     int dim;
 };

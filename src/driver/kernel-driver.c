@@ -273,13 +273,14 @@ int neunet_integrate_network(struct neunet* network,
     return EXIT_SUCCESS;
 }
 
-int hydro_integrate_mesh(struct hydro_mesh* params,
+int hydro_integrate_mesh(struct hydro_mesh* mesh,
                          struct option_values options) {
     if (options.rocm_accel) {
         printf("Not implemented\n");
     } else {
-        if (hydro_integration_kernel(params->temp, params->density, params->volume, params->h, params->dt,
-                                     params->dim) == EXIT_FAILURE) {
+        if (hydro_integration_kernel(mesh->temp, mesh->density,
+                                     mesh->volume, mesh->h, mesh->dt,
+                                     mesh->t_end, mesh->dim) == EXIT_FAILURE) {
             return EXIT_FAILURE;
         }
     }

@@ -10,11 +10,11 @@ TIME_CMD = /bin/time -f "\n| Time: %e | CPU: %P | User: %U | Kernel: %S | MinPF:
 APOLLO_RUN_CMD = $(BUILD_DIR)/apollo \
 	--rate-library data/ratelibrary-alpha.aad \
 	--network data/network-alpha.aad \
-	--thermo-debug \
-	# --neutrino-file data/FENNData40M186.h5 \
-	# --full \
-	# --neutrino-debug \
+	--neutrino-file data/FENNData40M186.h5 \
+	--full \
+	# --thermo-debug \
 	# --hydro-debug \
+	# --neutrino-debug \
 	# --verbose \
 	
 BUILD_DIR = $(PWD)/build
