@@ -1,6 +1,5 @@
 #include "kernel-driver.h"
 
-#include "../hip-util.h"
 #include "../kernel/kernel.h"
 
 #include <stdlib.h>
@@ -61,6 +60,20 @@ int hydro_integrate_mesh(struct hydro_mesh* mesh,
         if (hydro_integration_kernel(mesh->temp, mesh->density, mesh->volume,
                                      mesh->h, mesh->dt, mesh->t_end,
                                      mesh->dim) == EXIT_FAILURE) {
+            return EXIT_FAILURE;
+        }
+    }
+    return EXIT_SUCCESS;
+}
+
+int hydro_integrate_flat_mesh(struct flat_hydro_mesh* mesh,
+                         struct option_values options) {
+    if (options.rocm_accel) {
+        printf("==apollo== You are running the NON-rocm apollo, try apollo-rocm!\n");
+    } else {
+        if (flat_hydro_integration_kernel(mesh->temp, mesh->density,
+                                     mesh->volume, mesh->h, mesh->dt,
+                                     mesh->t_end, mesh->dim) == EXIT_FAILURE) {
             return EXIT_FAILURE;
         }
     }

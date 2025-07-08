@@ -1,4 +1,5 @@
 #include "hydro-types.h"
+#include "../types.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,4 +24,24 @@ void hydro_mesh_print(struct hydro_mesh* mesh) {
         printf("%f ", mesh->density[i]);
     }
     printf("\n");
+}
+
+void flat_hydro_mesh_print(struct flat_hydro_mesh* mesh) {
+    printf("Temp grid: \n");
+    for (int i = 0; i < mesh->dim[0]; i++) {
+        for (int j = 0; j < mesh->dim[1]; j++) {
+            printf(" %8.3f ", mesh->temp[i][j]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
+
+int flat_hydro_mesh_destroy(struct flat_hydro_mesh** __src) {
+    struct flat_hydro_mesh* src = *__src;
+    freenptr((void*)src->temp, src->dim[0]);
+    freenptr((void*)src->density, src->dim[0]);
+    free(src);
+    *__src = NULL;
+    return EXIT_SUCCESS;
 }

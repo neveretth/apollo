@@ -7,22 +7,22 @@ CLIBS = -lm -lhdf5
 # Comment out TIME_CMD if you don't want to time Apollo
 TIME_CMD = /bin/time -f "\n| Time: %e | CPU: %P | User: %U | Kernel: %S | MinPF: %R | MajPF: %F |"
 
-APOLLO_RUN_CMD = $(BUILD_DIR)/apollo$(ROCM) \
+APOLLO_RUN_CMD = $(BUILD_DIR)/apollo \
 	--rate-library data/ratelibrary-alpha.aad \
 	--network data/network-alpha.aad \
 	--neutrino-file data/FENNData40M186.h5 \
-	--thermo-debug \
+	--hydro-debug \
+	# --thermo-debug \
 	# --neutrino-debug \
 	# --full \
-	# --hydro-debug \
 	# --verbose \
 	
 APOLLO_ROCM_RUN_CMD = $(BUILD_DIR)/apollo-rocm \
 	--rate-library data/ratelibrary-alpha.aad \
 	--network data/network-alpha.aad \
 	--neutrino-file data/FENNData40M186.h5 \
-	--rocm-accel \
 	--thermo-debug \
+	--rocm-accel \
 	# --neutrino-debug \
 	# --full \
 	# --hydro-debug \
