@@ -76,8 +76,9 @@ int benchmark_device(struct hipDeviceProp_t* device) {
     hipMalloc(&d_A, sizeof(float) * 3);
     hipMalloc(&d_B, sizeof(float) * 3);
     if ((error = hipMalloc(&d_C, sizeof(float) * 3)) != hipSuccess) {
-        printf("==apollo== ERROR: encountered error allocating device mem: %i\n",
-               error);
+        printf(
+            "==apollo== ERROR: encountered error allocating device mem: %i\n",
+            error);
         return EXIT_FAILURE;
     }
 
@@ -95,7 +96,8 @@ int benchmark_device(struct hipDeviceProp_t* device) {
     struct dim3 griddim = {1, 1, 1};
     if ((error = hipConfigureCall(griddim, blockdim, sharedmem_allocation,
                                   hipStreamDefault)) != hipSuccess) {
-        printf("==apollo== ERROR: encountered error configuring kernel: %i\n", error);
+        printf("==apollo== ERROR: encountered error configuring kernel: %i\n",
+               error);
         return EXIT_FAILURE;
     }
 
@@ -107,7 +109,8 @@ int benchmark_device(struct hipDeviceProp_t* device) {
     if ((error = hipLaunchKernel(vector_mult_kernel, griddim, blockdim, args,
                                  sharedmem_allocation, hipStreamDefault)) !=
         hipSuccess) {
-        printf("==apollo== ERROR: encountered error launching kernel: %i\n", error);
+        printf("==apollo== ERROR: encountered error launching kernel: %i\n",
+               error);
         return 0;
     }
 
@@ -119,5 +122,16 @@ int benchmark_device(struct hipDeviceProp_t* device) {
     }
     printf("}\n");
 
+    return EXIT_SUCCESS;
+}
+
+int devbuf_create(void** devptr, void* hostptr, int size) {
+    hipMalloc(devptr, size);
+    hipMemcpy(*devptr, hostptr, size, hipMemcpyHostToDevice);
+    return EXIT_SUCCESS;
+}
+
+int devbuf_read(void* hostptr, void** devptr, int size) {
+    hipMemcpy(hostptr, *devptr, size, hipMemcpyDeviceToHost);
     return EXIT_SUCCESS;
 }

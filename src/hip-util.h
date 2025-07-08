@@ -12,4 +12,10 @@ struct hipDeviceProp_t* get_hip_device();
 // test.
 int benchmark_device(struct hipDeviceProp_t* device);
 
+// Create buffer at devptr on parallel accelerator and copy mem from host ptr.
+int devbuf_create(void** devptr, void* hostptr, int size);
+
+// Read data at devptr on parallel accelerator and copy mem to host ptr.
+int devbuf_read(void* hostptr, void** devptr, int size);
+
 #endif

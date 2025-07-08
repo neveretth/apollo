@@ -17,124 +17,64 @@ int tnn_integrate_network(struct rate_library* rates, struct tnn* network,
         struct dim3 griddim = {1, 1, 1};
         int sharedmem_allocation = 0 * sizeof(float);
 
-        void* d_p0;
-        hipMalloc(&d_p0, sizeof(float) * rates->number_reactions);
-        hipMemcpy(d_p0, rates->p0, sizeof(float) * rates->number_reactions,
-                  hipMemcpyHostToDevice);
-        void* d_p1;
-        hipMalloc(&d_p1, sizeof(float) * rates->number_reactions);
-        hipMemcpy(d_p1, rates->p1, sizeof(float) * rates->number_reactions,
-                  hipMemcpyHostToDevice);
-        void* d_p2;
-        hipMalloc(&d_p2, sizeof(float) * rates->number_reactions);
-        hipMemcpy(d_p2, rates->p2, sizeof(float) * rates->number_reactions,
-                  hipMemcpyHostToDevice);
-        void* d_p3;
-        hipMalloc(&d_p3, sizeof(float) * rates->number_reactions);
-        hipMemcpy(d_p3, rates->p3, sizeof(float) * rates->number_reactions,
-                  hipMemcpyHostToDevice);
-        void* d_p4;
-        hipMalloc(&d_p4, sizeof(float) * rates->number_reactions);
-        hipMemcpy(d_p4, rates->p4, sizeof(float) * rates->number_reactions,
-                  hipMemcpyHostToDevice);
-        void* d_p5;
-        hipMalloc(&d_p5, sizeof(float) * rates->number_reactions);
-        hipMemcpy(d_p5, rates->p5, sizeof(float) * rates->number_reactions,
-                  hipMemcpyHostToDevice);
-        void* d_p6;
-        hipMalloc(&d_p6, sizeof(float) * rates->number_reactions);
-        hipMemcpy(d_p6, rates->p6, sizeof(float) * rates->number_reactions,
-                  hipMemcpyHostToDevice);
-        void* d_prefactor;
-        hipMalloc(&d_prefactor, sizeof(float) * rates->number_reactions);
-        hipMemcpy(d_prefactor, rates->prefactor,
-                  sizeof(float) * rates->number_reactions,
-                  hipMemcpyHostToDevice);
-        void* d_q_value;
-        hipMalloc(&d_q_value, sizeof(float) * rates->number_reactions);
-        hipMemcpy(d_q_value, rates->q_value,
-                  sizeof(float) * rates->number_reactions,
-                  hipMemcpyHostToDevice);
-        void* d_rate;
-        hipMalloc(&d_rate, sizeof(float) * rates->number_reactions);
-        hipMemcpy(d_rate, rates->rate, sizeof(float) * rates->number_reactions,
-                  hipMemcpyHostToDevice);
-        void* d_flux;
-        hipMalloc(&d_flux, sizeof(float) * rates->number_reactions);
-        hipMemcpy(d_flux, rates->flux, sizeof(float) * rates->number_reactions,
-                  hipMemcpyHostToDevice);
-        void* d_f_plus;
-        hipMalloc(&d_f_plus, sizeof(float) * params->f_plus_total);
-        hipMemcpy(d_f_plus, params->f_plus,
-                  sizeof(float) * params->f_plus_total, hipMemcpyHostToDevice);
-        void* d_f_minus;
-        hipMalloc(&d_f_minus, sizeof(float) * params->f_minus_total);
-        hipMemcpy(d_f_minus, params->f_minus,
-                  sizeof(float) * params->f_plus_total, hipMemcpyHostToDevice);
-        void* d_f_plus_factor;
-        hipMalloc(&d_f_plus_factor, sizeof(float) * params->f_minus_total);
-        hipMemcpy(d_f_plus_factor, params->f_plus_factor,
-                  sizeof(float) * params->f_plus_total, hipMemcpyHostToDevice);
-        void* d_f_minus_factor;
-        hipMalloc(&d_f_minus_factor, sizeof(float) * params->f_minus_total);
-        hipMemcpy(d_f_minus_factor, params->f_minus_factor,
-                  sizeof(float) * params->f_minus_total, hipMemcpyHostToDevice);
-        void* d_f_plus_sum;
-        hipMalloc(&d_f_plus_sum, sizeof(float) * network->info->number_species);
-        hipMemcpy(d_f_plus_sum, params->f_plus_sum,
-                  sizeof(float) * network->info->number_species,
-                  hipMemcpyHostToDevice);
-        void* d_f_minus_sum;
-        hipMalloc(&d_f_minus_sum,
-                  sizeof(float) * network->info->number_species);
-        hipMemcpy(d_f_minus_sum, params->f_minus_sum,
-                  sizeof(float) * network->info->number_species,
-                  hipMemcpyHostToDevice);
-        void* d_f_plus_max;
-        hipMalloc(&d_f_plus_max, sizeof(float) * network->info->number_species);
-        hipMemcpy(d_f_plus_max, params->f_plus_max,
-                  sizeof(float) * network->info->number_species,
-                  hipMemcpyHostToDevice);
-        void* d_f_minus_max;
-        hipMalloc(&d_f_minus_max,
-                  sizeof(float) * network->info->number_species);
-        hipMemcpy(d_f_minus_max, params->f_minus_max,
-                  sizeof(float) * network->info->number_species,
-                  hipMemcpyHostToDevice);
-        void* d_f_plus_map;
-        hipMalloc(&d_f_plus_map, sizeof(float) * params->f_plus_total);
-        hipMemcpy(d_f_plus_map, params->f_plus_map,
-                  sizeof(float) * params->f_plus_total, hipMemcpyHostToDevice);
-        void* d_f_minus_map;
-        hipMalloc(&d_f_minus_map, sizeof(float) * params->f_minus_total);
-        hipMemcpy(d_f_minus_map, params->f_minus_map,
-                  sizeof(float) * params->f_minus_total, hipMemcpyHostToDevice);
-        void* d_y;
-        hipMalloc(&d_y, sizeof(float) * network->info->number_species);
-        hipMemcpy(d_y, network->fptr->y,
-                  sizeof(float) * network->info->number_species,
-                  hipMemcpyHostToDevice);
-        void* d_num_react_species;
-        hipMalloc(&d_num_react_species,
-                  sizeof(float) * rates->number_reactions);
-        hipMemcpy(d_num_react_species, rates->num_react_species,
-                  sizeof(float) * rates->number_reactions,
-                  hipMemcpyHostToDevice);
-        void* d_reactant_1;
-        hipMalloc(&d_reactant_1, sizeof(float) * rates->number_reactions);
-        hipMemcpy(d_reactant_1, rates->reactant_1,
-                  sizeof(float) * rates->number_reactions,
-                  hipMemcpyHostToDevice);
-        void* d_reactant_2;
-        hipMalloc(&d_reactant_2, sizeof(float) * rates->number_reactions);
-        hipMemcpy(d_reactant_2, rates->reactant_2,
-                  sizeof(float) * rates->number_reactions,
-                  hipMemcpyHostToDevice);
-        void* d_reactant_3;
-        hipMalloc(&d_reactant_3, sizeof(float) * rates->number_reactions);
-        hipMemcpy(d_reactant_3, rates->reactant_3,
-                  sizeof(float) * rates->number_reactions,
-                  hipMemcpyHostToDevice);
+        int number_args = 28;
+        void** args = malloc(sizeof(void*) * number_args);
+        for (int i = 0; i < number_args; i++) {
+            args[i] = malloc(sizeof(void*));
+        }
+        devbuf_create(args[0], rates->p0,
+                      rates->number_reactions * sizeof(float));
+        devbuf_create(args[1], rates->p1,
+                      rates->number_reactions * sizeof(float));
+        devbuf_create(args[2], rates->p2,
+                      rates->number_reactions * sizeof(float));
+        devbuf_create(args[3], rates->p3,
+                      rates->number_reactions * sizeof(float));
+        devbuf_create(args[4], rates->p4,
+                      rates->number_reactions * sizeof(float));
+        devbuf_create(args[5], rates->p5,
+                      rates->number_reactions * sizeof(float));
+        devbuf_create(args[6], rates->p6,
+                      rates->number_reactions * sizeof(float));
+        devbuf_create(args[7], rates->prefactor,
+                      rates->number_reactions * sizeof(float));
+        devbuf_create(args[8], rates->q_value,
+                      rates->number_reactions * sizeof(float));
+        devbuf_create(args[9], rates->rate,
+                      rates->number_reactions * sizeof(float));
+        devbuf_create(args[10], rates->flux,
+                      rates->number_reactions * sizeof(float));
+        devbuf_create(args[11], params->f_plus,
+                      params->f_plus_total * sizeof(float));
+        devbuf_create(args[12], params->f_minus,
+                      params->f_minus_total * sizeof(float));
+        devbuf_create(args[13], params->f_plus_factor,
+                      params->f_plus_total * sizeof(float));
+        devbuf_create(args[14], params->f_minus_factor,
+                      params->f_minus_total * sizeof(float));
+        devbuf_create(args[15], params->f_plus_sum,
+                      network->info->number_species * sizeof(float));
+        devbuf_create(args[16], params->f_minus_sum,
+                      network->info->number_species * sizeof(float));
+        devbuf_create(args[17], params->f_plus_max,
+                      network->info->number_species * sizeof(float));
+        devbuf_create(args[18], params->f_minus_max,
+                      network->info->number_species * sizeof(float));
+        devbuf_create(args[19], params->f_plus_map,
+                      params->f_plus_total * sizeof(float));
+        devbuf_create(args[20], params->f_minus_map,
+                      params->f_minus_total * sizeof(float));
+        devbuf_create(args[21], network->fptr->y,
+                      network->info->number_species * sizeof(float));
+        devbuf_create(args[22], rates->num_react_species,
+                      rates->number_reactions * sizeof(float));
+        devbuf_create(args[23], rates->reactant_1,
+                      rates->number_reactions * sizeof(float));
+        devbuf_create(args[24], rates->reactant_2,
+                      rates->number_reactions * sizeof(float));
+        devbuf_create(args[25], rates->reactant_3,
+                      rates->number_reactions * sizeof(float));
+
         void* d_int_val;
         int* int_val = malloc(sizeof(int) * 5);
         int_val[0] = network->info->number_species;
@@ -142,53 +82,15 @@ int tnn_integrate_network(struct rate_library* rates, struct tnn* network,
         int_val[2] = params->f_plus_total;
         int_val[3] = params->f_minus_total;
         int_val[4] = options.halt;
-        hipMalloc(&d_int_val, sizeof(int) * 5);
-        hipMemcpy(d_int_val, int_val, sizeof(float) * 5, hipMemcpyHostToDevice);
-        void* d_float_val;
+        devbuf_create(args[26], int_val, 5 * sizeof(int));
+        free(int_val);
+        
         float* float_val = malloc(sizeof(float) * 3);
         float_val[0] = network->f->t9;
         float_val[1] = network->f->t_max;
         float_val[2] = network->f->dt_init;
-        hipMalloc(&d_float_val, sizeof(float) * 3);
-        hipMemcpy(d_float_val, float_val, sizeof(float) * 3,
-                  hipMemcpyHostToDevice);
-
-        free(int_val);
+        devbuf_create(args[27], float_val, 3 * sizeof(float));
         free(float_val);
-
-        // This is particularly unpleasant.
-        // There's _supposedly_ a way to do this with hipLaunchKernelGGL(),
-        // but alas HIP documentation is like fondant:
-        // pretty, but it ruins your day.
-        void** args = malloc(sizeof(void*) * 28);
-        args[0] = &d_p0;
-        args[1] = &d_p1;
-        args[2] = &d_p2;
-        args[3] = &d_p3;
-        args[4] = &d_p4;
-        args[5] = &d_p5;
-        args[6] = &d_p6;
-        args[7] = &d_prefactor;
-        args[8] = &d_q_value;
-        args[9] = &d_rate;
-        args[10] = &d_flux;
-        args[11] = &d_f_plus;
-        args[12] = &d_f_minus;
-        args[13] = &d_f_plus_factor;
-        args[14] = &d_f_minus_factor;
-        args[15] = &d_f_plus_sum;
-        args[16] = &d_f_minus_sum;
-        args[17] = &d_f_plus_max;
-        args[18] = &d_f_minus_max;
-        args[19] = &d_f_plus_map;
-        args[20] = &d_f_minus_map;
-        args[21] = &d_y;
-        args[22] = &d_num_react_species;
-        args[23] = &d_reactant_1;
-        args[24] = &d_reactant_2;
-        args[25] = &d_reactant_3;
-        args[26] = &d_int_val;
-        args[27] = &d_float_val;
 
         if ((error = hipLaunchKernel(integration_kernel_hip, griddim, blockdim,
                                      args, sharedmem_allocation,
@@ -197,39 +99,33 @@ int tnn_integrate_network(struct rate_library* rates, struct tnn* network,
                    error);
             return EXIT_FAILURE;
         }
-        hipMemcpy(rates->rate, d_rate, sizeof(float) * rates->number_reactions,
-                  hipMemcpyDeviceToHost);
-        hipMemcpy(rates->flux, d_flux, sizeof(float) * rates->number_reactions,
-                  hipMemcpyDeviceToHost);
-        hipMemcpy(params->f_plus, d_f_plus,
-                  sizeof(float) * params->f_plus_total, hipMemcpyDeviceToHost);
-        hipMemcpy(params->f_minus, d_f_minus,
-                  sizeof(float) * params->f_plus_total, hipMemcpyDeviceToHost);
-        hipMemcpy(params->f_plus_factor, d_f_plus_factor,
-                  sizeof(float) * params->f_plus_total, hipMemcpyDeviceToHost);
-        hipMemcpy(params->f_minus_factor, d_f_minus_factor,
-                  sizeof(float) * params->f_minus_total, hipMemcpyDeviceToHost);
-        hipMemcpy(params->f_plus_sum, d_f_plus_sum,
-                  sizeof(float) * network->info->number_species,
-                  hipMemcpyDeviceToHost);
-        hipMemcpy(params->f_minus_sum, d_f_minus_sum,
-                  sizeof(float) * network->info->number_species,
-                  hipMemcpyDeviceToHost);
-        hipMemcpy(params->f_plus_max, d_f_plus_max,
-                  sizeof(float) * network->info->number_species,
-                  hipMemcpyDeviceToHost);
-        hipMemcpy(params->f_minus_max, d_f_minus_max,
-                  sizeof(float) * network->info->number_species,
-                  hipMemcpyDeviceToHost);
-        hipMemcpy(params->f_plus_map, d_f_plus_map,
-                  sizeof(float) * params->f_plus_total, hipMemcpyDeviceToHost);
-        hipMemcpy(params->f_minus_map, d_f_minus_map,
-                  sizeof(float) * params->f_minus_total, hipMemcpyDeviceToHost);
-        hipMemcpy(network->fptr->y, d_y,
-                  sizeof(float) * network->info->number_species,
-                  hipMemcpyDeviceToHost);
+        devbuf_read(rates->rate, args[9],
+                    sizeof(float) * rates->number_reactions);
+        devbuf_read(rates->flux, args[10],
+                    sizeof(float) * rates->number_reactions);
+        devbuf_read(params->f_plus, args[11],
+                    sizeof(float) * params->f_plus_total);
+        devbuf_read(params->f_minus, args[12],
+                    sizeof(float) * params->f_plus_total);
+        devbuf_read(params->f_plus_factor, args[13],
+                    sizeof(float) * params->f_plus_total);
+        devbuf_read(params->f_minus_factor, args[14],
+                    sizeof(float) * params->f_minus_total);
+        devbuf_read(params->f_plus_sum, args[15],
+                    sizeof(float) * network->info->number_species);
+        devbuf_read(params->f_minus_sum, args[16],
+                    sizeof(float) * network->info->number_species);
+        devbuf_read(params->f_plus_max, args[17],
+                    sizeof(float) * network->info->number_species);
+        devbuf_read(params->f_minus_max, args[18],
+                    sizeof(float) * network->info->number_species);
+        devbuf_read(params->f_plus_map, args[19],
+                    sizeof(float) * params->f_plus_total);
+        devbuf_read(params->f_minus_map, args[20],
+                    sizeof(float) * params->f_minus_total);
+        devbuf_read(network->fptr->y, args[21],
+                    sizeof(float) * network->info->number_species);
         for (int i = 0; i < 34; i++) {
-            // I'm just that goddamn lazy.
             hipFree(args[i]);
         }
         free(args);
@@ -278,9 +174,9 @@ int hydro_integrate_mesh(struct hydro_mesh* mesh,
     if (options.rocm_accel) {
         printf("Not implemented\n");
     } else {
-        if (hydro_integration_kernel(mesh->temp, mesh->density,
-                                     mesh->volume, mesh->h, mesh->dt,
-                                     mesh->t_end, mesh->dim) == EXIT_FAILURE) {
+        if (hydro_integration_kernel(mesh->temp, mesh->density, mesh->volume,
+                                     mesh->h, mesh->dt, mesh->t_end,
+                                     mesh->dim) == EXIT_FAILURE) {
             return EXIT_FAILURE;
         }
     }
