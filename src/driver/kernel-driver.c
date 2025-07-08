@@ -286,3 +286,17 @@ int hydro_integrate_mesh(struct hydro_mesh* mesh,
     }
     return EXIT_SUCCESS;
 }
+
+int hydro_integrate_flat_mesh(struct flat_hydro_mesh* mesh,
+                         struct option_values options) {
+    if (options.rocm_accel) {
+        printf("Not implemented\n");
+    } else {
+        if (flat_hydro_integration_kernel(mesh->temp, mesh->density,
+                                     mesh->volume, mesh->h, mesh->dt,
+                                     mesh->t_end, mesh->dim) == EXIT_FAILURE) {
+            return EXIT_FAILURE;
+        }
+    }
+    return EXIT_SUCCESS;
+}

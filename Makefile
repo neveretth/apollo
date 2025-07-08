@@ -8,12 +8,12 @@ CLIBS = -lm -lhdf5
 TIME_CMD = /bin/time -f "\n| Time: %e | CPU: %P | User: %U | Kernel: %S | MinPF: %R | MajPF: %F |"
 
 APOLLO_RUN_CMD = $(BUILD_DIR)/apollo \
-	--rate-library data/ratelibrary-alpha.aad \
-	--network data/network-alpha.aad \
-	--neutrino-file data/FENNData40M186.h5 \
-	--full \
+	--hydro-debug \
+	# --rate-library data/ratelibrary-alpha.aad \
+	# --network data/network-alpha.aad \
+	# --neutrino-file data/FENNData40M186.h5 \
+	# --full \
 	# --thermo-debug \
-	# --hydro-debug \
 	# --neutrino-debug \
 	# --verbose \
 	
