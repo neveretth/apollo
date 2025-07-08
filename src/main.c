@@ -1,5 +1,4 @@
 #include "args.h"
-#include "hip-util.h"
 #include "driver.h"
 
 #include <stdlib.h>
@@ -9,9 +8,8 @@ int main(int argc, char** argv) {
     struct option_values options = parse_args(argc, argv);
 
     if (options.rocm_debug) {
-        struct hipDeviceProp_t* device = get_hip_device();
-        benchmark_device(device);
-        free(device);
+        printf("==apollo== debug not implemented.");
+        options_clean(options);
         return EXIT_SUCCESS;
     }
 

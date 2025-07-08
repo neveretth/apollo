@@ -18,3 +18,7 @@ test-prof: apollo
 
 test-gdb: apollo
 	gdb --args $(APOLLO_RUN_CMD)
+	
+test-rocm: apollo-rocm
+	$(TIME_CMD) \
+	$(APOLLO_ROCM_RUN_CMD)

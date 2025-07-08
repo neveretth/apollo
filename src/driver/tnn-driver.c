@@ -55,8 +55,8 @@ int thermo_debug(struct option_values options) {
 
     if (tnn_integrate_network(rates, network, params, options) == EXIT_FAILURE) {
         rate_library_destroy(&rates);
-        network_destroy(&network);
         problem_parameters_destroy(&params, network->info->number_species);
+        network_destroy(&network);
         return EXIT_FAILURE;
     }
 
