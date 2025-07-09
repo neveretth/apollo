@@ -1,5 +1,6 @@
 #include "hydro-driver.h"
 #include "kernel-driver.h"
+#include "../display.h"
 
 #include <stdlib.h>
 
@@ -74,8 +75,55 @@ static int flat_hydro_debug(struct option_values options) {
     return EXIT_SUCCESS;
 }
 
+// Debug code for generating a graph (heatmap) of hydro evolution.
+static int flat_hydro_graph_debug(struct option_values options) {
+    struct flat_hydro_mesh* mesh = malloc(sizeof(struct flat_hydro_mesh));
+    mesh->dim[0] = 256;
+    mesh->dim[1] = 256;
+
+    mesh->dt = 1e-8;
+    mesh->h = 10e+12;
+    mesh->volume = 1;
+
+    mesh->temp = malloc(mesh->dim[0] * sizeof(float*));
+    mesh->density = malloc(mesh->dim[0] * sizeof(float*));
+    for (int i = 0; i < mesh->dim[0]; i++) {
+        mesh->temp[i] = malloc(mesh->dim[1] * sizeof(float));
+        mesh->density[i] = malloc(mesh->dim[1] * sizeof(float));
+    }
+
+    for (int i = 0; i < mesh->dim[0]; i++) {
+        for (int j = 0; j < mesh->dim[1]; j++) {
+            mesh->temp[i][j] = 8e+09 + (rand() % (long)1e09);
+            mesh->density[i][j] = 1e0; // Even density for debugging.
+        }
+    }
+
+    float t_end = 1e-4;
+    float t = 0;
+    float t_inter = t_end / 100;
+
+    while (t < t_end) {
+        // Recall that integration kernels always assume the starting time is 0.
+        mesh->t_end = t_inter;
+        print_float_2d(mesh->temp, mesh->dim[0], mesh->dim[1]);
+        if (hydro_integrate_flat_mesh(mesh, options) == EXIT_FAILURE) {
+            flat_hydro_mesh_destroy(&mesh);
+            return EXIT_FAILURE;
+        }
+        t += t_inter;
+    }
+
+    print_float_2d(mesh->temp, mesh->dim[0], mesh->dim[1]);
+
+    flat_hydro_mesh_destroy(&mesh);
+
+    return EXIT_SUCCESS;
+}
+
 int hydro_debug(struct option_values options) {
     // linear_hydro_debug(options);
-    flat_hydro_debug(options);
+    // flat_hydro_debug(options);
+    flat_hydro_graph_debug(options);
     return EXIT_SUCCESS;
 }
