@@ -63,6 +63,9 @@ int hydro_integration_kernel(float* temp, float* density, float volume, float h,
 int flat_hydro_integration_kernel(float** temp, float** density, float volume, float h,
                              float dt, float t_end, int* dim);
 
+int rt_hydro_integration_kernel(float*** temp, float*** density, float volume, float h,
+                             float dt, float t_end, int* dim);
+
 // *****************************
 
 // temp kernel for debugging

@@ -9,7 +9,8 @@ int tnn_integrate_network(struct rate_library* rates, struct tnn* network,
                           struct option_values options) {
 
     if (options.rocm_accel) {
-        printf("==apollo== You are running the NON-rocm apollo, try apollo-rocm!\n");
+        printf("==apollo== You are running the NON-rocm apollo, try "
+               "apollo-rocm!\n");
         return EXIT_FAILURE;
     } else {
         if (tnn_integration_kernel(
@@ -35,7 +36,8 @@ int tnn_integrate_network(struct rate_library* rates, struct tnn* network,
 int neunet_integrate_network(struct neunet* network,
                              struct option_values options) {
     if (options.rocm_accel) {
-        printf("==apollo== You are running the NON-rocm apollo, try apollo-rocm!\n");
+        printf("==apollo== You are running the NON-rocm apollo, try "
+               "apollo-rocm!\n");
         return EXIT_FAILURE;
     } else {
         if (neunet_integration_kernel(
@@ -54,7 +56,8 @@ int neunet_integrate_network(struct neunet* network,
 int hydro_integrate_mesh(struct hydro_mesh* mesh,
                          struct option_values options) {
     if (options.rocm_accel) {
-        printf("==apollo== You are running the NON-rocm apollo, try apollo-rocm!\n");
+        printf("==apollo== You are running the NON-rocm apollo, try "
+               "apollo-rocm!\n");
         return EXIT_FAILURE;
     } else {
         if (hydro_integration_kernel(mesh->temp, mesh->density, mesh->volume,
@@ -67,13 +70,29 @@ int hydro_integrate_mesh(struct hydro_mesh* mesh,
 }
 
 int hydro_integrate_flat_mesh(struct flat_hydro_mesh* mesh,
-                         struct option_values options) {
+                              struct option_values options) {
     if (options.rocm_accel) {
-        printf("==apollo== You are running the NON-rocm apollo, try apollo-rocm!\n");
+        printf("==apollo== You are running the NON-rocm apollo, try "
+               "apollo-rocm!\n");
     } else {
-        if (flat_hydro_integration_kernel(mesh->temp, mesh->density,
-                                     mesh->volume, mesh->h, mesh->dt,
-                                     mesh->t_end, mesh->dim) == EXIT_FAILURE) {
+        if (flat_hydro_integration_kernel(
+                mesh->temp, mesh->density, mesh->volume, mesh->h, mesh->dt,
+                mesh->t_end, mesh->dim) == EXIT_FAILURE) {
+            return EXIT_FAILURE;
+        }
+    }
+    return EXIT_SUCCESS;
+}
+
+int hydro_integrate_rt_mesh(struct rt_hydro_mesh* mesh,
+                            struct option_values options) {
+    if (options.rocm_accel) {
+        printf("==apollo== You are running the NON-rocm apollo, try "
+               "apollo-rocm!\n");
+    } else {
+        if (rt_hydro_integration_kernel(mesh->temp, mesh->density, mesh->volume,
+                                        mesh->h, mesh->dt, mesh->t_end,
+                                        mesh->dim) == EXIT_FAILURE) {
             return EXIT_FAILURE;
         }
     }

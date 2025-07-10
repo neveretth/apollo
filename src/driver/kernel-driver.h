@@ -12,7 +12,11 @@ int neunet_integrate_network(struct neunet* network,
 
 int hydro_integrate_mesh(struct hydro_mesh* mesh,
                          struct option_values options);
+
 int hydro_integrate_flat_mesh(struct flat_hydro_mesh* mesh,
+                         struct option_values options);
+
+int hydro_integrate_rt_mesh(struct rt_hydro_mesh* mesh,
                          struct option_values options);
 
 #endif
