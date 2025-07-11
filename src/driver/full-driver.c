@@ -8,12 +8,13 @@
 
 #define DIM 4
 
+// This is a leaky mess...
 int full_simple(struct option_values options) {
 
     // Assume a linear arrangement of zones (1D) of size DIM
 
     struct tnn** thermo = malloc(DIM * sizeof(struct tnn*));
-    struct rate_library* rates = malloc(DIM * sizeof(struct rate_library*));
+    struct rate_library* rates = malloc(DIM * sizeof(struct rate_library));
     struct neunet** neutrino = malloc(DIM * sizeof(struct neunet*));
     rates = rate_library_create(options);
     thermo[0] = network_create(options);
@@ -118,6 +119,8 @@ int full_simple(struct option_values options) {
         network_destroy(&(thermo[i]));
         neunet_destroy(&(neutrino[i]));
     }
+    free(thermo);
+    free(neutrino);
     rate_library_destroy(&rates);
     hydro_mesh_destroy(&mesh);
 

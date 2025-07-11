@@ -328,8 +328,8 @@ int** reaction_mask_create(struct rate_library* rates, struct tnn* network,
         // with 16 species, but the compile generates a long string of
         // warnings.)  Uncomment to show up to 26 species for larger networks.
 
-        // 		printf("\n\nIndex               Reaction%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s\
-// %5s%5s%5s%5s%5s%5s",
+        // 		printf("\n\nIndex
+        // Reaction%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s%5s",
         // 			network->info->iso_label[0],
         // network->info->iso_label[1], network->info->iso_label[2],
         // network->info->iso_label[3], network->info->iso_label[4],
@@ -348,10 +348,9 @@ int** reaction_mask_create(struct rate_library* rates, struct tnn* network,
         // 		for(int j=0; j<rates->number_reactions; j++)
         // 		{
         //
-        // 			printf(
-        // 				"\n %4d %22s %4d %4d %4d %4d %4d %4d %4d
-        // %4d %4d %4d %4d %4d %4d %4d %4d %4d %4d %4d %4d %4d\
-//  %4d %4d %4d %4d %4d %4d",
+        // 			printf( "\n %4d %22s %4d %4d %4d %4d %4d %4d %4d
+        // %4d %4d %4d %4d %4d %4d %4d %4d %4d %4d %4d %4d %4d
+        //  %4d %4d %4d %4d %4d %4d",
         // 				j, rates->reaction_label[j], mask[0][j],
         // mask[1][j], mask[2][j],
         // mask[3][j], mask[4][j], mask[5][j], mask[6][j],

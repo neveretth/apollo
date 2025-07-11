@@ -179,7 +179,6 @@ int neunet_integration_kernel(float** rate_in, float** rate_out, float* n_old,
     int restep = 0;
     int cycle = 0;
     int true_cycle = 0;
-    float dt_ea;
     float dt_new = dt;
     float t = 0;
 
@@ -193,13 +192,9 @@ int neunet_integration_kernel(float** rate_in, float** rate_out, float* n_old,
     float* fp = malloc(sizeof(float) * n_g);
     float* kp = malloc(sizeof(float) * n_g);
     float* np = malloc(sizeof(float) * n_g);
-    float* exp_kdt = malloc(sizeof(float) * n_g);
-    float* inv_k = malloc(sizeof(float) * n_g);
     float* alpha_0 = malloc(sizeof(float) * n_g);
     float* error_desired = malloc(sizeof(float) * n_g);
     float* error_observed = malloc(sizeof(float) * n_g);
-
-    float* f0_k0;
 
     while (done == 0) {
         true_cycle++;
@@ -260,6 +255,21 @@ int neunet_integration_kernel(float** rate_in, float** rate_out, float* n_old,
             break;
         }
     }
+    
+    free(n_0);
+    free(n_new);
+    free(n_1);
+    free(n_2);
+    free(k0);
+    free(k1);
+    free(f0);
+    free(f1);
+    free(fp);
+    free(kp);
+    free(np);
+    free(alpha_0);
+    free(error_desired);
+    free(error_observed);
 
     return EXIT_SUCCESS;
 }
@@ -286,7 +296,7 @@ void QSS2(float* Nnew, float* f0, float* fp, float* k0, float* kp,
           float* alpha_0, float dt, float* n_old, int n_g) {
     for (int i = 0; i < n_g; i++) {
         Nnew[i] = n_old[i];
-        float Ft;
+        // float Ft;
         float kBAR;
         float rBAR;
         float AlphaBAR;
@@ -296,7 +306,7 @@ void QSS2(float* Nnew, float* f0, float* fp, float* k0, float* kp,
         AlphaBAR =
             ((160 * pow(rBAR, 3)) + (60 * pow(rBAR, 2)) + (11 * rBAR) + 1) /
             ((360 * pow(rBAR, 3)) + (60 * pow(rBAR, 2)) + (12 * rBAR) + 1);
-        Ft = AlphaBAR * fp[i] + (1.0 - AlphaBAR) * f0[i];
+        // Ft = AlphaBAR * fp[i] + (1.0 - AlphaBAR) * f0[i];
         Nnew[i] +=
             dt * (fp[i] - kBAR * n_old[i]) / (1.0 + (alpha_0[i] * kBAR * dt));
     }
@@ -323,7 +333,7 @@ float compute_next_timestep(const float* E_O, const float* E_D, float dt_old,
                             int n_g) {
 
     float E_R = 0.0;
-    for (size_t i = 0; i < n_g; i++) {
+    for (int i = 0; i < n_g; i++) {
         E_R = MAX(E_R, E_O[i] / E_D[i]);
     }
 
@@ -473,6 +483,6 @@ int rt_hydro_integration_kernel(float*** temp, float*** density, float volume,
         free(delta_temp[i]);
     }
     free(delta_temp);
-
+    
     return EXIT_SUCCESS;
 }

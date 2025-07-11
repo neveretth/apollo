@@ -3,7 +3,7 @@ test: apollo
 	$(APOLLO_RUN_CMD)
 	
 test-mem: apollo
-	valgrind --leak-check=full $(APOLLO_RUN_CMD)
+	valgrind --leak-check=full --show-leak-kinds=all $(APOLLO_RUN_CMD)
 
 PROFILEFLAGS = CPUPROFILE=/tmp/prof.out
 test-prof: apollo

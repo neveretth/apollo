@@ -11,10 +11,10 @@ APOLLO_RUN_CMD = $(BUILD_DIR)/apollo \
 	--rate-library data/ratelibrary-alpha.aad \
 	--network data/network-alpha.aad \
 	--neutrino-file data/FENNData40M186.h5 \
-	--hydro-debug \
-	# --thermo-debug \
-	# --neutrino-debug \
+	--neutrino-debug \
 	# --full \
+	# --hydro-debug \
+	# --thermo-debug \
 	# --verbose \
 	
 APOLLO_ROCM_RUN_CMD = $(BUILD_DIR)/apollo-rocm \

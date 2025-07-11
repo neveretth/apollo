@@ -22,6 +22,7 @@ float** hdf5_read_2d(const hid_t file, const char* dataset_name) {
             datagrid[i][k] = data[(i * NUM_GROUPS) + k];
         }
     }
+    free(data);
     return datagrid;
 }
 
@@ -63,6 +64,7 @@ struct neunet* neunet_create(struct option_values options) {
                                     (network->fptr->ec[i] - 0.5 * de[i])) /
                                3.0;
     }
+    free(de);
 
     // Reading in Rho, T, Ye, Mu
     network->f->mu =
@@ -103,8 +105,8 @@ struct neunet* neunet_create(struct option_values options) {
     float c = 2.99792458e10;
 
     // Multiply each element by c
-    for (size_t i = 0; i < network->info->num_groups; ++i) {
-        for (size_t j = 0; j < network->info->num_groups; ++j) {
+    for (int i = 0; i < network->info->num_groups; ++i) {
+        for (int j = 0; j < network->info->num_groups; ++j) {
             network->info->rate_in[i][j] *= c;
         }
     }
@@ -143,6 +145,7 @@ struct neunet* neunet_create(struct option_values options) {
     }
 
     network->fptr->n_old = malloc(sizeof(float) * network->info->num_groups);
+
 
     return network;
 }

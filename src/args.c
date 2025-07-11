@@ -93,7 +93,6 @@ struct option_values parse_args(int argc, char** argv) {
                 i++;
             } else if (strcmp(argv[i], "--neutrino-file") == 0) {
                 hid_t fapl;
-                hsize_t size;
                 if ((fapl = H5Pcreate(H5P_FILE_ACCESS)) == H5I_INVALID_HID) {
                     printf(
                         "==apollo== ERROR: cannot find file (dirty exit)");
