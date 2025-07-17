@@ -38,9 +38,9 @@ struct simulation_properties {
     FILE* network_file;
     hid_t neutrino_file;
     bool output;
-    char* outputdir;
     float t_end;
     int output_tres;
+    FILE* hydro_out_file;
 };
 
 // Free N pointers at ptr.

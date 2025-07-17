@@ -1,2 +1,2 @@
 [base]
-outputdir = "output"
+# For now there is nothing here, this will be for machine specific controls for Apollo.

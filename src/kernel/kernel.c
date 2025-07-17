@@ -434,7 +434,7 @@ int rt_hydro_integration_kernel(float*** temp, float*** density, float volume,
     float*** delta_temp = malloc(dim[0] * sizeof(float*));
     for (int i = 0; i < dim[0]; i++) {
         delta_temp[i] = malloc(dim[1] * sizeof(float*));
-        for (int j = 0; j < dim[0]; j++) {
+        for (int j = 0; j < dim[1]; j++) {
             delta_temp[i][j] = malloc(dim[2] * sizeof(float));
         }
     }

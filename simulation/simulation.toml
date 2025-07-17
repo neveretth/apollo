@@ -13,22 +13,24 @@
 # No info here.
 
 [simulation.time]
-endtime = 1.0 # in seconds
+endtime = 0.01 # in seconds
 # For now dt is in the driver.
 
 [simulation.output]
 output = true
+outputdir = "output"
 tres = 100 # Temporal resolution of output (how many plotfiles)
 # style = "unwrap" # Easy to work with in python.
 
 # No AMR
 [simulation.resolution]
-x = 4
-y = 4
-z = 1
+x = 32
+y = 32
+z = 1 # Setting this to 1 means 2D, and is much friendlier with visualization.
 
 [simulation.hydro]
 use = true
+outputfile = "hydro.out"
 # No input file needed.
 
 [simulation.thermo]
@@ -41,5 +43,5 @@ use = false
 
 # For the python code only.
 [visualization]
-output = true
+save = false
 saveas = "out.mp4"

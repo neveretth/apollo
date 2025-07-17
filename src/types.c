@@ -88,20 +88,19 @@ int options_clean(struct option_values options) {
     return EXIT_SUCCESS;
 }
 
+// This is largely garbage... but I need it to know it will _work_ before I
+// refine it.
 struct simulation_properties
 simulation_properties_create(toml_result_t simulation_toml,
                              toml_result_t config_toml) {
     struct simulation_properties sim_prop;
+    sim_prop.hydro_out_file = NULL;
 
-    toml_datum_t data = toml_seek(config_toml.toptab, "base.outputdir");
-    
+    toml_datum_t data;
+
+
     // CONFIG INFO
-    if (data.type != TOML_STRING) {
-        printf("==apollo== error: base.outputdir is invalid\n");
-        goto exit_fail;
-    }
-    sim_prop.outputdir = malloc((strlen(data.u.s) + 1) * sizeof(char));
-    strcpy(sim_prop.outputdir, data.u.s);
+    // NONE AT THIS TIME.
 
     // OUTPUT
     data = toml_seek(simulation_toml.toptab, "simulation.output.output");
@@ -110,14 +109,26 @@ simulation_properties_create(toml_result_t simulation_toml,
         goto exit_fail;
     }
     sim_prop.output = data.u.boolean;
-    
+
+    // 256 is a reasonable expectation here.
+    char outputdir[256];
+    if (sim_prop.output) {
+        data = toml_seek(simulation_toml.toptab, "simulation.output.outputdir");
+        if (data.type != TOML_STRING) {
+            printf(
+                "==apollo== error: simulation.output.outputdir is invalid\n");
+            goto exit_fail;
+        }
+        strcpy(outputdir, data.u.s);
+    }
+
     data = toml_seek(simulation_toml.toptab, "simulation.output.tres");
     if (data.type != TOML_INT64) {
         printf("==apollo== error: simulation.output.tres is invalid\n");
         goto exit_fail;
     }
     sim_prop.output_tres = data.u.int64;
-    
+
     // TIME
     data = toml_seek(simulation_toml.toptab, "simulation.time.endtime");
     if (data.type != TOML_FP64) {
@@ -155,7 +166,23 @@ simulation_properties_create(toml_result_t simulation_toml,
         goto exit_fail;
     }
     sim_prop.hydro = data.u.boolean;
-    
+
+    if (sim_prop.hydro && sim_prop.output) {
+        data = toml_seek(simulation_toml.toptab, "simulation.hydro.outputfile");
+        if (data.type != TOML_STRING) {
+            printf(
+                "==apollo== error: simulation.hydro.outputfile is invalid\n");
+            goto exit_fail;
+        }
+        char tmp[256];
+        snprintf(tmp, 256, "%s/%s", outputdir, data.u.s);
+        sim_prop.hydro_out_file = fopen(tmp, "wa");
+        if (sim_prop.hydro_out_file == NULL) {
+            printf("==apollo== error: could not open file: %s\n", tmp);
+            goto exit_fail;
+        }
+    }
+
     // THERMO
     data = toml_seek(simulation_toml.toptab, "simulation.thermo.use");
     if (data.type != TOML_BOOLEAN) {
@@ -163,7 +190,7 @@ simulation_properties_create(toml_result_t simulation_toml,
         goto exit_fail;
     }
     sim_prop.thermo = data.u.boolean;
-    
+
     // NEUTRINO
     data = toml_seek(simulation_toml.toptab, "simulation.neutrino.use");
     if (data.type != TOML_BOOLEAN) {

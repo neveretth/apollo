@@ -1,7 +1,7 @@
 #include "unified-driver.h"
 
-#include "kernel-driver.h"
 #include "../display.h"
+#include "kernel-driver.h"
 
 #include <stdlib.h>
 
@@ -14,7 +14,7 @@ int unified_driver(struct simulation_properties sim_prop,
     mesh->dim[2] = sim_prop.resolution[2];
 
     // Eventually move these to TOML
-    mesh->dt = 1e-4;
+    // mesh->dt = 1e-4;
     mesh->h = 10e+10;
     mesh->volume = 1;
 
@@ -42,12 +42,14 @@ int unified_driver(struct simulation_properties sim_prop,
     }
 
     float t_end = sim_prop.t_end;
+    mesh->dt = t_end / 1000;
     float t = 0;
     float tres = sim_prop.output_tres;
     float t_inter = t_end / tres;
 
-    print_float_3d(mesh->temp, mesh->dim[0], mesh->dim[1], mesh->dim[2]);
-    
+    fprint_float_3d(sim_prop.hydro_out_file, mesh->temp, mesh->dim[0],
+                    mesh->dim[1], mesh->dim[2]);
+
     while (t < t_end) {
         mesh->t_end = t_inter;
         if (sim_prop.hydro) {
@@ -64,12 +66,11 @@ int unified_driver(struct simulation_properties sim_prop,
             printf("not implemented\n");
             goto exit_fail;
         }
+        fprint_float_3d(sim_prop.hydro_out_file, mesh->temp, mesh->dim[0],
+                        mesh->dim[1], mesh->dim[2]);
         t += t_inter;
-        // printf("time: %f/%f\n", t, t_end);
+        printf("time: %f/%f\n", t, t_end);
     }
-    printf("\n");
-
-    print_float_3d(mesh->temp, mesh->dim[0], mesh->dim[1], mesh->dim[2]);
 
     rt_hydro_mesh_destroy(&mesh);
     return EXIT_SUCCESS;
