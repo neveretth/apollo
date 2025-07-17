@@ -8,12 +8,14 @@ CLIBS = -lm -lhdf5
 TIME_CMD = /bin/time -f "\n| Time: %e | CPU: %P | User: %U | Kernel: %S | MinPF: %R | MajPF: %F |"
 
 APOLLO_RUN_CMD = $(BUILD_DIR)/apollo \
-	--rate-library data/ratelibrary-alpha.aad \
-	--network data/network-alpha.aad \
-	--neutrino-file data/FENNData40M186.h5 \
-	--neutrino-debug \
-	# --full \
+	-C config/config.toml \
+	-S simulation/simulation.toml \
 	# --hydro-debug \
+	# --rate-library data/ratelibrary-alpha.aad \
+	# --network data/network-alpha.aad \
+	# --neutrino-file data/FENNData40M186.h5 \
+	# --neutrino-debug \
+	# --full \
 	# --thermo-debug \
 	# --verbose \
 	
@@ -36,10 +38,10 @@ default-target: apollo apollo-rocm
 clean:
 	rm -rf $(BUILD_DIR)/*
 
-apollo: builddir source kernel driver types parser
+apollo: builddir source kernel driver types parser toml
 	$(CC) $(BUILD_DIR)/src/*.o -o $(BUILD_DIR)/apollo $(CLIBS)
 	
-apollo-rocm: builddir source-rocm kernel-rocm driver-rocm types parser
+apollo-rocm: builddir source-rocm kernel-rocm driver-rocm types parser toml
 	@# shitty hack to remove duplicate symbol.
 	rm -rf $(BUILD_DIR)/src/kernel-driver.c.o
 	$(HIPCC) $(BUILD_DIR)/src/*.o $(BUILD_DIR)/src/rocm/*.o -o $(BUILD_DIR)/apollo-rocm $(CLIBS)

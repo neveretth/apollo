@@ -1,7 +1,8 @@
 #include "types.h"
 
-#include <stdlib.h>
 #include <H5Include.h>
+#include <stdlib.h>
+#include <string.h>
 
 int freenptr(void** ptr, int len) {
     if (ptr == NULL) {
@@ -85,4 +86,95 @@ int options_clean(struct option_values options) {
     if (options.hydro_debug) {
     }
     return EXIT_SUCCESS;
+}
+
+struct simulation_properties
+simulation_properties_create(toml_result_t simulation_toml,
+                             toml_result_t config_toml) {
+    struct simulation_properties sim_prop;
+
+    toml_datum_t data = toml_seek(config_toml.toptab, "base.outputdir");
+    
+    // CONFIG INFO
+    if (data.type != TOML_STRING) {
+        printf("==apollo== error: base.outputdir is invalid\n");
+        goto exit_fail;
+    }
+    sim_prop.outputdir = malloc((strlen(data.u.s) + 1) * sizeof(char));
+    strcpy(sim_prop.outputdir, data.u.s);
+
+    // OUTPUT
+    data = toml_seek(simulation_toml.toptab, "simulation.output.output");
+    if (data.type != TOML_BOOLEAN) {
+        printf("==apollo== error: simulation.output.output is invalid\n");
+        goto exit_fail;
+    }
+    sim_prop.output = data.u.boolean;
+    
+    data = toml_seek(simulation_toml.toptab, "simulation.output.tres");
+    if (data.type != TOML_INT64) {
+        printf("==apollo== error: simulation.output.tres is invalid\n");
+        goto exit_fail;
+    }
+    sim_prop.output_tres = data.u.int64;
+    
+    // TIME
+    data = toml_seek(simulation_toml.toptab, "simulation.time.endtime");
+    if (data.type != TOML_FP64) {
+        printf("==apollo== error: simulation.time.endtime is invalid\n");
+        goto exit_fail;
+    }
+    sim_prop.t_end = data.u.fp64;
+
+    // RESOLUTION
+    data = toml_seek(simulation_toml.toptab, "simulation.resolution.x");
+    if (data.type != TOML_INT64) {
+        printf("==apollo== error: simulation.output.x is invalid\n");
+        goto exit_fail;
+    }
+    sim_prop.resolution[0] = data.u.int64;
+
+    data = toml_seek(simulation_toml.toptab, "simulation.resolution.y");
+    if (data.type != TOML_INT64) {
+        printf("==apollo== error: simulation.output.y is invalid\n");
+        goto exit_fail;
+    }
+    sim_prop.resolution[1] = data.u.int64;
+
+    data = toml_seek(simulation_toml.toptab, "simulation.resolution.z");
+    if (data.type != TOML_INT64) {
+        printf("==apollo== error: simulation.output.z is invalid\n");
+        goto exit_fail;
+    }
+    sim_prop.resolution[2] = data.u.int64;
+
+    // HYDRO
+    data = toml_seek(simulation_toml.toptab, "simulation.hydro.use");
+    if (data.type != TOML_BOOLEAN) {
+        printf("==apollo== error: simulation.hydro.use is invalid\n");
+        goto exit_fail;
+    }
+    sim_prop.hydro = data.u.boolean;
+    
+    // THERMO
+    data = toml_seek(simulation_toml.toptab, "simulation.thermo.use");
+    if (data.type != TOML_BOOLEAN) {
+        printf("==apollo== error: simulation.thermo.use is invalid\n");
+        goto exit_fail;
+    }
+    sim_prop.thermo = data.u.boolean;
+    
+    // NEUTRINO
+    data = toml_seek(simulation_toml.toptab, "simulation.neutrino.use");
+    if (data.type != TOML_BOOLEAN) {
+        printf("==apollo== error: simulation.neutrino.use is invalid\n");
+        goto exit_fail;
+    }
+    sim_prop.neutrino = data.u.boolean;
+
+    return sim_prop;
+exit_fail:
+    toml_free(config_toml);
+    toml_free(simulation_toml);
+    exit(1);
 }

@@ -1,17 +1,22 @@
 #ifndef __TYPES_H
 #define __TYPES_H
 
+#include "toml/tomlc17.h"
+#include "types/hydro-types.h"
 #include "types/neutrino-types.h"
 #include "types/tnn-types.h"
-#include "types/hydro-types.h"
 
-#include <stdio.h>
 #include <H5Include.h>
+#include <stdio.h>
+
+#include <stdbool.h>
 
 // Contain values for all options when calling program.
 struct option_values {
     FILE* rate_library_file;
     FILE* network_file;
+    char* config_file;
+    char* simulation_file;
     hid_t neutrino_file;
     int verbose;
     int rocm_accel;
@@ -21,6 +26,21 @@ struct option_values {
     int neutrino_debug;
     int hydro_debug;
     int full;
+};
+
+struct simulation_properties {
+    int sequence;
+    int resolution[3];
+    bool hydro;
+    bool thermo;
+    bool neutrino;
+    FILE* rate_library_file;
+    FILE* network_file;
+    hid_t neutrino_file;
+    bool output;
+    char* outputdir;
+    float t_end;
+    int output_tres;
 };
 
 // Free N pointers at ptr.
@@ -36,5 +56,9 @@ int print_results(const struct rate_library* rates, const struct tnn* network,
 // Clean up all options given passed to code, freeing pointers, clearing caches,
 // etc.
 int options_clean(struct option_values options);
+
+// Return simulation_properties from toml_result_t, exiting if failure occurs.
+struct simulation_properties
+simulation_properties_create(toml_result_t simulation_toml, toml_result_t config_toml);
 
 #endif

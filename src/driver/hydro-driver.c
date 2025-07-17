@@ -124,11 +124,11 @@ static int flat_hydro_graph_debug(struct option_values options) {
 
 static int rt_hydro_graph_debug(struct option_values options) {
     struct rt_hydro_mesh* mesh = malloc(sizeof(struct rt_hydro_mesh));
-    mesh->dim[0] = 16;
-    mesh->dim[1] = 16;
-    mesh->dim[2] = 16;
+    mesh->dim[0] = 8;
+    mesh->dim[1] = 8;
+    mesh->dim[2] = 8;
 
-    mesh->dt = 1e-8;
+    mesh->dt = 1e-4;
     mesh->h = 10e+10;
     mesh->volume = 1;
 
@@ -145,7 +145,7 @@ static int rt_hydro_graph_debug(struct option_values options) {
 
     for (int i = 0; i < mesh->dim[0]; i++) {
         for (int j = 0; j < mesh->dim[1]; j++) {
-            for (int k = 0; k < mesh->dim[1]; k++) {
+            for (int k = 0; k < mesh->dim[2]; k++) {
                 float k_ = k;
                 mesh->temp[i][j][k] = 8e+09 + ((16 / (k_ + 1)) * (rand() % (long)1e09));
                 mesh->density[i][j][k] = 1e0; // Even density for debugging.
@@ -153,14 +153,15 @@ static int rt_hydro_graph_debug(struct option_values options) {
         }
     }
 
-    float t_end = 1e-4;
+    float t_end = 1e00;
     float t = 0;
-    float t_inter = t_end / 100;
+    float t_inter = t_end / 800;
 
     while (t < t_end) {
         // Recall that integration kernels always assume the starting time is 0.
         mesh->t_end = t_inter;
-        print_float_3d(mesh->temp, mesh->dim[0], mesh->dim[1], mesh->dim[2]);
+        // print_float_3d(mesh->temp, mesh->dim[0], mesh->dim[1], mesh->dim[2]);
+        // printf("time: %f/%f\n", t, t_end);
         if (hydro_integrate_rt_mesh(mesh, options) == EXIT_FAILURE) {
             rt_hydro_mesh_destroy(&mesh);
             return EXIT_FAILURE;

@@ -1,9 +1,9 @@
 #include "args.h"
 
+#include <H5Include.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <H5Include.h>
 
 static char* help_string =
     "apollo: An astrophysics solver.\n\n  help: apollo --help\n";
@@ -51,6 +51,9 @@ struct option_values parse_args(int argc, char** argv) {
     options.hydro_debug = 0;
     options.full = 0;
 
+    options.config_file = NULL;
+    options.simulation_file = NULL;
+
     // Not a lot of safety here...
     if (argc > 1) {
         for (int i = 1; i < argc; i++) {
@@ -61,6 +64,12 @@ struct option_values parse_args(int argc, char** argv) {
                 printf("%s", help_string_neutrino);
                 printf("%s", help_string_hydro);
                 exit(0);
+            } else if (strcmp(argv[i], "-C") == 0) {
+                options.config_file = argv[i + 1];
+                i++;
+            } else if (strcmp(argv[i], "-S") == 0) {
+                options.simulation_file = argv[i + 1];
+                i++;
             } else if (strcmp(argv[i], "--verbose") == 0) {
                 options.verbose = 1;
             } else if (strcmp(argv[i], "--rocm-debug") == 0) {
@@ -94,14 +103,13 @@ struct option_values parse_args(int argc, char** argv) {
             } else if (strcmp(argv[i], "--neutrino-file") == 0) {
                 hid_t fapl;
                 if ((fapl = H5Pcreate(H5P_FILE_ACCESS)) == H5I_INVALID_HID) {
-                    printf(
-                        "==apollo== ERROR: cannot find file (dirty exit)");
+                    printf("==apollo== ERROR: cannot find file (dirty exit)");
                     exit(123);
                 }
-                if ((options.neutrino_file = H5Fopen(argv[i + 1], H5F_ACC_RDONLY, fapl)) ==
+                if ((options.neutrino_file =
+                         H5Fopen(argv[i + 1], H5F_ACC_RDONLY, fapl)) ==
                     H5I_INVALID_HID) {
-                    printf(
-                        "==apollo== ERROR: cannot open file (dirty exit)");
+                    printf("==apollo== ERROR: cannot open file (dirty exit)");
                     exit(123);
                 }
                 printf("==apollo== using neutrino file: %s\n", argv[i + 1]);
@@ -113,7 +121,7 @@ struct option_values parse_args(int argc, char** argv) {
             }
         }
     }
-    
+
     int fail = 0;
 
     // Review dependencies...
@@ -140,6 +148,16 @@ struct option_values parse_args(int argc, char** argv) {
             printf("%s", help_string_thermo);
             fail++;
         }
+    }
+
+    if (options.config_file == NULL) {
+        printf("==apollo== error: no config file given \"-C\" <config.toml>\n");
+        exit(1);
+    }
+    if (options.config_file == NULL) {
+        printf("==apollo== error: no simulation file given \"-S\" "
+               "<simulation.toml> \n");
+        exit(1);
     }
 
     if (fail) {

@@ -21,3 +21,4 @@ include src/kernel/Makefile
 include src/driver/Makefile
 include src/types/Makefile
 include src/parser/Makefile
+include src/toml/Makefile

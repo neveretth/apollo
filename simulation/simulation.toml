@@ -1,0 +1,45 @@
+[simulation]
+# [simulation.sequence]
+# simulations = 10
+# alter_density = true
+# alter_temp = false
+#
+# [simulation.sequence.density]
+# lower_bound = 1
+# upper_bound = 2
+# distribution = "even" # Even changes between lower(upper)_bound
+
+# [simulation.sequence.temp]
+# No info here.
+
+[simulation.time]
+endtime = 1.0 # in seconds
+# For now dt is in the driver.
+
+[simulation.output]
+output = true
+tres = 100 # Temporal resolution of output (how many plotfiles)
+# style = "unwrap" # Easy to work with in python.
+
+# No AMR
+[simulation.resolution]
+x = 4
+y = 4
+z = 1
+
+[simulation.hydro]
+use = true
+# No input file needed.
+
+[simulation.thermo]
+use = false
+# inputfile = "foobar"
+
+[simulation.neutrino]
+use = false
+# inputfile = "foobar"
+
+# For the python code only.
+[visualization]
+output = true
+saveas = "out.mp4"
