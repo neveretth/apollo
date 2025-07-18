@@ -46,6 +46,8 @@ apollo-rocm: builddir source-rocm kernel-rocm driver-rocm types parser toml
 	rm -rf $(BUILD_DIR)/src/kernel-driver.c.o
 	$(HIPCC) $(BUILD_DIR)/src/*.o $(BUILD_DIR)/src/rocm/*.o -o $(BUILD_DIR)/apollo-rocm $(CLIBS)
 	
+rebuild: clean apollo
+
 builddir:
 	mkdir -p $(BUILD_DIR)/src
 	mkdir -p $(BUILD_DIR)/src/rocm

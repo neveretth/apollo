@@ -1,7 +1,7 @@
 [simulation]
 
 [simulation.time]
-endtime = 100.0 # in seconds
+endtime = 400.0 # in seconds
 # For now dt is in the driver.
 
 [simulation.output]
@@ -21,12 +21,15 @@ use = true
 outputfile = "hydro.out"
 effect = true
 
+# Use of hydroeffect is required at the moment since we cannot import data.
 [simulation.hydroeffect]
 
 [simulation.hydroeffect.temp]
-effect = "radial"
+base = 8e09
+effect = "random"
 
 [simulation.hydroeffect.density]
+base = 1e04
 effect = "radial"
 
 [simulation.thermo]
@@ -39,5 +42,5 @@ use = false
 
 # For the python code only.
 [visualization]
-save = true
+save = false
 saveas = "out.mp4"

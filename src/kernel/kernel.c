@@ -439,8 +439,10 @@ int rt_hydro_integration_kernel(float*** temp, float*** density, float volume,
         }
     }
 
+    // For now just assume it's all even.
+    float area = volume / dim[0]; // Placeholder area of interaction.
+
     float c = 1e8;  // Placeholder contribution value.
-    float area = 1; // Placeholder area of interaction.
     float ntd = 0;  // Nuclear burning temp diff (assume negligible for now)
 
     float t = 0;

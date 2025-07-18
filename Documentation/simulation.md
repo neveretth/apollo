@@ -29,9 +29,11 @@ by `-S <file>.toml`.
 
 ##### simulation.hydroeffect.temp
 - effect `string` (options: radial, gradient, random)
+- base `float` (value to initialize the data with)
 
 ##### simulation.hydroeffect.density
 - effect `string` (options: radial, gradient, random)
+- base `float` (value to initialize the data with)
 
 #### simulation.thermo
 - use `bool` (is thermo sim used)

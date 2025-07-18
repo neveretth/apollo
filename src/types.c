@@ -200,6 +200,11 @@ simulation_properties_create(toml_result_t simulation_toml,
             sim_prop.hydro_density_effect = effect_gradient;
         }
         free(tmp);
+
+        sim_prop.hydro_temp_base =
+            toml_float(simulation_toml, "simulation.hydroeffect.temp.base");
+        sim_prop.hydro_density_base =
+            toml_float(simulation_toml, "simulation.hydroeffect.density.base");
     }
 
     // THERMO
@@ -220,7 +225,8 @@ exit_fail:
 }
 
 int simulation_properties_validate(struct simulation_properties* sim_prop) {
-    if (sim_prop->hydro == false && sim_prop->neutrino == false && sim_prop->thermo == false) {
+    if (sim_prop->hydro == false && sim_prop->neutrino == false &&
+        sim_prop->thermo == false) {
         printf(
             "==apollo== No simulation kernels are being run, is this debug?\n");
         printf("==apollo== (no output will be produced)\n");

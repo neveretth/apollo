@@ -43,6 +43,8 @@ struct simulation_properties {
     FILE* hydro_out_file;
     int (*hydro_temp_effect)(float*** data, int i_, int j_, int k_);
     int (*hydro_density_effect)(float*** data, int i_, int j_, int k_);
+    float hydro_temp_base;
+    float hydro_density_base;
 };
 
 // Free N pointers at ptr.

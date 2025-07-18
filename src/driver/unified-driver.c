@@ -10,14 +10,25 @@ int unified_driver(struct simulation_properties sim_prop,
                    struct option_values options) {
 
     struct rt_hydro_mesh* mesh = malloc(sizeof(struct rt_hydro_mesh));
+
+    // Eventually move these to TOML
+    mesh->h = 10e+12;
+    mesh->volume = 1e10;
+    float t_end = sim_prop.t_end;
+    mesh->dt = t_end / 100000;
+    float t = 0;
+    float tres = sim_prop.output_tres;
+    float t_inter = t_end / tres;
+    float base_temp = sim_prop.hydro_temp_base;
+    float base_density = sim_prop.hydro_density_base;
+
     mesh->dim[0] = sim_prop.resolution[0];
     mesh->dim[1] = sim_prop.resolution[1];
     mesh->dim[2] = sim_prop.resolution[2];
 
-    // Eventually move these to TOML
-    // mesh->dt = 1e-4;
-    mesh->h = 10e+12;
-    mesh->volume = 1;
+    mesh->volume = mesh->volume / mesh->dim[0];
+    mesh->volume = mesh->volume / mesh->dim[1];
+    mesh->volume = mesh->volume / mesh->dim[2];
 
     mesh->temp = malloc(mesh->dim[0] * sizeof(float*));
     mesh->density = malloc(mesh->dim[0] * sizeof(float*));
@@ -34,8 +45,8 @@ int unified_driver(struct simulation_properties sim_prop,
     for (int i = 0; i < mesh->dim[0]; i++) {
         for (int j = 0; j < mesh->dim[1]; j++) {
             for (int k = 0; k < mesh->dim[2]; k++) {
-                mesh->temp[i][j][k] = 8e+09;
-                mesh->density[i][j][k] = 1e4;
+                mesh->temp[i][j][k] = base_temp;
+                mesh->density[i][j][k] = base_density;
             }
         }
     }
@@ -50,19 +61,13 @@ int unified_driver(struct simulation_properties sim_prop,
                                       mesh->dim[2]);
     }
 
-    float t_end = sim_prop.t_end;
-    mesh->dt = t_end / 100000;
-    float t = 0;
-    float tres = sim_prop.output_tres;
-    float t_inter = t_end / tres;
-
     if (sim_prop.output) {
         fprint_float_3d(sim_prop.hydro_out_file, mesh->temp, mesh->dim[0],
                         mesh->dim[1], mesh->dim[2]);
     }
 
     printf("\n\n");
-    
+
     while (t < t_end) {
         mesh->t_end = t_inter;
         if (sim_prop.hydro) {
