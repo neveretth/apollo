@@ -13,7 +13,7 @@ int unified_driver(struct simulation_properties sim_prop,
 
     // Eventually move these to TOML
     mesh->h = 10e+12;
-    mesh->volume = 1e10;
+    mesh->volume = 1;
     float t_end = sim_prop.t_end;
     mesh->dt = t_end / 100000;
     float t = 0;

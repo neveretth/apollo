@@ -431,6 +431,7 @@ int flat_hydro_integration_kernel(float** temp, float** density, float volume,
 
 int rt_hydro_integration_kernel(float*** temp, float*** density, float volume,
                                 float h, float dt, float t_end, int* dim) {
+    // This really should be passed, not created each time.
     float*** delta_temp = malloc(dim[0] * sizeof(float*));
     for (int i = 0; i < dim[0]; i++) {
         delta_temp[i] = malloc(dim[1] * sizeof(float*));
@@ -439,8 +440,8 @@ int rt_hydro_integration_kernel(float*** temp, float*** density, float volume,
         }
     }
 
-    // For now just assume it's all even.
-    float area = volume / dim[0]; // Placeholder area of interaction.
+    // For now just assume it's all even. Volume is for each cell.
+    float area = volume / dim[2]; // Placeholder area of interaction.
 
     float c = 1e8;  // Placeholder contribution value.
     float ntd = 0;  // Nuclear burning temp diff (assume negligible for now)

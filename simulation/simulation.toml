@@ -11,8 +11,8 @@ tres = 100 # Temporal resolution of output
 
 # No AMR
 [simulation.resolution]
-x = 64
-y = 64
+x = 256
+y = 256
 z = 1
 # Setting this to 1 means 2D, and is much friendlier with visualization.
 
@@ -26,10 +26,10 @@ effect = true
 
 [simulation.hydroeffect.temp]
 base = 8e09
-effect = "random"
+effect = "radial"
 
 [simulation.hydroeffect.density]
-base = 1e04
+base = 1e08
 effect = "radial"
 
 [simulation.thermo]
