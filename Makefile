@@ -2,7 +2,7 @@ CC = /bin/gcc
 HIPCC = /opt/rocm/bin/hipcc
 CFLAGS = -std=c99 -O3 -Wall -Wextra --pedantic -g3
 HIPFLAGS = -x c
-CLIBS = -lm -lhdf5
+CLIBS = -lm -lhdf5 -lc
 
 # Comment out TIME_CMD if you don't want to time Apollo
 TIME_CMD = /bin/time -f "\n| Time: %e | CPU: %P | User: %U | Kernel: %S | MinPF: %R | MajPF: %F |"
@@ -33,7 +33,7 @@ APOLLO_ROCM_RUN_CMD = $(BUILD_DIR)/apollo-rocm \
 BUILD_DIR = $(PWD)/build
 SOURCE_DIR = $(PWD)/src
 
-default-target: apollo apollo-rocm
+default-target: apollo
 
 clean:
 	rm -rf $(BUILD_DIR)/*

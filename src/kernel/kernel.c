@@ -255,7 +255,7 @@ int neunet_integration_kernel(float** rate_in, float** rate_out, float* n_old,
             break;
         }
     }
-    
+
     free(n_0);
     free(n_new);
     free(n_1);
@@ -483,6 +483,6 @@ int rt_hydro_integration_kernel(float*** temp, float*** density, float volume,
         free(delta_temp[i]);
     }
     free(delta_temp);
-    
+
     return EXIT_SUCCESS;
 }

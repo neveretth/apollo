@@ -1,5 +1,18 @@
 # Build System
 
+## Building APOLLO
+For the non-rocm version:
+```
+make
+# OR
+make apollo
+```
+for the (very incomplete) rocm-enabled version:
+```
+make apollo-rocm
+```
+
+## Makefile structure
 Make is the build system for Apollo. The basic structure is: each directory
 in which make needs to perform actions contains a Makefile that performs
 said actions.

@@ -1,18 +1,18 @@
 [simulation]
 
 [simulation.time]
-endtime = 400.0 # in seconds
+endtime = 100.0 # in seconds
 # For now dt is in the driver.
 
 [simulation.output]
 output = true
 outputdir = "output"
-tres = 100 # Temporal resolution of output (how many plotfiles)
+tres = 100 # Temporal resolution of output
 
 # No AMR
 [simulation.resolution]
-x = 256
-y = 256
+x = 64
+y = 64
 z = 1
 # Setting this to 1 means 2D, and is much friendlier with visualization.
 
@@ -39,5 +39,5 @@ use = false
 
 # For the python code only.
 [visualization]
-save = false
+save = true
 saveas = "out.mp4"

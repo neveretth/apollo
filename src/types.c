@@ -90,8 +90,45 @@ int options_clean(struct option_values options) {
     return EXIT_SUCCESS;
 }
 
-// This is largely garbage... but I need it to know it will _work_ before I
-// refine it.
+bool toml_bool(toml_result_t toml, char* request) {
+    toml_datum_t data = toml_seek(toml.toptab, request);
+    if (data.type != TOML_BOOLEAN) {
+        printf("==apollo== error: %s is invalid\n", request);
+        exit(1);
+    }
+    return data.u.boolean;
+}
+
+int toml_int(toml_result_t toml, char* request) {
+    toml_datum_t data = toml_seek(toml.toptab, request);
+    if (data.type != TOML_INT64) {
+        printf("==apollo== error: %s is invalid\n", request);
+        exit(1);
+    }
+    return data.u.int64;
+}
+
+float toml_float(toml_result_t toml, char* request) {
+    toml_datum_t data = toml_seek(toml.toptab, request);
+    if (data.type != TOML_FP64) {
+        printf("==apollo== error: %s is invalid\n", request);
+        exit(1);
+    }
+    return data.u.fp64;
+}
+
+char* toml_string(toml_result_t toml, char* request) {
+    toml_datum_t data = toml_seek(toml.toptab, request);
+    if (data.type != TOML_STRING) {
+        printf("==apollo== error: %s is invalid\n", request);
+        exit(1);
+    }
+    char* str = malloc((strlen(data.u.s) + 1) * sizeof(char));
+    strcpy(str, data.u.s);
+    return str;
+}
+
+// I should keep track of a failstate here somewhere for clean exit on fail...
 struct simulation_properties
 simulation_properties_create(toml_result_t simulation_toml,
                              toml_result_t config_toml) {
@@ -100,140 +137,95 @@ simulation_properties_create(toml_result_t simulation_toml,
     sim_prop.hydro_temp_effect = NULL;
     sim_prop.hydro_density_effect = NULL;
 
-    toml_datum_t data;
-
     // CONFIG INFO
     // NONE AT THIS TIME.
 
     // OUTPUT
-    data = toml_seek(simulation_toml.toptab, "simulation.output.output");
-    if (data.type != TOML_BOOLEAN) {
-        printf("==apollo== error: simulation.output.output is invalid\n");
-        goto exit_fail;
-    }
-    sim_prop.output = data.u.boolean;
+    sim_prop.output = toml_bool(simulation_toml, "simulation.output.output");
 
-    // 256 is a reasonable expectation here.
-    char outputdir[256];
+    char* outputdir;
     if (sim_prop.output) {
-        data = toml_seek(simulation_toml.toptab, "simulation.output.outputdir");
-        if (data.type != TOML_STRING) {
-            printf(
-                "==apollo== error: simulation.output.outputdir is invalid\n");
-            goto exit_fail;
-        }
-        strcpy(outputdir, data.u.s);
+        outputdir = toml_string(simulation_toml, "simulation.output.outputdir");
     }
 
-    data = toml_seek(simulation_toml.toptab, "simulation.output.tres");
-    if (data.type != TOML_INT64) {
-        printf("==apollo== error: simulation.output.tres is invalid\n");
-        goto exit_fail;
-    }
-    sim_prop.output_tres = data.u.int64;
+    sim_prop.output_tres = toml_int(simulation_toml, "simulation.output.tres");
 
     // TIME
-    data = toml_seek(simulation_toml.toptab, "simulation.time.endtime");
-    if (data.type != TOML_FP64) {
-        printf("==apollo== error: simulation.time.endtime is invalid\n");
-        goto exit_fail;
-    }
-    sim_prop.t_end = data.u.fp64;
+    sim_prop.t_end = toml_float(simulation_toml, "simulation.time.endtime");
 
     // RESOLUTION
-    data = toml_seek(simulation_toml.toptab, "simulation.resolution.x");
-    if (data.type != TOML_INT64) {
-        printf("==apollo== error: simulation.output.x is invalid\n");
-        goto exit_fail;
-    }
-    sim_prop.resolution[0] = data.u.int64;
-
-    data = toml_seek(simulation_toml.toptab, "simulation.resolution.y");
-    if (data.type != TOML_INT64) {
-        printf("==apollo== error: simulation.output.y is invalid\n");
-        goto exit_fail;
-    }
-    sim_prop.resolution[1] = data.u.int64;
-
-    data = toml_seek(simulation_toml.toptab, "simulation.resolution.z");
-    if (data.type != TOML_INT64) {
-        printf("==apollo== error: simulation.output.z is invalid\n");
-        goto exit_fail;
-    }
-    sim_prop.resolution[2] = data.u.int64;
+    sim_prop.resolution[0] =
+        toml_int(simulation_toml, "simulation.resolution.x");
+    sim_prop.resolution[1] =
+        toml_int(simulation_toml, "simulation.resolution.y");
+    sim_prop.resolution[2] =
+        toml_int(simulation_toml, "simulation.resolution.z");
 
     // HYDRO
-    data = toml_seek(simulation_toml.toptab, "simulation.hydro.use");
-    if (data.type != TOML_BOOLEAN) {
-        printf("==apollo== error: simulation.hydro.use is invalid\n");
-        goto exit_fail;
-    }
-    sim_prop.hydro = data.u.boolean;
+    sim_prop.hydro = toml_bool(simulation_toml, "simulation.hydro.use");
 
     if (sim_prop.hydro && sim_prop.output) {
-        data = toml_seek(simulation_toml.toptab, "simulation.hydro.outputfile");
-        if (data.type != TOML_STRING) {
-            printf(
-                "==apollo== error: simulation.hydro.outputfile is invalid\n");
-            goto exit_fail;
-        }
-        char tmp[256];
-        snprintf(tmp, 256, "%s/%s", outputdir, data.u.s);
-        sim_prop.hydro_out_file = fopen(tmp, "wa");
+        char* tmp = toml_string(simulation_toml, "simulation.hydro.outputfile");
+        char tmpp[256];
+        snprintf(tmpp, 256, "%s/%s", outputdir, tmp);
+        sim_prop.hydro_out_file = fopen(tmpp, "wa");
         if (sim_prop.hydro_out_file == NULL) {
             printf("==apollo== error: could not open file: %s\n", tmp);
             goto exit_fail;
         }
+        free(tmp);
     }
 
-    data = toml_seek(simulation_toml.toptab, "simulation.hydro.effect");
-    if (data.type != TOML_BOOLEAN) {
-        printf("==apollo== error: simulation.hydro.effect is invalid\n");
-        goto exit_fail;
-    }
+    bool usehydroeffect = toml_bool(simulation_toml, "simulation.hydro.effect");
 
     // If we are using a hydro effect:
     // NOTE: I'm not including validation, as I need to make that a func...
-    if (data.u.boolean) {
-        data = toml_seek(simulation_toml.toptab,
-                         "simulation.hydroeffect.temp.effect");
-        if (strcmp(data.u.s, "random") == 0) {
+    if (usehydroeffect) {
+        char* tmp =
+            toml_string(simulation_toml, "simulation.hydroeffect.temp.effect");
+        if (strcmp(tmp, "random") == 0) {
             sim_prop.hydro_temp_effect = effect_rand;
-        } else if (strcmp(data.u.s, "radial") == 0) {
+        } else if (strcmp(tmp, "radial") == 0) {
             sim_prop.hydro_temp_effect = effect_radial;
-        } else if (strcmp(data.u.s, "gradient") == 0) {
+        } else if (strcmp(tmp, "gradient") == 0) {
             sim_prop.hydro_temp_effect = effect_gradient;
         }
-        data = toml_seek(simulation_toml.toptab,
-                         "simulation.hydroeffect.density.effect");
-        if (strcmp(data.u.s, "random") == 0) {
+        tmp = toml_string(simulation_toml,
+                          "simulation.hydroeffect.density.effect");
+        if (strcmp(tmp, "random") == 0) {
             sim_prop.hydro_density_effect = effect_rand;
-        } else if (strcmp(data.u.s, "radial") == 0) {
+        } else if (strcmp(tmp, "radial") == 0) {
             sim_prop.hydro_density_effect = effect_radial;
-        } else if (strcmp(data.u.s, "gradient") == 0) {
+        } else if (strcmp(tmp, "gradient") == 0) {
             sim_prop.hydro_density_effect = effect_gradient;
         }
+        free(tmp);
     }
 
     // THERMO
-    data = toml_seek(simulation_toml.toptab, "simulation.thermo.use");
-    if (data.type != TOML_BOOLEAN) {
-        printf("==apollo== error: simulation.thermo.use is invalid\n");
-        goto exit_fail;
-    }
-    sim_prop.thermo = data.u.boolean;
+    sim_prop.thermo = toml_bool(simulation_toml, "simulation.thermo.use");
 
     // NEUTRINO
-    data = toml_seek(simulation_toml.toptab, "simulation.neutrino.use");
-    if (data.type != TOML_BOOLEAN) {
-        printf("==apollo== error: simulation.neutrino.use is invalid\n");
+    sim_prop.neutrino = toml_bool(simulation_toml, "simulation.neutrino.use");
+
+    if (simulation_properties_validate(&sim_prop) == EXIT_FAILURE) {
         goto exit_fail;
     }
-    sim_prop.neutrino = data.u.boolean;
 
     return sim_prop;
 exit_fail:
     toml_free(config_toml);
     toml_free(simulation_toml);
     exit(1);
+}
+
+int simulation_properties_validate(struct simulation_properties* sim_prop) {
+    if (sim_prop->hydro == false && sim_prop->neutrino == false && sim_prop->thermo == false) {
+        printf(
+            "==apollo== No simulation kernels are being run, is this debug?\n");
+        printf("==apollo== (no output will be produced)\n");
+        sim_prop->output = false;
+    }
+
+    return EXIT_SUCCESS;
 }

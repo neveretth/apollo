@@ -63,4 +63,7 @@ int options_clean(struct option_values options);
 struct simulation_properties
 simulation_properties_create(toml_result_t simulation_toml, toml_result_t config_toml);
 
+// Validate information in simulation_properties, returning EXIT_SUCCESS(FAILURE).
+int simulation_properties_validate(struct simulation_properties* sim_prop);
+
 #endif

@@ -42,7 +42,6 @@ int unified_driver(struct simulation_properties sim_prop,
 
     // APPLY SOME EFFECTS.
     if (sim_prop.hydro_temp_effect != NULL) {
-        printf("here\n");
         sim_prop.hydro_temp_effect(mesh->temp, mesh->dim[0], mesh->dim[1],
                                    mesh->dim[2]);
     }
@@ -57,9 +56,13 @@ int unified_driver(struct simulation_properties sim_prop,
     float tres = sim_prop.output_tres;
     float t_inter = t_end / tres;
 
-    fprint_float_3d(sim_prop.hydro_out_file, mesh->temp, mesh->dim[0],
-                    mesh->dim[1], mesh->dim[2]);
+    if (sim_prop.output) {
+        fprint_float_3d(sim_prop.hydro_out_file, mesh->temp, mesh->dim[0],
+                        mesh->dim[1], mesh->dim[2]);
+    }
 
+    printf("\n\n");
+    
     while (t < t_end) {
         mesh->t_end = t_inter;
         if (sim_prop.hydro) {
@@ -76,11 +79,14 @@ int unified_driver(struct simulation_properties sim_prop,
             printf("not implemented\n");
             goto exit_fail;
         }
-        fprint_float_3d(sim_prop.hydro_out_file, mesh->temp, mesh->dim[0],
-                        mesh->dim[1], mesh->dim[2]);
+        if (sim_prop.output) {
+            fprint_float_3d(sim_prop.hydro_out_file, mesh->temp, mesh->dim[0],
+                            mesh->dim[1], mesh->dim[2]);
+        }
         t += t_inter;
-        printf("time: %f/%f\n", t, t_end);
+        printf("\x1b[1A\x1b[2K\x1b[0G  Time: [%6.2f/%6.2f]\n", t, t_end);
     }
+    printf("\n==apollo== Simulation complete.\n");
 
     rt_hydro_mesh_destroy(&mesh);
     return EXIT_SUCCESS;

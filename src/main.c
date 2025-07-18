@@ -63,6 +63,9 @@ int main(int argc, char** argv) {
     struct simulation_properties sim_prop =
         simulation_properties_create(simulation_toml, config_toml);
 
+    printf("==apollo== Simulation config read.\n");
+    printf("==apollo== Beginning simulation...\n");
+
     if (unified_driver(sim_prop, options) == EXIT_FAILURE) {
         printf("==apollo== error: driver failed.\n");
         goto exit_fail;
