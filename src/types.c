@@ -136,6 +136,7 @@ simulation_properties_create(toml_result_t simulation_toml,
     sim_prop.hydro_out_file = NULL;
     sim_prop.hydro_temp_effect = NULL;
     sim_prop.hydro_density_effect = NULL;
+    sim_prop.print_kernel_time = false;
 
     // CONFIG INFO
     // NONE AT THIS TIME.
@@ -148,10 +149,11 @@ simulation_properties_create(toml_result_t simulation_toml,
         outputdir = toml_string(simulation_toml, "simulation.output.outputdir");
     }
 
-    sim_prop.output_tres = toml_int(simulation_toml, "simulation.output.tres");
-
     // TIME
     sim_prop.t_end = toml_float(simulation_toml, "simulation.time.endtime");
+    sim_prop.output_tres = toml_int(simulation_toml, "simulation.time.tres");
+    sim_prop.print_kernel_time =
+        toml_bool(simulation_toml, "simulation.time.printkerneltime");
 
     // RESOLUTION
     sim_prop.resolution[0] =

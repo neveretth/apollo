@@ -9,11 +9,13 @@ by `-S <file>.toml`.
 
 #### simulation.time
 - endtime `bool` (the time the simulation runs in seconds)
+- tres `int` (temporal resolution, increases clarity of output,
+  does not change physical behavior)
+- printkerneltime `bool` (print the time to execute the compute kernel(s))
 
 #### simulation.output
 - output `bool` (whether or not output will be generated)
 - outputdir `string` (path of the output directory)
-- tres `int` (temporal resolution of output, aka: how many frames are printed)
 
 #### simulation.resolution
 - x `int`

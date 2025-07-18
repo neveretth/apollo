@@ -29,7 +29,6 @@ struct option_values {
 };
 
 struct simulation_properties {
-    int sequence;
     int resolution[3];
     bool hydro;
     bool thermo;
@@ -38,6 +37,7 @@ struct simulation_properties {
     FILE* network_file;
     hid_t neutrino_file;
     bool output;
+    bool print_kernel_time;
     float t_end;
     int output_tres;
     FILE* hydro_out_file;

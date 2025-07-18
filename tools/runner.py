@@ -27,7 +27,7 @@ def graph_flat(sim_prop):  # 2D graph
     clim = im.properties()['clim']
     ims.append([im])
 
-    for i in range(1, sim_prop["simulation"]["output"]["tres"]):
+    for i in range(1, sim_prop["simulation"]["time"]["tres"]):
         grid = data.iloc[i].to_numpy()
         grid = np.reshape(grid, (-1, size))
         im = ax.imshow(grid, cmap='hot',
@@ -70,7 +70,7 @@ def graph_rt(sim_prop):  # 3D graph
     im = ax
     ims.append([im])
 
-    for i in range(1, sim_prop["simulation"]["output"]["tres"]):
+    for i in range(1, sim_prop["simulation"]["time"]["tres"]):
         rtgrid = np.zeros((sizex, sizey, sizez))
         grid = data.iloc[i].to_numpy()
         grid = np.reshape(grid, (-1, sizex*sizey))

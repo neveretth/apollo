@@ -1,13 +1,13 @@
 [simulation]
 
 [simulation.time]
-endtime = 400.0 # in seconds
-# For now dt is in the driver.
+endtime = 4000000.0 # in seconds
+tres = 100 # Temporal resolution of output
+printkerneltime = true
 
 [simulation.output]
 output = true
 outputdir = "output"
-tres = 100 # Temporal resolution of output
 
 # No AMR
 [simulation.resolution]

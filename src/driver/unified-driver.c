@@ -5,6 +5,7 @@
 #include "kernel-driver.h"
 
 #include <stdlib.h>
+#include <time.h>
 
 int unified_driver(struct simulation_properties sim_prop,
                    struct option_values options) {
@@ -68,6 +69,8 @@ int unified_driver(struct simulation_properties sim_prop,
 
     printf("\n\n");
 
+    time_t kerneltime = clock();
+
     while (t < t_end) {
         mesh->t_end = t_inter;
         if (sim_prop.hydro) {
@@ -91,7 +94,14 @@ int unified_driver(struct simulation_properties sim_prop,
         t += t_inter;
         printf("\x1b[1A\x1b[2K\x1b[0G  Time: [%6.2f/%6.2f]\n", t, t_end);
     }
+    kerneltime = clock() - kerneltime;
     printf("\n==apollo== Simulation complete.\n");
+    if (sim_prop.print_kernel_time) {
+        float kerneltime_seconds = kerneltime;
+        kerneltime_seconds /= CLOCKS_PER_SEC;
+        printf("==apollo== Kernel clock time: %f (s)\n", kerneltime_seconds);
+    }
+    
 
     rt_hydro_mesh_destroy(&mesh);
     return EXIT_SUCCESS;

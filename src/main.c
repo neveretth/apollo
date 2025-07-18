@@ -41,9 +41,6 @@ int main(int argc, char** argv) {
         }
     }
 
-    // Idea:
-    // - Perform unified sim thingy
-    // - exit!
     toml_result_t config_toml = toml_parse_file_ex(options.config_file);
     toml_result_t simulation_toml = toml_parse_file_ex(options.simulation_file);
 
@@ -65,7 +62,7 @@ int main(int argc, char** argv) {
 
     printf("==apollo== Simulation config read.\n");
     printf("==apollo== Beginning simulation...\n");
-
+    
     if (unified_driver(sim_prop, options) == EXIT_FAILURE) {
         printf("==apollo== error: driver failed.\n");
         goto exit_fail;
