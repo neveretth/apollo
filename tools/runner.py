@@ -79,7 +79,7 @@ def graph_rt(sim_prop):  # 3D graph
 
         ax = plt.axes(projection="3d")
         ax.scatter(x, y, z, c=rtgrid, marker=".",
-                   cmap=plt.hot(), vmin=8e9, vmax=14e9)
+                   cmap=plt.hot(), vmin=8e9, vmax=9e9)
         im = ax
         ims.append([im])
 

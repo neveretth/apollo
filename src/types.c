@@ -1,5 +1,7 @@
 #include "types.h"
 
+#include "numeffect.h"
+
 #include <H5Include.h>
 #include <stdlib.h>
 #include <string.h>
@@ -95,9 +97,10 @@ simulation_properties_create(toml_result_t simulation_toml,
                              toml_result_t config_toml) {
     struct simulation_properties sim_prop;
     sim_prop.hydro_out_file = NULL;
+    sim_prop.hydro_temp_effect = NULL;
+    sim_prop.hydro_density_effect = NULL;
 
     toml_datum_t data;
-
 
     // CONFIG INFO
     // NONE AT THIS TIME.
@@ -180,6 +183,35 @@ simulation_properties_create(toml_result_t simulation_toml,
         if (sim_prop.hydro_out_file == NULL) {
             printf("==apollo== error: could not open file: %s\n", tmp);
             goto exit_fail;
+        }
+    }
+
+    data = toml_seek(simulation_toml.toptab, "simulation.hydro.effect");
+    if (data.type != TOML_BOOLEAN) {
+        printf("==apollo== error: simulation.hydro.effect is invalid\n");
+        goto exit_fail;
+    }
+
+    // If we are using a hydro effect:
+    // NOTE: I'm not including validation, as I need to make that a func...
+    if (data.u.boolean) {
+        data = toml_seek(simulation_toml.toptab,
+                         "simulation.hydroeffect.temp.effect");
+        if (strcmp(data.u.s, "random") == 0) {
+            sim_prop.hydro_temp_effect = effect_rand;
+        } else if (strcmp(data.u.s, "radial") == 0) {
+            sim_prop.hydro_temp_effect = effect_radial;
+        } else if (strcmp(data.u.s, "gradient") == 0) {
+            sim_prop.hydro_temp_effect = effect_gradient;
+        }
+        data = toml_seek(simulation_toml.toptab,
+                         "simulation.hydroeffect.density.effect");
+        if (strcmp(data.u.s, "random") == 0) {
+            sim_prop.hydro_density_effect = effect_rand;
+        } else if (strcmp(data.u.s, "radial") == 0) {
+            sim_prop.hydro_density_effect = effect_radial;
+        } else if (strcmp(data.u.s, "gradient") == 0) {
+            sim_prop.hydro_density_effect = effect_gradient;
         }
     }
 
