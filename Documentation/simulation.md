@@ -39,9 +39,12 @@ by `-S <file>.toml`.
 
 #### simulation.thermo
 - use `bool` (is thermo sim used)
+- networkfile `string` (location of network file)
+- ratefile `string` (location of rate file)
 
 #### simulation.neutrino
 - use `bool` (is neutrino sim used)
+- opacityfile `string` (location of opacity file)
 
 ### visualization 
 These are only used by the python `runner.py` script.

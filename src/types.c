@@ -211,9 +211,42 @@ simulation_properties_create(toml_result_t simulation_toml,
 
     // THERMO
     sim_prop.thermo = toml_bool(simulation_toml, "simulation.thermo.use");
+    if (sim_prop.thermo) {
+        char* tmp =
+            toml_string(simulation_toml, "simulation.thermo.networkfile");
+        sim_prop.network_file = fopen(tmp, "r");
+        if (sim_prop.network_file == NULL) {
+            printf("==apollo== error: cannot open thermo network \"%s\"\n",
+                   tmp);
+            exit(1);
+        }
+        tmp = toml_string(simulation_toml, "simulation.thermo.ratefile");
+        sim_prop.rate_library_file = fopen(tmp, "r");
+        if (sim_prop.rate_library_file == NULL) {
+            printf("==apollo== error: cannot open thermo ratelib \"%s\"\n",
+                   tmp);
+            exit(1);
+        }
+        free(tmp);
+    }
 
     // NEUTRINO
     sim_prop.neutrino = toml_bool(simulation_toml, "simulation.neutrino.use");
+    if (sim_prop.neutrino) {
+        char* tmp =
+            toml_string(simulation_toml, "simulation.neutrino.opacityfile");
+        hid_t fapl;
+        if ((fapl = H5Pcreate(H5P_FILE_ACCESS)) == H5I_INVALID_HID) {
+            printf("==apollo== error: cannot open neutrino file \"%s\"\n", tmp);
+            exit(123);
+        }
+        if ((sim_prop.neutrino_file = H5Fopen(tmp, H5F_ACC_RDONLY, fapl)) ==
+            H5I_INVALID_HID) {
+            printf("==apollo== error: cannot open neutrino file \"%s\"\n", tmp);
+            exit(123);
+        }
+        free(tmp);
+    }
 
     if (simulation_properties_validate(&sim_prop) == EXIT_FAILURE) {
         goto exit_fail;

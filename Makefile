@@ -9,7 +9,7 @@ TIME_CMD = /bin/time -f "\n| Time: %e | CPU: %P | User: %U | Kernel: %S | MinPF:
 
 APOLLO_RUN_CMD = $(BUILD_DIR)/apollo \
 	-C config/config.toml \
-	-S simulation/simulation.toml \
+	-S simulation/profile.toml \
 	# --hydro-debug \
 	# --rate-library data/ratelibrary-alpha.aad \
 	# --network data/network-alpha.aad \

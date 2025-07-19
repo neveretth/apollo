@@ -16,8 +16,6 @@ def graph_flat(sim_prop):  # 2D graph
     datafile = sim_prop["simulation"]["output"]["outputdir"] + "/" + \
         sim_prop["simulation"]["hydro"]["outputfile"]
 
-    print(datafile)
-
     data = pd.read_csv(datafile, delimiter=' ', header=None)
     ims = []
     grid = data.iloc[0].to_numpy()

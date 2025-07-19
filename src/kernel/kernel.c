@@ -204,7 +204,7 @@ int neunet_integration_kernel(float** rate_in, float** rate_out, float* n_old,
         }
 
         if (true_cycle >= halt) {
-            return EXIT_SUCCESS;
+            goto exit;
         }
 
         memset(n_new, 0, n_g);
@@ -256,6 +256,7 @@ int neunet_integration_kernel(float** rate_in, float** rate_out, float* n_old,
         }
     }
 
+exit:
     free(n_0);
     free(n_new);
     free(n_1);
