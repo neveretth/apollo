@@ -11,8 +11,8 @@ outputdir = "output"
 
 # No AMR
 [simulation.resolution]
-x = 64
-y = 64
+x = 32
+y = 32
 z = 1
 # Setting this to 1 means 2D, and is much friendlier with visualization.
 
@@ -34,7 +34,7 @@ effect = "radial"
 
 # NOTE: these relative paths are relative to Makefile.test
 [simulation.thermo]
-use = false
+use = true
 networkfile = "data/network-alpha.aad"
 ratefile = "data/ratelibrary-alpha.aad"
 
