@@ -7,15 +7,15 @@
 
 #define LABELSIZE 35
 
-struct rate_library* rate_library_create(struct option_values options) {
+struct rate_library* rate_library_create(struct simulation_properties sim_prop) {
 
-    if (validate_file(options.rate_library_file) == EXIT_FAILURE) {
+    if (validate_file(sim_prop.rate_library_file) == EXIT_FAILURE) {
         return NULL;
     }
     
     // This _should_ probably be a library function.
     int size = 0;
-    fscanf(options.rate_library_file, "%i\n", &size);
+    fscanf(sim_prop.rate_library_file, "%i\n", &size);
     
     struct rate_library* rates = malloc(sizeof(struct rate_library));
 
@@ -65,11 +65,11 @@ struct rate_library* rate_library_create(struct option_values options) {
     int n = -1;
     int subindex = -1;
 
-    if (options.verbose) {
-        printf("\nData read in:\n\n");
-    }
+    // if (options.verbose) {
+    //     printf("\nData read in:\n\n");
+    // }
 
-    while (fgets(line, 120, options.rate_library_file)) {
+    while (fgets(line, 120, sim_prop.rate_library_file)) {
         subindex++;
         switch (subindex) {
         case 0:
@@ -88,18 +88,18 @@ struct rate_library* rate_library_create(struct option_values options) {
             rates->is_reverse[n] = i6;
             rates->prefactor[n] = sf;
             rates->q_value[n] = q;
-            if (options.verbose) {
-                printf("\n\nReaction Index = %d", n);
-                printf("\nisReverseR = %d reaclibIndex = %d",
-                       rates->is_reverse[n], rates->reaction_library_class[n]);
-                printf("\n%s %d %d %d %d %d %d %d %f %f",
-                       rates->reaction_label[n], rates->rg_class[n],
-                       rates->rg_member_idx[n],
-                       rates->reaction_library_class[n],
-                       rates->num_react_species[n], rates->num_products[n],
-                       rates->is_ec[n], rates->is_reverse[n],
-                       rates->prefactor[n], rates->q_value[n]);
-            }
+            // if (options.verbose) {
+            //     printf("\n\nReaction Index = %d", n);
+            //     printf("\nisReverseR = %d reaclibIndex = %d",
+            //            rates->is_reverse[n], rates->reaction_library_class[n]);
+            //     printf("\n%s %d %d %d %d %d %d %d %f %f",
+            //            rates->reaction_label[n], rates->rg_class[n],
+            //            rates->rg_member_idx[n],
+            //            rates->reaction_library_class[n],
+            //            rates->num_react_species[n], rates->num_products[n],
+            //            rates->is_ec[n], rates->is_reverse[n],
+            //            rates->prefactor[n], rates->q_value[n]);
+            // }
             break;
         case 1:
             sscanf(line, "%f %f %f %f %f %f %f", &p0, &p1, &p2, &p3, &p4, &p5,
@@ -111,21 +111,21 @@ struct rate_library* rate_library_create(struct option_values options) {
             rates->p4[n] = p4;
             rates->p5[n] = p5;
             rates->p6[n] = p6;
-            if (options.verbose) {
-                printf("\n%f %f %f %f %f %f %f", rates->p0[n], rates->p1[n],
-                       rates->p2[n], rates->p3[n], rates->p4[n], rates->p5[n],
-                       rates->p6[n]);
-            }
+            // if (options.verbose) {
+            //     printf("\n%f %f %f %f %f %f %f", rates->p0[n], rates->p1[n],
+            //            rates->p2[n], rates->p3[n], rates->p4[n], rates->p5[n],
+            //            rates->p6[n]);
+            // }
             break;
         case 2:
             sscanf(line, "%d %d %d %d", &ii[0], &ii[1], &ii[2], &ii[3]);
             rates->reactant_z[n] = malloc(sizeof(int) * 4);
             for (int mm = 0; mm < rates->num_react_species[n]; mm++) {
                 rates->reactant_z[n][mm] = ii[mm];
-                if (options.verbose) {
-                    printf("\n  Reactant[%d]: Z=%d", mm,
-                           rates->reactant_z[n][mm]);
-                }
+                // if (options.verbose) {
+                //     printf("\n  Reactant[%d]: Z=%d", mm,
+                //            rates->reactant_z[n][mm]);
+                // }
             }
             break;
         case 3:
@@ -133,10 +133,10 @@ struct rate_library* rate_library_create(struct option_values options) {
             rates->reactant_n[n] = malloc(sizeof(int) * 4);
             for (int mm = 0; mm < rates->num_react_species[n]; mm++) {
                 rates->reactant_n[n][mm] = ii[mm];
-                if (options.verbose) {
-                    printf("\n  Reactant[%d]: N=%d", mm,
-                           rates->reactant_n[n][mm]);
-                }
+                // if (options.verbose) {
+                //     printf("\n  Reactant[%d]: N=%d", mm,
+                //            rates->reactant_n[n][mm]);
+                // }
             }
             break;
         case 4:
@@ -144,10 +144,10 @@ struct rate_library* rate_library_create(struct option_values options) {
             rates->product_z[n] = malloc(sizeof(int) * 4);
             for (int mm = 0; mm < rates->num_products[n]; mm++) {
                 rates->product_z[n][mm] = ii[mm];
-                if (options.verbose) {
-                    printf("\n  Product[%d]: Z=%d", mm,
-                           rates->product_z[n][mm]);
-                }
+                // if (options.verbose) {
+                //     printf("\n  Product[%d]: Z=%d", mm,
+                //            rates->product_z[n][mm]);
+                // }
             }
             break;
         case 5:
@@ -155,10 +155,10 @@ struct rate_library* rate_library_create(struct option_values options) {
             rates->product_n[n] = malloc(sizeof(int) * 4);
             for (int mm = 0; mm < rates->num_products[n]; mm++) {
                 rates->product_n[n][mm] = ii[mm];
-                if (options.verbose) {
-                    printf("\n  Product[%d]: N=%d", mm,
-                           rates->product_n[n][mm]);
-                }
+                // if (options.verbose) {
+                //     printf("\n  Product[%d]: N=%d", mm,
+                //            rates->product_n[n][mm]);
+                // }
             }
             break;
         case 6:
@@ -166,10 +166,10 @@ struct rate_library* rate_library_create(struct option_values options) {
             rates->reactant_idx[n] = malloc(sizeof(int) * 4);
             for (int mm = 0; mm < rates->num_react_species[n]; mm++) {
                 rates->reactant_idx[n][mm] = ii[mm];
-                if (options.verbose) {
-                    printf("\n  ReactantIndex[%d]: N=%d", mm,
-                           rates->reactant_idx[n][mm]);
-                }
+                // if (options.verbose) {
+                //     printf("\n  ReactantIndex[%d]: N=%d", mm,
+                //            rates->reactant_idx[n][mm]);
+                // }
             }
             break;
         case 7:
@@ -177,10 +177,10 @@ struct rate_library* rate_library_create(struct option_values options) {
             rates->product_idx[n] = malloc(sizeof(int) * 4);
             for (int mm = 0; mm < rates->num_products[n]; mm++) {
                 rates->product_idx[n][mm] = ii[mm];
-                if (options.verbose) {
-                    printf("\n  ProductIndex[%d]: N=%d", mm,
-                           rates->product_idx[n][mm]);
-                }
+                // if (options.verbose) {
+                //     printf("\n  ProductIndex[%d]: N=%d", mm,
+                //            rates->product_idx[n][mm]);
+                // }
             }
             subindex = -1;
             break;
@@ -193,9 +193,9 @@ struct rate_library* rate_library_create(struct option_values options) {
         rates->reactant_2[i] = rates->reactant_idx[i][1];
         rates->reactant_3[i] = rates->reactant_idx[i][2];
     }
-    if (options.verbose) {
-        printf("\n");
-    }
+    // if (options.verbose) {
+    //     printf("\n");
+    // }
 
     return rates;
 }

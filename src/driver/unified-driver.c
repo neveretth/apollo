@@ -65,12 +65,8 @@ int unified_driver(struct simulation_properties sim_prop,
         }
     }
 
-    options.neutrino_file = sim_prop.neutrino_file;
-    options.rate_library_file = sim_prop.rate_library_file;
-    options.network_file = sim_prop.network_file;
-
     if (sim_prop.thermo) {
-        rates = rate_library_create(options);
+        rates = rate_library_create(sim_prop);
         thermo = malloc(sim_prop.resolution[0] * sizeof(struct tnn*));
         for (int i = 0; i < sim_prop.resolution[0]; i++) {
             thermo[i] = malloc(sim_prop.resolution[1] * sizeof(struct tnn*));
@@ -79,7 +75,7 @@ int unified_driver(struct simulation_properties sim_prop,
                     malloc(sim_prop.resolution[2] * sizeof(struct tnn*));
             }
         }
-        thermo[0][0][0] = network_create(options);
+        thermo[0][0][0] = network_create(sim_prop);
         thermo[0][0][0]->f->dt_init = 1e-17;
         for (int i = 0; i < sim_prop.resolution[0]; i++) {
             for (int j = 0; j < sim_prop.resolution[1]; j++) {
@@ -104,7 +100,7 @@ int unified_driver(struct simulation_properties sim_prop,
                     malloc(sim_prop.resolution[2] * sizeof(struct neunet*));
             }
         }
-        neutrino[0][0][0] = neunet_create(options);
+        neutrino[0][0][0] = neunet_create(sim_prop);
         neutrino[0][0][0]->f->cycle_max = (int)1e9;
         neutrino[0][0][0]->f->EpsA = 1.0e-06;
         neutrino[0][0][0]->f->EpsR = 1.0e-04;

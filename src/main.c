@@ -14,33 +14,6 @@ int main(int argc, char** argv) {
         goto exit_fail;
     }
 
-    // Keep this stuff for now I suppose...
-    // I'll clean it all up later.
-    if (options.thermo_debug) {
-        if (thermo_debug(options) == EXIT_FAILURE) {
-            options_clean(options);
-            goto exit_fail;
-        }
-    }
-    if (options.neutrino_debug) {
-        if (neutrino_debug(options) == EXIT_FAILURE) {
-            options_clean(options);
-            goto exit_fail;
-        }
-    }
-    if (options.hydro_debug) {
-        if (hydro_debug(options) == EXIT_FAILURE) {
-            options_clean(options);
-            goto exit_fail;
-        }
-    }
-    if (options.full) {
-        if (full_simple(options) == EXIT_FAILURE) {
-            options_clean(options);
-            goto exit_fail;
-        }
-    }
-
     toml_result_t config_toml = toml_parse_file_ex(options.config_file);
     toml_result_t simulation_toml = toml_parse_file_ex(options.simulation_file);
 

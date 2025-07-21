@@ -78,15 +78,8 @@ int print_results(const struct rate_library* rates, const struct tnn* network,
 }
 
 int options_clean(struct option_values options) {
-    if (options.thermo_debug) {
-        fclose(options.network_file);
-        fclose(options.rate_library_file);
-    }
-    if (options.neutrino_debug) {
-        H5Fclose(options.neutrino_file);
-    }
-    if (options.hydro_debug) {
-    }
+    free(options.config_file);
+    free(options.simulation_file);
     return EXIT_SUCCESS;
 }
 

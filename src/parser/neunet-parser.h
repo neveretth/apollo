@@ -14,6 +14,6 @@ float hdf5_read(const hid_t file, const char* dataset_name);
 
 // Return pointer to neutrino network (neunet) with the data in the file passed
 // to the program.
-struct neunet* neunet_create(struct option_values options);
+struct neunet* neunet_create(struct simulation_properties sim_prop);
 
 #endif

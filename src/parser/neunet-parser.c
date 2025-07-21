@@ -42,7 +42,7 @@ float hdf5_read(const hid_t file, const char* dataset_name) {
     return data;
 }
 
-struct neunet* neunet_create(struct option_values options) {
+struct neunet* neunet_create(struct simulation_properties sim_prop) {
     struct neunet* network = malloc(sizeof(struct neunet));
     network->info = malloc(sizeof(struct neunet_info));
     network->info->num_groups = NUM_GROUPS;
@@ -50,8 +50,8 @@ struct neunet* neunet_create(struct option_values options) {
     network->fptr = malloc(sizeof(struct neunet_fptr));
 
     network->fptr->ec =
-        hdf5_read_1d(options.neutrino_file, "ProfileInfo/Energy");
-    float* de = hdf5_read_1d(options.neutrino_file, "ProfileInfo/EnergyWidths");
+        hdf5_read_1d(sim_prop.neutrino_file, "ProfileInfo/Energy");
+    float* de = hdf5_read_1d(sim_prop.neutrino_file, "ProfileInfo/EnergyWidths");
 
     // Calculating dv based on ec and de
     network->fptr->dv = malloc(sizeof(float) * network->info->num_groups);
@@ -68,12 +68,12 @@ struct neunet* neunet_create(struct option_values options) {
 
     // Reading in Rho, T, Ye, Mu
     network->f->mu =
-        hdf5_read(options.neutrino_file, "ProfileInfo/Chemical_Potential");
+        hdf5_read(sim_prop.neutrino_file, "ProfileInfo/Chemical_Potential");
     network->f->kt =
-        hdf5_read(options.neutrino_file, "ProfileInfo/Temperature");
-    network->f->rho = hdf5_read(options.neutrino_file, "ProfileInfo/Density");
+        hdf5_read(sim_prop.neutrino_file, "ProfileInfo/Temperature");
+    network->f->rho = hdf5_read(sim_prop.neutrino_file, "ProfileInfo/Density");
     network->f->ye =
-        hdf5_read(options.neutrino_file, "ProfileInfo/Electron_Fraction");
+        hdf5_read(sim_prop.neutrino_file, "ProfileInfo/Electron_Fraction");
 
     char dataset_name[128];
 
@@ -90,7 +90,7 @@ struct neunet* neunet_create(struct option_values options) {
         strcpy(dataset_name, "Opacities/NES_MuonTau"); // Muon-Tau Scattering
     }
 
-    network->info->rate_in = hdf5_read_2d(options.neutrino_file, dataset_name);
+    network->info->rate_in = hdf5_read_2d(sim_prop.neutrino_file, dataset_name);
 
     // Invert the bastard. This is slow but it really doesn't matter (for now).
     // O(who cares)

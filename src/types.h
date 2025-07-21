@@ -13,19 +13,12 @@
 
 // Contain values for all options when calling program.
 struct option_values {
-    FILE* rate_library_file;
-    FILE* network_file;
     char* config_file;
     char* simulation_file;
-    hid_t neutrino_file;
     int verbose;
     int rocm_accel;
     int rocm_debug;
     int halt;
-    int thermo_debug;
-    int neutrino_debug;
-    int hydro_debug;
-    int full;
 };
 
 struct simulation_properties {

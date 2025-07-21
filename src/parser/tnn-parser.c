@@ -12,14 +12,14 @@
 
 #define PF_ALLOC_CHUNK 24
 
-struct tnn* network_create(struct option_values options) {
+struct tnn* network_create(struct simulation_properties sim_prop) {
 
-    if (validate_file(options.network_file) == EXIT_FAILURE) {
+    if (validate_file(sim_prop.network_file) == EXIT_FAILURE) {
         return NULL;
     }
 
     int size = 0;
-    fscanf(options.network_file, "%i\n", &size);
+    fscanf(sim_prop.network_file, "%i\n", &size);
 
     struct tnn* network = malloc(sizeof(struct tnn));
 
@@ -57,12 +57,12 @@ struct tnn* network_create(struct option_values options) {
     int iso_idx = -1;
     int iso_subindex = 3;
 
-    if (options.verbose) {
-        printf("\nData read in:\n");
-    }
+    // if (sim_prop.verbose) {
+    //     printf("\nData read in:\n");
+    // }
 
     // Assume lines can contain up to 60 characters.
-    while (fgets(line, 60, options.network_file)) {
+    while (fgets(line, 60, sim_prop.network_file)) {
         iso_subindex++;
         if (iso_subindex == 4) {
             iso_subindex = 0;
@@ -70,9 +70,9 @@ struct tnn* network_create(struct option_values options) {
             // Scan and parse a title line
             sscanf(line, "%s %d %d %d %f %f", iso_symbol, &a, &z, &n, &y,
                    &mass);
-            if (options.verbose) {
-                printf("\n%s %d %d %d %f %f\n", iso_symbol, a, z, n, y, mass);
-            }
+            // if (sim_prop.verbose) {
+            //     printf("\n%s %d %d %d %f %f\n", iso_symbol, a, z, n, y, mass);
+            // }
             network->iptr->z[iso_idx] = z;
             network->iptr->n[iso_idx] = n;
             network->fptr->aa[iso_idx] = (float)a;
@@ -87,10 +87,10 @@ struct tnn* network_create(struct option_values options) {
             // Scan and parse a partition function line.
             sscanf(line, "%f %f %f %f %f %f %f %f", &pf0, &pf1, &pf2, &pf3,
                    &pf4, &pf5, &pf6, &pf7);
-            if (options.verbose) {
-                printf("%f %f %f %f %f %f %f %f\n", pf0, pf1, pf2, pf3, pf4,
-                       pf5, pf6, pf7);
-            }
+            // if (sim_prop.verbose) {
+            //     printf("%f %f %f %f %f %f %f %f\n", pf0, pf1, pf2, pf3, pf4,
+            //            pf5, pf6, pf7);
+            // }
             int tin = iso_subindex - 1;
             if (network->info->part_func[iso_idx] == NULL) {
                 network->info->part_func[iso_idx] =
