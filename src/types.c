@@ -78,8 +78,7 @@ int print_results(const struct rate_library* rates, const struct tnn* network,
 }
 
 int options_clean(struct option_values options) {
-    free(options.config_file);
-    free(options.simulation_file);
+    // NOTHING.
     return EXIT_SUCCESS;
 }
 

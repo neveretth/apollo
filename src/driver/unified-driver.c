@@ -65,6 +65,7 @@ int unified_driver(struct simulation_properties sim_prop,
         }
     }
 
+    struct problem_parameters* params;
     if (sim_prop.thermo) {
         rates = rate_library_create(sim_prop);
         thermo = malloc(sim_prop.resolution[0] * sizeof(struct tnn*));
@@ -86,6 +87,7 @@ int unified_driver(struct simulation_properties sim_prop,
                 }
             }
         }
+        params = problem_parameters_create(rates, thermo[0][0][0], options);
     }
 
     // This is proof-of-concept. It does _not_ function how a real simulation
@@ -140,7 +142,6 @@ int unified_driver(struct simulation_properties sim_prop,
 
     time_t kerneltime = clock();
 
-    struct problem_parameters* params;
     while (t < t_end) {
         t_inter += t_inter_lvl;
         while (t < t_inter) {
@@ -192,15 +193,12 @@ int unified_driver(struct simulation_properties sim_prop,
                                 rates->prefactor[n] *=
                                     (density[rates->num_react_species[n] - 1]);
                             }
-                            params = problem_parameters_create(
-                                rates, thermo[i][j][k], options);
+                            problem_parameters_update(params, rates, thermo[i][j][k]);
                             if (tnn_integrate_network(rates, thermo[i][j][k],
                                                       params, options) ==
                                 EXIT_FAILURE) {
                                 return EXIT_FAILURE;
                             }
-                            problem_parameters_destroy(
-                                &params, thermo[i][j][k]->info->number_species);
                         }
                         // Thermo ==> Hydro
                         // TODO: Retrieve values from thermo.
