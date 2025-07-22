@@ -4,6 +4,8 @@
 #define __HIP_PLATFORM_AMD__
 #include <hip/hip_runtime.h>
 
+#include "../../types.h"
+
 // Integrate thermonuclear network.
 int tnn_integration_kernel(float* P0, float* P1, float* P2, float* P3,
                            float* P4, float* P5, float* P6, float* Prefac,
@@ -34,6 +36,19 @@ float compute_timestep(float prevdt, float t, float tmax);
 // approximation
 // *** NOT PRESENTLY USED ***
 float compute_keff(float Fminus, float Y);
+
+// Perform preprocessing on thermonuclear network data.
+int tnn_data_preprocess(struct tnn**** tnn, struct rt_hydro_mesh* mesh,
+                        struct simulation_properties sim_prop);
+
+// Update tnn kernel parameters.
+int problem_parameters_update(struct problem_parameters* params,
+                              struct rate_library* rates, struct tnn* network);
+
+void reaction_mask_update(int** mask, struct rate_library* rates,
+                          struct tnn* network,
+                          struct problem_parameters* params, int* temp_int1,
+                          int* temp_int2);
 
 // HIP KERNEL
 

@@ -3,18 +3,18 @@
 #include "../display.h"
 #include "../numeffect.h"
 #include "../parser.h"
+#include "../parser/tnn-parameters.h"
 
-// NOTE: this method of using drivers is intended to be deprecated...
 #include "../kernel/hydro/kernel.h"
 #include "../kernel/neutrino/kernel.h"
 #include "../kernel/thermonuclear/kernel.h"
+
+// NOTE: this method of using drivers is intended to be deprecated...
 #include "kernel-driver.h"
 
 #include <math.h>
 #include <stdlib.h>
 #include <time.h>
-
-#define BOLTZMANN_CONSTANT 1.380658e-16
 
 int unified_driver(struct simulation_properties sim_prop,
                    struct option_values options) {
@@ -156,47 +156,50 @@ int unified_driver(struct simulation_properties sim_prop,
             dt = mesh->dt;
             mesh->t_end = 0; // Single step
             if (sim_prop.hydro) {
+                if (hydro_data_preprocess() == EXIT_FAILURE) {
+                    fail = true;
+                    goto exit;
+                }
                 if (hydro_integrate_mesh(mesh, options) == EXIT_FAILURE) {
                     fail = true;
                     goto exit;
                 }
             }
             if (sim_prop.neutrino) {
+                if (neunet_data_preprocess(neutrino, mesh, sim_prop) ==
+                    EXIT_FAILURE) {
+                    fail = true;
+                    goto exit;
+                }
                 for (int i = 0; i < sim_prop.resolution[0]; i++) {
                     for (int j = 0; j < sim_prop.resolution[1]; j++) {
                         for (int k = 0; k < sim_prop.resolution[2]; k++) {
-                            // Hydro ==> Neutrino
-                            neutrino[i][j][k]->f->kt =
-                                mesh->temp[i][j][k] * BOLTZMANN_CONSTANT;
-                            neutrino[i][j][k]->f->rho = mesh->density[i][j][k];
-                            neutrino[i][j][k]->f->t_end = dt;
-                            // TODO: regenerate certain params that change with
-                            // this.
                             if (neunet_integrate_network(neutrino[i][j][k],
                                                          options) ==
                                 EXIT_FAILURE) {
                                 fail = true;
                                 goto exit;
                             }
-                            // TODO: Retrieve values from neutrino.
-                            // Neutrino ==> Hydro
                         }
                     }
                 }
             }
             if (sim_prop.thermo) {
+                if (tnn_data_preprocess(thermo, mesh, sim_prop) ==
+                    EXIT_FAILURE) {
+                    fail = true;
+                    goto exit;
+                }
                 for (int i = 0; i < sim_prop.resolution[0]; i++) {
                     for (int j = 0; j < sim_prop.resolution[1]; j++) {
                         for (int k = 0; k < sim_prop.resolution[2]; k++) {
-                            // Hydro ==> Thermo
-                            thermo[i][j][k]->f->rho = mesh->density[i][j][k];
-                            thermo[i][j][k]->f->t9 = mesh->temp[i][j][k] / 1e9;
+                            // This per-network preprocessing should occur in
+                            // the compute kernel.
                             float density[3];
                             density[0] = 1.0f;
                             density[1] = thermo[i][j][k]->f->rho;
                             density[2] = thermo[i][j][k]->f->rho *
                                          thermo[i][j][k]->f->rho;
-                            thermo[i][j][k]->f->t_max = dt;
                             for (int n = 0; n < rates->number_reactions; n++) {
                                 rates->prefactor[n] *=
                                     (density[rates->num_react_species[n] - 1]);

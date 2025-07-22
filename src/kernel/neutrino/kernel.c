@@ -194,3 +194,22 @@ float compute_next_timestep(const float* E_O, const float* E_D, float dt_old,
 
     return dt_new;
 }
+
+#define BOLTZMANN_CONSTANT 1.380658e-16
+
+// This really highlights the weakness of storing the neutrino network data like
+// this. A rework could be extremely beneficial for parallelization.
+int neunet_data_preprocess(struct neunet**** neunet, struct rt_hydro_mesh* mesh,
+                           struct simulation_properties sim_prop) {
+    for (int i = 0; i < sim_prop.resolution[0]; i++) {
+        for (int j = 0; j < sim_prop.resolution[1]; j++) {
+            for (int k = 0; k < sim_prop.resolution[2]; k++) {
+                neunet[i][j][k]->f->kt =
+                    mesh->temp[i][j][k] * BOLTZMANN_CONSTANT;
+                neunet[i][j][k]->f->rho = mesh->density[i][j][k];
+                neunet[i][j][k]->f->t_end = mesh->dt;
+            }
+        }
+    }
+    return EXIT_SUCCESS;
+}

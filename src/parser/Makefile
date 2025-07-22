@@ -1,4 +1,4 @@
-parser: $(BUILD_DIR)/src/rate-library-parser.c.o $(BUILD_DIR)/src/tnn-parameters.c.o $(BUILD_DIR)/src/tnn-parser.c.o $(BUILD_DIR)/src/neunet-parser.c.o $(BUILD_DIR)/src/validate.c.o
+parser: $(BUILD_DIR)/src/rate-library-parser.c.o $(BUILD_DIR)/src/tnn-parser.c.o $(BUILD_DIR)/src/neunet-parser.c.o $(BUILD_DIR)/src/validate.c.o $(BUILD_DIR)/src/tnn-parameters.c.o
 	@
 	
 $(BUILD_DIR)/src/neunet-parser.c.o: $(SOURCE_DIR)/parser/neunet-parser.c
