@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int print_float_2d(float** grid, int rows, int cols) {
+int print_real_t_2d(real_t** grid, int rows, int cols) {
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
             printf(" %12.8f", grid[i][j]);
@@ -13,7 +13,7 @@ int print_float_2d(float** grid, int rows, int cols) {
     return EXIT_SUCCESS;
 }
 
-int print_float_3d(float*** grid, int i_, int j_, int k_) {
+int print_real_t_3d(real_t*** grid, int i_, int j_, int k_) {
     for (int i = 0; i < i_; i++) {
         for (int j = 0; j < j_; j++) {
             for (int k = 0; k < k_; k++) {
@@ -26,7 +26,7 @@ int print_float_3d(float*** grid, int i_, int j_, int k_) {
 }
 
 // Print grid to file
-int fprint_float_3d(FILE* file, float*** grid, int i_, int j_, int k_) {
+int fprint_real_t_3d(FILE* file, real_t*** grid, int i_, int j_, int k_) {
     for (int i = 0; i < i_; i++) {
         for (int j = 0; j < j_; j++) {
             for (int k = 0; k < k_; k++) {

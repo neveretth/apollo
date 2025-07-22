@@ -31,25 +31,25 @@ struct tnn* network_create(struct simulation_properties sim_prop) {
     network->iptr->z = malloc(size * sizeof(int));
     network->iptr->n = malloc(size * sizeof(int));
 
-    network->fptr->aa = malloc(size * sizeof(float));
-    network->fptr->x = malloc(size * sizeof(float));
-    network->fptr->y = malloc(size * sizeof(float));
-    network->fptr->mass_excess = malloc(size * sizeof(float));
+    network->fptr->aa = malloc(size * sizeof(real_t));
+    network->fptr->x = malloc(size * sizeof(real_t));
+    network->fptr->y = malloc(size * sizeof(real_t));
+    network->fptr->mass_excess = malloc(size * sizeof(real_t));
 
-    network->info->part_func = malloc(size * sizeof(float*));
+    network->info->part_func = malloc(size * sizeof(real_t*));
     network->info->iso_label = malloc(size * sizeof(char*));
 
     char line[60];
     char iso_symbol[5];
     int z, n, a;
-    float y, mass;
-    float pf0, pf1, pf2, pf3, pf4, pf5, pf6, pf7;
+    real_t y, mass;
+    real_t pf0, pf1, pf2, pf3, pf4, pf5, pf6, pf7;
 
     // Genuinely atrocious... do NOT let this into release.
-    float temp[24] = {0.1f, 0.15f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f,
+    real_t temp[24] = {0.1f, 0.15f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f,
                       0.8f, 0.9f,  1.0f, 1.5f, 2.0f, 2.5f, 3.0f, 3.5f,
                       4.0f, 4.5f,  5.0f, 6.0f, 7.0f, 8.0f, 9.0f, 10.0f};
-    network->info->part_func_temp = malloc(sizeof(float) * PF_ALLOC_CHUNK);
+    network->info->part_func_temp = malloc(sizeof(real_t) * PF_ALLOC_CHUNK);
     for (int i = 0; i < 24; i++) {
         network->info->part_func_temp[i] = temp[i];
     }
@@ -75,7 +75,7 @@ struct tnn* network_create(struct simulation_properties sim_prop) {
             // }
             network->iptr->z[iso_idx] = z;
             network->iptr->n[iso_idx] = n;
-            network->fptr->aa[iso_idx] = (float)a;
+            network->fptr->aa[iso_idx] = (real_t)a;
             network->fptr->y[iso_idx] = y;
             network->fptr->x[iso_idx] =
                 network->fptr->aa[iso_idx] * network->fptr->y[iso_idx];
@@ -94,7 +94,7 @@ struct tnn* network_create(struct simulation_properties sim_prop) {
             int tin = iso_subindex - 1;
             if (network->info->part_func[iso_idx] == NULL) {
                 network->info->part_func[iso_idx] =
-                    malloc(sizeof(float) * PF_ALLOC_CHUNK);
+                    malloc(sizeof(real_t) * PF_ALLOC_CHUNK);
             }
             network->info->part_func[iso_idx][8 * (tin)] = pf0;
             network->info->part_func[iso_idx][8 * (tin) + 1] = pf1;

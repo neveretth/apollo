@@ -3,32 +3,32 @@
 #include <math.h>
 #include <stdlib.h>
 
-int hydro_integration_kernel(float*** temp, float*** density, float volume,
-                                float h, float dt, float t_end, int* dim) {
+int hydro_integration_kernel(real_t*** temp, real_t*** density, real_t volume,
+                                real_t h, real_t dt, real_t t_end, int* dim) {
     // This really should be passed, not created each time.
-    float*** delta_temp = malloc(dim[0] * sizeof(float*));
+    real_t*** delta_temp = malloc(dim[0] * sizeof(real_t*));
     for (int i = 0; i < dim[0]; i++) {
-        delta_temp[i] = malloc(dim[1] * sizeof(float*));
+        delta_temp[i] = malloc(dim[1] * sizeof(real_t*));
         for (int j = 0; j < dim[1]; j++) {
-            delta_temp[i][j] = malloc(dim[2] * sizeof(float));
+            delta_temp[i][j] = malloc(dim[2] * sizeof(real_t));
         }
     }
 
     // For now just assume it's all even. Volume is for each cell.
-    float area = volume / dim[2]; // Placeholder area of interaction.
+    real_t area = volume / dim[2]; // Placeholder area of interaction.
 
-    float c = 1e8;  // Placeholder contribution value.
-    float ntd = 0;  // Nuclear burning temp diff (assume negligible for now)
+    real_t c = 1e8;  // Placeholder contribution value.
+    real_t ntd = 0;  // Nuclear burning temp diff (assume negligible for now)
 
-    float t = 0;
+    real_t t = 0;
 
     // Does one integration (single step if t_end = 0)
     do {
         for (int i = 0; i < dim[0]; i++) {
             for (int j = 0; j < dim[1]; j++) {
                 for (int k = 0; k < dim[2]; k++) {
-                    float pdvh = 1 / (density[i][j][k] * volume * c);
-                    float temp_diff = -(6 * temp[i][j][k]);
+                    real_t pdvh = 1 / (density[i][j][k] * volume * c);
+                    real_t temp_diff = -(6 * temp[i][j][k]);
 
                     // As with the linear integration, towards idx=0 is positive
                     temp_diff += temp[i - (i > 0)][j][k];

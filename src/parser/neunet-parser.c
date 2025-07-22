@@ -10,14 +10,14 @@
 // Yet another "temporary" workaround.
 #define scattering_kernel 1
 
-float** hdf5_read_2d(const hid_t file, const char* dataset_name) {
-    float* data = malloc(sizeof(float*) * NUM_GROUPS * NUM_GROUPS);
+real_t** hdf5_read_2d(const hid_t file, const char* dataset_name) {
+    real_t* data = malloc(sizeof(real_t*) * NUM_GROUPS * NUM_GROUPS);
     hid_t dataset = H5Dopen2(file, dataset_name, H5P_DEFAULT);
     H5Dread(dataset, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
     H5Dclose(dataset);
-    float** datagrid = malloc(sizeof(float*) * NUM_GROUPS);
+    real_t** datagrid = malloc(sizeof(real_t*) * NUM_GROUPS);
     for (int i = 0; i < NUM_GROUPS; i++) {
-        datagrid[i] = malloc(sizeof(float) * NUM_GROUPS);
+        datagrid[i] = malloc(sizeof(real_t) * NUM_GROUPS);
         for (int k = 0; k < NUM_GROUPS; k++) {
             datagrid[i][k] = data[(i * NUM_GROUPS) + k];
         }
@@ -26,16 +26,16 @@ float** hdf5_read_2d(const hid_t file, const char* dataset_name) {
     return datagrid;
 }
 
-float* hdf5_read_1d(const hid_t file, const char* dataset_name) {
-    float* data = malloc(sizeof(float) * NUM_GROUPS);
+real_t* hdf5_read_1d(const hid_t file, const char* dataset_name) {
+    real_t* data = malloc(sizeof(real_t) * NUM_GROUPS);
     hid_t dataset = H5Dopen2(file, dataset_name, H5P_DEFAULT);
     H5Dread(dataset, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
     H5Dclose(dataset);
     return data;
 }
 
-float hdf5_read(const hid_t file, const char* dataset_name) {
-    float data;
+real_t hdf5_read(const hid_t file, const char* dataset_name) {
+    real_t data;
     hid_t dataset = H5Dopen2(file, dataset_name, H5P_DEFAULT);
     H5Dread(dataset, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL, H5P_DEFAULT, &data);
     H5Dclose(dataset);
@@ -51,10 +51,10 @@ struct neunet* neunet_create(struct simulation_properties sim_prop) {
 
     network->fptr->ec =
         hdf5_read_1d(sim_prop.neutrino_file, "ProfileInfo/Energy");
-    float* de = hdf5_read_1d(sim_prop.neutrino_file, "ProfileInfo/EnergyWidths");
+    real_t* de = hdf5_read_1d(sim_prop.neutrino_file, "ProfileInfo/EnergyWidths");
 
     // Calculating dv based on ec and de
-    network->fptr->dv = malloc(sizeof(float) * network->info->num_groups);
+    network->fptr->dv = malloc(sizeof(real_t) * network->info->num_groups);
     for (int i = 0; i < network->info->num_groups; i++) {
         network->fptr->dv[i] = ((network->fptr->ec[i] + 0.5 * de[i]) *
                                     (network->fptr->ec[i] + 0.5 * de[i]) *
@@ -96,13 +96,13 @@ struct neunet* neunet_create(struct simulation_properties sim_prop) {
     // O(who cares)
     for (int i = 0; i < network->info->num_groups; i++) {
         for (int k = 1; k < network->info->num_groups / 2; k++) {
-            float tmp = network->info->rate_in[i][k];
+            real_t tmp = network->info->rate_in[i][k];
             network->info->rate_in[i][k] = network->info->rate_in[k][i];
             network->info->rate_in[k][i] = tmp;
         }
     }
 
-    float c = 2.99792458e10;
+    real_t c = 2.99792458e10;
 
     // Multiply each element by c
     for (int i = 0; i < network->info->num_groups; ++i) {
@@ -112,7 +112,7 @@ struct neunet* neunet_create(struct simulation_properties sim_prop) {
     }
 
     // Initialize n_eq based on mu and kt for the current model
-    network->fptr->n_eq = malloc(sizeof(float) * network->info->num_groups);
+    network->fptr->n_eq = malloc(sizeof(real_t) * network->info->num_groups);
     for (int i = 0; i < network->info->num_groups; i++) {
         network->fptr->n_eq[i] =
             1.0 /
@@ -132,10 +132,10 @@ struct neunet* neunet_create(struct simulation_properties sim_prop) {
     }
 
     network->info->rate_out =
-        malloc(sizeof(float*) * network->info->num_groups);
+        malloc(sizeof(real_t*) * network->info->num_groups);
     for (int i = 0; i < network->info->num_groups; i++) {
         network->info->rate_out[i] =
-            malloc(sizeof(float) * network->info->num_groups);
+            malloc(sizeof(real_t) * network->info->num_groups);
     }
 
     for (int i = 0; i < network->info->num_groups; i++) {
@@ -144,7 +144,7 @@ struct neunet* neunet_create(struct simulation_properties sim_prop) {
         }
     }
 
-    network->fptr->n_old = malloc(sizeof(float) * network->info->num_groups);
+    network->fptr->n_old = malloc(sizeof(real_t) * network->info->num_groups);
 
 
     return network;

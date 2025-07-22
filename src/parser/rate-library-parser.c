@@ -27,15 +27,15 @@ struct rate_library* rate_library_create(struct simulation_properties sim_prop) 
     rates->num_products = malloc(size * sizeof(int));
     rates->is_ec = malloc(size * sizeof(int));
     rates->is_reverse = malloc(size * sizeof(int));
-    rates->prefactor = malloc(size * sizeof(float));
-    rates->q_value = malloc(size * sizeof(float));
-    rates->p0 = malloc(size * sizeof(float));
-    rates->p1 = malloc(size * sizeof(float));
-    rates->p2 = malloc(size * sizeof(float));
-    rates->p3 = malloc(size * sizeof(float));
-    rates->p4 = malloc(size * sizeof(float));
-    rates->p5 = malloc(size * sizeof(float));
-    rates->p6 = malloc(size * sizeof(float));
+    rates->prefactor = malloc(size * sizeof(real_t));
+    rates->q_value = malloc(size * sizeof(real_t));
+    rates->p0 = malloc(size * sizeof(real_t));
+    rates->p1 = malloc(size * sizeof(real_t));
+    rates->p2 = malloc(size * sizeof(real_t));
+    rates->p3 = malloc(size * sizeof(real_t));
+    rates->p4 = malloc(size * sizeof(real_t));
+    rates->p5 = malloc(size * sizeof(real_t));
+    rates->p6 = malloc(size * sizeof(real_t));
     rates->reactant_n = malloc(size * sizeof(int*));
     rates->reactant_z = malloc(size * sizeof(int*));
     rates->product_n = malloc(size * sizeof(int*));
@@ -51,14 +51,14 @@ struct rate_library* rate_library_create(struct simulation_properties sim_prop) 
 
     char line[120];
     char reaction_token[LABELSIZE];
-    float p0, p1, p2, p3, p4, p5, p6, q, sf;
+    real_t p0, p1, p2, p3, p4, p5, p6, q, sf;
     int i0, i1, i2, i3, i4, i5, i6;
     int ii[6];
 
     /*
     Read in the file line by line and parse into variables. The expected
     structure of each line is:
-         float float float float float float float string
+         real_t real_t real_t real_t real_t real_t real_t string
     ...each separated by a space, with no whitespace in the string.
     */
 

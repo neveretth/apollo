@@ -4,25 +4,25 @@
 #include "../../types.h"
 
 // Integrate neutrino network.
-int neunet_integration_kernel(float** rate_in, float** rate_out, float* n_old,
-                              float* ec, float* dv, float dt, float t_end,
-                              float EpsA, float EpsR, float g_a, float g_b,
-                              float g_c, int n_g, int halt);
+int neunet_integration_kernel(real_t** rate_in, real_t** rate_out, real_t* n_old,
+                              real_t* ec, real_t* dv, real_t dt, real_t t_end,
+                              real_t EpsA, real_t EpsR, real_t g_a, real_t g_b,
+                              real_t g_c, int n_g, int halt);
 
 // Neutrino integration function.
-void compute_rates(float* F, float* k, float** R_In, float** R_Out, float* N,
-                   float* dV, int n_g);
+void compute_rates(real_t* F, real_t* k, real_t** R_In, real_t** R_Out, real_t* N,
+                   real_t* dV, int n_g);
 
 // Neutrino integration function.
-void QSS2(float* Nnew, float* F0, float* Fp, float* k0, float* kp,
-          float* Alpha0, float dt, float* Nold, int n_g);
+void QSS2(real_t* Nnew, real_t* F0, real_t* Fp, real_t* k0, real_t* kp,
+          real_t* Alpha0, real_t dt, real_t* Nold, int n_g);
 
 // Neutrino integration function.
-void QSS1(float* N_p, float* Alpha, float* F, float* k, float dt, float* Nold,
+void QSS1(real_t* N_p, real_t* Alpha, real_t* F, real_t* k, real_t dt, real_t* Nold,
           int n_g);
 
 // Neutrino integration function.
-float compute_next_timestep(const float* E_O, const float* E_D, float dt_old,
+real_t compute_next_timestep(const real_t* E_O, const real_t* E_D, real_t dt_old,
                             int n_g);
 
 // Perform preprocessing on neutrino network data.

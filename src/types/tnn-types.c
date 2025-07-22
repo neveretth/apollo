@@ -181,24 +181,24 @@ struct tnn* tnn_clone(const struct tnn* src) {
     dest->iptr->z = malloc(sizeof(int) * src->info->number_species);
     dest->iptr->n = malloc(sizeof(int) * src->info->number_species);
 
-    dest->fptr->aa = malloc(sizeof(float) * src->info->number_species);
-    dest->fptr->x = malloc(sizeof(float) * src->info->number_species);
-    dest->fptr->y = malloc(sizeof(float) * src->info->number_species);
-    dest->fptr->mass_excess = malloc(sizeof(float) * src->info->number_species);
+    dest->fptr->aa = malloc(sizeof(real_t) * src->info->number_species);
+    dest->fptr->x = malloc(sizeof(real_t) * src->info->number_species);
+    dest->fptr->y = malloc(sizeof(real_t) * src->info->number_species);
+    dest->fptr->mass_excess = malloc(sizeof(real_t) * src->info->number_species);
 
-    dest->info->part_func = malloc(sizeof(float*) * src->info->number_species);
+    dest->info->part_func = malloc(sizeof(real_t*) * src->info->number_species);
     dest->info->iso_label = malloc(sizeof(char*) * src->info->number_species);
 
-    memcpy(dest->f, src->f, 4 * sizeof(float));
+    memcpy(dest->f, src->f, 4 * sizeof(real_t));
 
     memcpy(dest->fptr->mass_excess, src->fptr->mass_excess,
-           src->info->number_species * sizeof(float));
+           src->info->number_species * sizeof(real_t));
     memcpy(dest->fptr->aa, src->fptr->aa,
-           src->info->number_species * sizeof(float));
+           src->info->number_species * sizeof(real_t));
     memcpy(dest->fptr->x, src->fptr->x,
-           src->info->number_species * sizeof(float));
+           src->info->number_species * sizeof(real_t));
     memcpy(dest->fptr->y, src->fptr->y,
-           src->info->number_species * sizeof(float));
+           src->info->number_species * sizeof(real_t));
 
     memcpy(dest->iptr->z, src->iptr->z,
            src->info->number_species * sizeof(int));
@@ -206,16 +206,16 @@ struct tnn* tnn_clone(const struct tnn* src) {
            src->info->number_species * sizeof(int));
 
     dest->info->number_species = src->info->number_species;
-    dest->info->part_func_temp = malloc(PF_ALLOC * sizeof(float));
+    dest->info->part_func_temp = malloc(PF_ALLOC * sizeof(real_t));
     memcpy(dest->info->part_func_temp, src->info->part_func_temp,
-           PF_ALLOC * sizeof(float));
+           PF_ALLOC * sizeof(real_t));
     for (int i = 0; i < src->info->number_species; i++) {
         dest->info->iso_label[i] =
             malloc((strlen(src->info->iso_label[i]) + 1) * sizeof(char));
         strcpy(dest->info->iso_label[i], src->info->iso_label[i]);
-        dest->info->part_func[i] = malloc(PF_ALLOC * sizeof(float));
+        dest->info->part_func[i] = malloc(PF_ALLOC * sizeof(real_t));
         memcpy(dest->info->part_func[i], src->info->part_func[i],
-               PF_ALLOC * sizeof(float));
+               PF_ALLOC * sizeof(real_t));
     }
 
     return dest;

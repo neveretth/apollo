@@ -11,7 +11,7 @@ struct hipDeviceProp_t* get_hip_device() {
     printf("==apollo== devices on system: %i\n", num_devices);
 
     int best_device_id = 0;
-    float best_device_tflops = 0;
+    real_t best_device_tflops = 0;
     for (int i = 0; i < num_devices; i++) {
         struct hipDeviceProp_t temp_device;
         if (hipGetDevicePropertiesR0600(&temp_device, i)) {
@@ -19,7 +19,7 @@ struct hipDeviceProp_t* get_hip_device() {
             exit(1);
         }
         // clockRate * 1000 since HIP reports it in kHz
-        float tflops = ((long)temp_device.clockRate * 1000) *
+        real_t tflops = ((long)temp_device.clockRate * 1000) *
                        temp_device.multiProcessorCount *
                        temp_device.maxBlocksPerMultiProcessor;
         tflops *= 64;    // Estimated number of operations per cycle
@@ -59,37 +59,37 @@ int benchmark_device(struct hipDeviceProp_t* device) {
     printf("==apollo==\n");
     printf("==apollo== beginning benchmark (%s)\n", device->name);
 
-    float* h_A = malloc(3 * sizeof(float));
+    real_t* h_A = malloc(3 * sizeof(real_t));
     h_A[0] = 2.0;
     h_A[1] = 4.0;
     h_A[2] = 6.0;
-    float* h_B = malloc(3 * sizeof(float));
+    real_t* h_B = malloc(3 * sizeof(real_t));
     h_B[0] = 0.0;
     h_B[1] = 1.0;
     h_B[2] = 2.0;
-    float* h_C = malloc(3 * sizeof(float));
+    real_t* h_C = malloc(3 * sizeof(real_t));
 
     void* d_A;
     void* d_B;
     void* d_C;
-    hipMalloc(&d_A, sizeof(float) * 3);
-    hipMalloc(&d_B, sizeof(float) * 3);
-    if ((error = hipMalloc(&d_C, sizeof(float) * 3)) != hipSuccess) {
+    hipMalloc(&d_A, sizeof(real_t) * 3);
+    hipMalloc(&d_B, sizeof(real_t) * 3);
+    if ((error = hipMalloc(&d_C, sizeof(real_t) * 3)) != hipSuccess) {
         printf(
             "==apollo== ERROR: encountered error allocating device mem: %i\n",
             error);
         return EXIT_FAILURE;
     }
 
-    hipMemcpy(d_A, h_A, 3 * sizeof(float), hipMemcpyHostToDevice);
-    hipMemcpy(d_C, h_C, 3 * sizeof(float), hipMemcpyHostToDevice);
-    if ((error = hipMemcpy(d_B, h_B, 3 * sizeof(float),
+    hipMemcpy(d_A, h_A, 3 * sizeof(real_t), hipMemcpyHostToDevice);
+    hipMemcpy(d_C, h_C, 3 * sizeof(real_t), hipMemcpyHostToDevice);
+    if ((error = hipMemcpy(d_B, h_B, 3 * sizeof(real_t),
                            hipMemcpyHostToDevice)) != hipSuccess) {
         printf("==apollo== ERROR: encountered error hip memcpy: %i\n", error);
         return EXIT_FAILURE;
     }
 
-    int sharedmem_allocation = 0 * sizeof(float);
+    int sharedmem_allocation = 0 * sizeof(real_t);
 
     struct dim3 blockdim = {3, 1, 1};
     struct dim3 griddim = {1, 1, 1};
@@ -115,7 +115,7 @@ int benchmark_device(struct hipDeviceProp_t* device) {
     //     return 0;
     // }
 
-    hipMemcpy(h_C, d_C, 3 * sizeof(float), hipMemcpyDeviceToHost);
+    hipMemcpy(h_C, d_C, 3 * sizeof(real_t), hipMemcpyDeviceToHost);
 
     printf("==apollo== Output: {  ");
     for (int i = 0; i < 3; i++) {

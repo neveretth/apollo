@@ -27,15 +27,15 @@ int unified_driver(struct simulation_properties sim_prop,
     // Eventually move these to TOML
     mesh->h = 10e+12;
     mesh->volume = 1;
-    float t_end = sim_prop.t_end;
-    // float dt = t_end / 100000;
-    float dt = t_end / 1000;
-    float t = 0;
-    float tres = sim_prop.output_tres;
-    float t_inter_lvl = t_end / tres;
-    float t_inter = 0;
-    float base_temp = sim_prop.hydro_temp_base;
-    float base_density = sim_prop.hydro_density_base;
+    real_t t_end = sim_prop.t_end;
+    // real_t dt = t_end / 100000;
+    real_t dt = t_end / 1000;
+    real_t t = 0;
+    real_t tres = sim_prop.output_tres;
+    real_t t_inter_lvl = t_end / tres;
+    real_t t_inter = 0;
+    real_t base_temp = sim_prop.hydro_temp_base;
+    real_t base_density = sim_prop.hydro_density_base;
 
     // For now hydro mesh must always be initialized, even if the compute kernel
     // is not run.
@@ -50,14 +50,14 @@ int unified_driver(struct simulation_properties sim_prop,
         mesh->volume = mesh->volume / mesh->dim[1];
         mesh->volume = mesh->volume / mesh->dim[2];
 
-        mesh->temp = malloc(mesh->dim[0] * sizeof(float*));
-        mesh->density = malloc(mesh->dim[0] * sizeof(float*));
+        mesh->temp = malloc(mesh->dim[0] * sizeof(real_t*));
+        mesh->density = malloc(mesh->dim[0] * sizeof(real_t*));
         for (int i = 0; i < mesh->dim[0]; i++) {
-            mesh->temp[i] = malloc(mesh->dim[1] * sizeof(float*));
-            mesh->density[i] = malloc(mesh->dim[1] * sizeof(float*));
+            mesh->temp[i] = malloc(mesh->dim[1] * sizeof(real_t*));
+            mesh->density[i] = malloc(mesh->dim[1] * sizeof(real_t*));
             for (int j = 0; j < mesh->dim[1]; j++) {
-                mesh->temp[i][j] = malloc(mesh->dim[2] * sizeof(float));
-                mesh->density[i][j] = malloc(mesh->dim[2] * sizeof(float));
+                mesh->temp[i][j] = malloc(mesh->dim[2] * sizeof(real_t));
+                mesh->density[i][j] = malloc(mesh->dim[2] * sizeof(real_t));
             }
         }
         for (int i = 0; i < mesh->dim[0]; i++) {
@@ -139,7 +139,7 @@ int unified_driver(struct simulation_properties sim_prop,
     }
 
     if (sim_prop.output && sim_prop.hydro) {
-        fprint_float_3d(sim_prop.hydro_out_file, mesh->temp, mesh->dim[0],
+        fprint_real_t_3d(sim_prop.hydro_out_file, mesh->temp, mesh->dim[0],
                         mesh->dim[1], mesh->dim[2]);
     }
 
@@ -195,7 +195,7 @@ int unified_driver(struct simulation_properties sim_prop,
                         for (int k = 0; k < sim_prop.resolution[2]; k++) {
                             // This per-network preprocessing should occur in
                             // the compute kernel.
-                            float density[3];
+                            real_t density[3];
                             density[0] = 1.0f;
                             density[1] = thermo[i][j][k]->f->rho;
                             density[2] = thermo[i][j][k]->f->rho *
@@ -219,7 +219,7 @@ int unified_driver(struct simulation_properties sim_prop,
                 }
             }
             if (sim_prop.output && sim_prop.hydro) {
-                fprint_float_3d(sim_prop.hydro_out_file, mesh->temp,
+                fprint_real_t_3d(sim_prop.hydro_out_file, mesh->temp,
                                 mesh->dim[0], mesh->dim[1], mesh->dim[2]);
             }
 
@@ -230,7 +230,7 @@ int unified_driver(struct simulation_properties sim_prop,
     kerneltime = clock() - kerneltime;
     printf("\n==apollo== Simulation complete.\n");
     if (sim_prop.print_kernel_time) {
-        float kerneltime_seconds = kerneltime;
+        real_t kerneltime_seconds = kerneltime;
         kerneltime_seconds /= CLOCKS_PER_SEC;
         printf("==apollo== Kernel clock time: %f (s)\n", kerneltime_seconds);
     }

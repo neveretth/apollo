@@ -1,40 +1,42 @@
 #ifndef __NEUTRINO_TYPES_H
 #define __NEUTRINO_TYPES_H
 
-// Contain neunet float type data.
+#include "../defs.h"
+
+// Contain neunet real_t type data.
 struct neunet_f {
-    float mu;
-    float kt;
-    float rho;
-    float ye;
-    float cycle_max;
-    float t_end;
-    float t_w0;
-    float EpsA;
-    float EpsR;
-    float t;
-    float dt;
-    float dt_new;
-    float tol;
-    float g_a;
-    float g_b;
-    float g_c;
-    float err;
+    real_t mu;
+    real_t kt;
+    real_t rho;
+    real_t ye;
+    real_t cycle_max;
+    real_t t_end;
+    real_t t_w0;
+    real_t EpsA;
+    real_t EpsR;
+    real_t t;
+    real_t dt;
+    real_t dt_new;
+    real_t tol;
+    real_t g_a;
+    real_t g_b;
+    real_t g_c;
+    real_t err;
 };
 
-// Contain neunet float* type data.
+// Contain neunet real_t* type data.
 struct neunet_fptr {
-    float* ec;
-    float* dv;
-    float* n_eq;
-    float* n_old;
+    real_t* ec;
+    real_t* dv;
+    real_t* n_eq;
+    real_t* n_old;
 };
 
 // Contain neunet special data.
 struct neunet_info {
     int num_groups;
-    float** rate_in;
-    float** rate_out;
+    real_t** rate_in;
+    real_t** rate_out;
 };
 
 // Contain data for neutrino network.

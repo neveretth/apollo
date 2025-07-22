@@ -7,35 +7,35 @@
 #include "../../types.h"
 
 // Integrate thermonuclear network.
-int tnn_integration_kernel(float* P0, float* P1, float* P2, float* P3,
-                           float* P4, float* P5, float* P6, float* Prefac,
-                           float* Q, float* Rate, float* Flux, float* Fplus,
-                           float* Fminus, float* FplusFac, float* FminusFac,
-                           float* FplusSum, float* FminusSum, int* FplusMax,
+int tnn_integration_kernel(real_t* P0, real_t* P1, real_t* P2, real_t* P3,
+                           real_t* P4, real_t* P5, real_t* P6, real_t* Prefac,
+                           real_t* Q, real_t* Rate, real_t* Flux, real_t* Fplus,
+                           real_t* Fminus, real_t* FplusFac, real_t* FminusFac,
+                           real_t* FplusSum, real_t* FminusSum, int* FplusMax,
                            int* FminusMax, int* MapFplus, int* MapFminus,
-                           float* Y, int* NumReactingSpecies, int* Reactant1,
+                           real_t* Y, int* NumReactingSpecies, int* Reactant1,
                            int* Reactant2, int* Reactant3, int number_species,
                            int number_reactions, int f_plus_total,
-                           int f_minus_total, float t9, float t_max,
-                           float dt_init, int halt);
+                           int f_minus_total, real_t t9, real_t t_max,
+                           real_t dt_init, int halt);
 
-int check_asy(float Fminus, float Y, float dt);
+int check_asy(real_t Fminus, real_t Y, real_t dt);
 
 // Return the Y specified by speciesIndex updated using the forward
 // Euler method.
-float euler_update(float FplusSum, float FminusSum, float dt);
+real_t euler_update(real_t FplusSum, real_t FminusSum, real_t dt);
 
 // Return the updated Y using the asymptotic formula.
-float asymptotic_update(float Fplus, float Fminus, float Y, float dt);
+real_t asymptotic_update(real_t Fplus, real_t Fminus, real_t Y, real_t dt);
 
 // Return the network timestep. For now it is a placeholder
 // just returning the timestep as a fixed fraction of the time.
-float compute_timestep(float prevdt, float t, float tmax);
+real_t compute_timestep(real_t prevdt, real_t t, real_t tmax);
 
 // Function to compute the effective decay constant keff for asymptotic
 // approximation
 // *** NOT PRESENTLY USED ***
-float compute_keff(float Fminus, float Y);
+real_t compute_keff(real_t Fminus, real_t Y);
 
 // Perform preprocessing on thermonuclear network data.
 int tnn_data_preprocess(struct tnn**** tnn, struct rt_hydro_mesh* mesh,
@@ -53,11 +53,11 @@ void reaction_mask_update(int** mask, struct rate_library* rates,
 // HIP KERNEL
 
 __global__ void integration_kernel_hip(
-    float* P0, float* P1, float* P2, float* P3, float* P4, float* P5, float* P6,
-    float* Prefac, float* Q, float* Rate, float* Flux, float* Fplus,
-    float* Fminus, float* FplusFac, float* FminusFac, float* FplusSum,
-    float* FminusSum, int* FplusMax, int* FminusMax, int* MapFplus,
-    int* MapFminus, float* Y, int* NumReactingSpecies, int* Reactant1,
-    int* Reactant2, int* Reactant3, int* int_val, float* float_val);
+    real_t* P0, real_t* P1, real_t* P2, real_t* P3, real_t* P4, real_t* P5, real_t* P6,
+    real_t* Prefac, real_t* Q, real_t* Rate, real_t* Flux, real_t* Fplus,
+    real_t* Fminus, real_t* FplusFac, real_t* FminusFac, real_t* FplusSum,
+    real_t* FminusSum, int* FplusMax, int* FminusMax, int* MapFplus,
+    int* MapFminus, real_t* Y, int* NumReactingSpecies, int* Reactant1,
+    int* Reactant2, int* Reactant3, int* int_val, real_t* real_t_val);
 
 #endif

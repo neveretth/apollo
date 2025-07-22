@@ -19,9 +19,9 @@ int freenptr(void** ptr, int len) {
 int print_abundances(const struct tnn* network) {
     printf("\n\nFINAL ABUNDANCES:\n");
     printf("\nIndex  Isotope   Abundance Y   Mass Frac X");
-    float sum_x = 0.0f;
+    real_t sum_x = 0.0f;
     for (int i = 0; i < network->info->number_species; i++) {
-        float x = network->fptr->y[i] * network->fptr->aa[i];
+        real_t x = network->fptr->y[i] * network->fptr->aa[i];
         sum_x += x;
         printf("\n %4d     %4s    %8.4e    %8.4e", i,
                network->info->iso_label[i], network->fptr->y[i], x);
@@ -61,8 +61,8 @@ int print_results(const struct rate_library* rates, const struct tnn* network,
 
     printf("\n\n\nSUM OF FLUXES FOR EACH ISOTOPE:\n");
 
-    float f_plus_total = 0.0f;
-    float f_minus_total = 0.0f;
+    real_t f_plus_total = 0.0f;
+    real_t f_minus_total = 0.0f;
     for (int i = 0; i < network->info->number_species; i++) {
         printf("\n%3d %5s  sumF+=%10.4e  sumF-=%10.4e Fnet=%10.4e Y=%10.4e", i,
                network->info->iso_label[i], params->f_plus_sum[i],
@@ -100,7 +100,7 @@ int toml_int(toml_result_t toml, char* request) {
     return data.u.int64;
 }
 
-float toml_float(toml_result_t toml, char* request) {
+real_t toml_real_t(toml_result_t toml, char* request) {
     toml_datum_t data = toml_seek(toml.toptab, request);
     if (data.type != TOML_FP64) {
         printf("==apollo== error: %s is invalid\n", request);
@@ -142,7 +142,7 @@ simulation_properties_create(toml_result_t simulation_toml,
     }
 
     // TIME
-    sim_prop.t_end = toml_float(simulation_toml, "simulation.time.endtime");
+    sim_prop.t_end = toml_real_t(simulation_toml, "simulation.time.endtime");
     sim_prop.output_tres = toml_int(simulation_toml, "simulation.time.tres");
     sim_prop.print_kernel_time =
         toml_bool(simulation_toml, "simulation.time.printkerneltime");
@@ -196,9 +196,9 @@ simulation_properties_create(toml_result_t simulation_toml,
         free(tmp);
 
         sim_prop.hydro_temp_base =
-            toml_float(simulation_toml, "simulation.hydroeffect.temp.base");
+            toml_real_t(simulation_toml, "simulation.hydroeffect.temp.base");
         sim_prop.hydro_density_base =
-            toml_float(simulation_toml, "simulation.hydroeffect.density.base");
+            toml_real_t(simulation_toml, "simulation.hydroeffect.density.base");
     }
 
     // THERMO

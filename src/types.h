@@ -1,6 +1,8 @@
 #ifndef __TYPES_H
 #define __TYPES_H
 
+#include "defs.h"
+
 #include "toml/tomlc17.h"
 #include "types/hydro-types.h"
 #include "types/neutrino-types.h"
@@ -31,13 +33,13 @@ struct simulation_properties {
     hid_t neutrino_file;
     bool output;
     bool print_kernel_time;
-    float t_end;
+    real_t t_end;
     int output_tres;
     FILE* hydro_out_file;
-    int (*hydro_temp_effect)(float*** data, int i_, int j_, int k_);
-    int (*hydro_density_effect)(float*** data, int i_, int j_, int k_);
-    float hydro_temp_base;
-    float hydro_density_base;
+    int (*hydro_temp_effect)(real_t*** data, int i_, int j_, int k_);
+    int (*hydro_density_effect)(real_t*** data, int i_, int j_, int k_);
+    real_t hydro_temp_base;
+    real_t hydro_density_base;
 };
 
 // Free N pointers at ptr.

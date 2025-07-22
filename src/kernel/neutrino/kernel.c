@@ -4,11 +4,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-int neunet_integration_kernel(float** rate_in, float** rate_out, float* n_old,
-                              float* ec, float* dv, float dt, float t_end,
-                              float EpsA, float EpsR, float g_a, float g_b,
-                              float g_c, int n_g, int halt) {
-    float* n_0 = malloc(sizeof(float) * n_g);
+int neunet_integration_kernel(real_t** rate_in, real_t** rate_out, real_t* n_old,
+                              real_t* ec, real_t* dv, real_t dt, real_t t_end,
+                              real_t EpsA, real_t EpsR, real_t g_a, real_t g_b,
+                              real_t g_c, int n_g, int halt) {
+    real_t* n_0 = malloc(sizeof(real_t) * n_g);
 
     for (int i = 0; i < n_g; i++) {
         n_0[i] = g_a * exp(-0.5 * pow((ec[i] - g_b) / g_c, 2));
@@ -22,22 +22,22 @@ int neunet_integration_kernel(float** rate_in, float** rate_out, float* n_old,
     int restep = 0;
     int cycle = 0;
     int true_cycle = 0;
-    float dt_new = dt;
-    float t = 0;
+    real_t dt_new = dt;
+    real_t t = 0;
 
-    float* n_new = malloc(sizeof(float) * n_g);
-    float* n_1 = malloc(sizeof(float) * n_g);
-    float* n_2 = malloc(sizeof(float) * n_g);
-    float* k0 = malloc(sizeof(float) * n_g);
-    float* k1 = malloc(sizeof(float) * n_g);
-    float* f0 = malloc(sizeof(float) * n_g);
-    float* f1 = malloc(sizeof(float) * n_g);
-    float* fp = malloc(sizeof(float) * n_g);
-    float* kp = malloc(sizeof(float) * n_g);
-    float* np = malloc(sizeof(float) * n_g);
-    float* alpha_0 = malloc(sizeof(float) * n_g);
-    float* error_desired = malloc(sizeof(float) * n_g);
-    float* error_observed = malloc(sizeof(float) * n_g);
+    real_t* n_new = malloc(sizeof(real_t) * n_g);
+    real_t* n_1 = malloc(sizeof(real_t) * n_g);
+    real_t* n_2 = malloc(sizeof(real_t) * n_g);
+    real_t* k0 = malloc(sizeof(real_t) * n_g);
+    real_t* k1 = malloc(sizeof(real_t) * n_g);
+    real_t* f0 = malloc(sizeof(real_t) * n_g);
+    real_t* f1 = malloc(sizeof(real_t) * n_g);
+    real_t* fp = malloc(sizeof(real_t) * n_g);
+    real_t* kp = malloc(sizeof(real_t) * n_g);
+    real_t* np = malloc(sizeof(real_t) * n_g);
+    real_t* alpha_0 = malloc(sizeof(real_t) * n_g);
+    real_t* error_desired = malloc(sizeof(real_t) * n_g);
+    real_t* error_observed = malloc(sizeof(real_t) * n_g);
 
     while (done == 0) {
         true_cycle++;
@@ -118,32 +118,32 @@ exit:
     return EXIT_SUCCESS;
 }
 
-void QSS1(float* N_p, float* Alpha, float* F, float* k, float dt, float* n_old,
+void QSS1(real_t* N_p, real_t* Alpha, real_t* F, real_t* k, real_t dt, real_t* n_old,
           int n_g) {
     for (int i = 0; i < n_g; i++) {
         N_p[i] = n_old[i];
-        float r;
+        real_t r;
 
         r = 1.0 / (k[i] * dt);
 
         Alpha[i] =
-            ((160 * pow(r, (float)3)) + (60 * pow(r, (float)2)) + (11 * r) +
+            ((160 * pow(r, (real_t)3)) + (60 * pow(r, (real_t)2)) + (11 * r) +
              1) /
-            ((360 * pow(r, (float)3)) + (60 * pow(r, (float)2)) + (12 * r) + 1);
+            ((360 * pow(r, (real_t)3)) + (60 * pow(r, (real_t)2)) + (12 * r) + 1);
 
         N_p[i] +=
             dt * (F[i] - (k[i] * n_old[i])) / (1.0 + (Alpha[i] * k[i] * dt));
     }
 }
 
-void QSS2(float* Nnew, float* f0, float* fp, float* k0, float* kp,
-          float* alpha_0, float dt, float* n_old, int n_g) {
+void QSS2(real_t* Nnew, real_t* f0, real_t* fp, real_t* k0, real_t* kp,
+          real_t* alpha_0, real_t dt, real_t* n_old, int n_g) {
     for (int i = 0; i < n_g; i++) {
         Nnew[i] = n_old[i];
-        // float Ft;
-        float kBAR;
-        float rBAR;
-        float AlphaBAR;
+        // real_t Ft;
+        real_t kBAR;
+        real_t rBAR;
+        real_t AlphaBAR;
 
         kBAR = 0.5 * (kp[i] + k0[i]);
         rBAR = 1.0 / (kBAR * dt);
@@ -156,8 +156,8 @@ void QSS2(float* Nnew, float* f0, float* fp, float* k0, float* kp,
     }
 }
 
-void compute_rates(float* F, float* k, float** R_In, float** R_Out, float* N,
-                   float* dv, int n_g) {
+void compute_rates(real_t* F, real_t* k, real_t** R_In, real_t** R_Out, real_t* N,
+                   real_t* dv, int n_g) {
 
     for (int i = 0; i < n_g; i++) {
         k[i] = 0.0;
@@ -173,15 +173,15 @@ void compute_rates(float* F, float* k, float** R_In, float** R_Out, float* N,
 // "Temporary" for MAX/MIN
 #include <sys/param.h>
 
-float compute_next_timestep(const float* E_O, const float* E_D, float dt_old,
+real_t compute_next_timestep(const real_t* E_O, const real_t* E_D, real_t dt_old,
                             int n_g) {
 
-    float E_R = 0.0;
+    real_t E_R = 0.0;
     for (int i = 0; i < n_g; i++) {
         E_R = MAX(E_R, E_O[i] / E_D[i]);
     }
 
-    float dt_new;
+    real_t dt_new;
     if (E_R > 0.1) {
         dt_new = dt_old * 0.9 * pow(E_R, -1.0);
     } else if (E_R < 0.5) {

@@ -1,36 +1,38 @@
 #ifndef __HYDRO_TYPES_H
 #define __HYDRO_TYPES_H
 
+#include "../defs.h"
+
 struct linear_hydro_mesh {
-    float* temp;
-    float* density;
-    float volume;
-    float dt;
-    float t_end;
-    float h;
+    real_t* temp;
+    real_t* density;
+    real_t volume;
+    real_t dt;
+    real_t t_end;
+    real_t h;
     int dim;
 };
 // This is to be deprecated in some later version...
 #define hydro_mesh linear_hydro_mesh
 
 struct flat_hydro_mesh {
-    float** temp;
-    float** density;
-    float volume;
-    float dt;
-    float t_end;
-    float h;
+    real_t** temp;
+    real_t** density;
+    real_t volume;
+    real_t dt;
+    real_t t_end;
+    real_t h;
     int dim[2];
 };
 
 // R3 (3D) hydro mesh
 struct rt_hydro_mesh {
-    float*** temp;
-    float*** density;
-    float volume;
-    float dt;
-    float t_end;
-    float h;
+    real_t*** temp;
+    real_t*** density;
+    real_t volume;
+    real_t dt;
+    real_t t_end;
+    real_t h;
     int dim[3];
 };
 

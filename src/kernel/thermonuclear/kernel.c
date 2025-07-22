@@ -5,28 +5,28 @@
 
 #define THIRD 0.3333333333333333
 
-int tnn_integration_kernel(float* P0, float* P1, float* P2, float* P3,
-                           float* P4, float* P5, float* P6, float* Prefac,
-                           float* Q, float* Rate, float* Flux, float* Fplus,
-                           float* Fminus, float* FplusFac, float* FminusFac,
-                           float* FplusSum, float* FminusSum, int* FplusMax,
+int tnn_integration_kernel(real_t* P0, real_t* P1, real_t* P2, real_t* P3,
+                           real_t* P4, real_t* P5, real_t* P6, real_t* Prefac,
+                           real_t* Q, real_t* Rate, real_t* Flux, real_t* Fplus,
+                           real_t* Fminus, real_t* FplusFac, real_t* FminusFac,
+                           real_t* FplusSum, real_t* FminusSum, int* FplusMax,
                            int* FminusMax, int* MapFplus, int* MapFminus,
-                           float* Y, int* NumReactingSpecies, int* Reactant1,
+                           real_t* Y, int* NumReactingSpecies, int* Reactant1,
                            int* Reactant2, int* Reactant3, int number_species,
                            int number_reactions, int f_plus_total,
-                           int f_minus_total, float t9, float t_max,
-                           float dt_init, int halt) {
+                           int f_minus_total, real_t t9, real_t t_max,
+                           real_t dt_init, int halt) {
 
     int integration_steps = 0;
 
     // Compute the temperature-dependent factors for the rates.
-    float t93 = powf(t9, THIRD);
-    float t1 = 1 / t9;
-    float t2 = 1 / t93;
-    float t3 = t93;
-    float t4 = t9;
-    float t5 = t93 * t93 * t93 * t93 * t93;
-    float t6 = logf(t9);
+    real_t t93 = powf(t9, THIRD);
+    real_t t1 = 1 / t9;
+    real_t t2 = 1 / t93;
+    real_t t3 = t93;
+    real_t t4 = t9;
+    real_t t5 = t93 * t93 * t93 * t93 * t93;
+    real_t t6 = logf(t9);
 
     for (int i = 0; i < number_reactions; i++) {
         Rate[i] =
@@ -38,9 +38,9 @@ int tnn_integration_kernel(float* P0, float* P1, float* P2, float* P3,
      * Begin the time integration from t=0 to tmax. Rather than t=0 we start at
      * some very small value of t.
      */
-    float t = 1.0e-16;      // The current integration time
-    float dt = dt_init;     // The current integration timestep
-    float prevdt = dt_init; // The integration timestep from the previous step
+    real_t t = 1.0e-16;      // The current integration time
+    real_t dt = dt_init;     // The current integration timestep
+    real_t prevdt = dt_init; // The integration timestep from the previous step
 
     // Main time integration loop
     while (t < t_max) {
@@ -123,7 +123,7 @@ int tnn_integration_kernel(float* P0, float* P1, float* P2, float* P3,
     return EXIT_SUCCESS;
 }
 
-int check_asy(float Fminus, float Y, float dt) {
+int check_asy(real_t Fminus, real_t Y, real_t dt) {
     if (Y > 0.0f && Fminus * dt / Y > 1.0f) {
         return 1;
     } else {
@@ -131,16 +131,16 @@ int check_asy(float Fminus, float Y, float dt) {
     }
 }
 
-float asymptotic_update(float Fplus, float Fminus, float Y, float dt) {
+real_t asymptotic_update(real_t Fplus, real_t Fminus, real_t Y, real_t dt) {
     return (Y + Fplus * dt) / (1.0f + Fminus * dt / Y); // Sophia He formula
 }
 
-float euler_update(float FplusSum, float FminusSum, float dt) {
+real_t euler_update(real_t FplusSum, real_t FminusSum, real_t dt) {
     return (FplusSum - FminusSum) * dt;
 }
 
-float compute_timestep(float prevdt, float t, float tmax) {
-    float dt;
+real_t compute_timestep(real_t prevdt, real_t t, real_t tmax) {
+    real_t dt;
     if (t == 0.0f) {
         dt = 1.0e-20;
     } else {
@@ -153,7 +153,7 @@ float compute_timestep(float prevdt, float t, float tmax) {
     return dt;
 }
 
-float compute_keff(float Fminus, float Y) {
+real_t compute_keff(real_t Fminus, real_t Y) {
     if (Y > 0) {
         return Fminus / Y;
     } else {
@@ -247,11 +247,11 @@ int problem_parameters_update(struct problem_parameters* params,
         for (int j = 0; j < rates->number_reactions; j++) {
             if (params->reaction_mask[i][j] > 0) {
                 params->f_plus_factor[temp_count_plus] =
-                    (float)params->reaction_mask[i][j];
+                    (real_t)params->reaction_mask[i][j];
                 temp_count_plus++;
             } else if (params->reaction_mask[i][j] < 0) {
                 params->f_minus_factor[temp_count_minus] =
-                    -(float)params->reaction_mask[i][j];
+                    -(real_t)params->reaction_mask[i][j];
                 temp_count_minus++;
             }
         }

@@ -37,12 +37,12 @@ problem_parameters_create(struct rate_library* rates, struct tnn* network,
     // isotope. Note that parseF() must be run first because it determines
     // params->f_plus_total and params->f_minus_total.
 
-    params->f_plus = malloc(sizeof(float) * params->f_plus_total);
-    params->f_minus = malloc(sizeof(float) * params->f_minus_total);
-    params->f_plus_factor = malloc(sizeof(float) * params->f_plus_total);
-    params->f_minus_factor = malloc(sizeof(float) * params->f_minus_total);
-    params->f_plus_sum = malloc(sizeof(float) * network->info->number_species);
-    params->f_minus_sum = malloc(sizeof(float) * network->info->number_species);
+    params->f_plus = malloc(sizeof(real_t) * params->f_plus_total);
+    params->f_minus = malloc(sizeof(real_t) * params->f_minus_total);
+    params->f_plus_factor = malloc(sizeof(real_t) * params->f_plus_total);
+    params->f_minus_factor = malloc(sizeof(real_t) * params->f_minus_total);
+    params->f_plus_sum = malloc(sizeof(real_t) * network->info->number_species);
+    params->f_minus_sum = malloc(sizeof(real_t) * network->info->number_species);
 
     // Arrays that hold the index of the boundary between different isotopes in
     // the f_plus and f_minus 1D arrays. Since f_plus_max and f_plus_min are
@@ -144,14 +144,14 @@ problem_parameters_create(struct rate_library* rates, struct tnn* network,
         for (int j = 0; j < rates->number_reactions; j++) {
             if (params->reaction_mask[i][j] > 0) {
                 params->f_plus_factor[temp_count_plus] =
-                    (float)params->reaction_mask[i][j];
+                    (real_t)params->reaction_mask[i][j];
                 // 	printf("\n F+ temp_count_plus=%d
                 // i=%d j=%d params->f_plus_factor=%3.1f", temp_count_plus,
                 // i, j, params->f_plus_factor[temp_count_plus]);
                 temp_count_plus++;
             } else if (params->reaction_mask[i][j] < 0) {
                 params->f_minus_factor[temp_count_minus] =
-                    -(float)params->reaction_mask[i][j];
+                    -(real_t)params->reaction_mask[i][j];
                 // 	printf("\n F-
                 // temp_count_minus=%d i=%d j=%d params->f_minus_factor=%3.1f",
                 // temp_count_minus, 					   i, j,
