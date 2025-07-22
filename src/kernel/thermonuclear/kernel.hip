@@ -7,11 +7,6 @@
 
 #define THIRD 0.333333333333333
 
-extern "C" __global__ void vector_mult_kernel(float* A, float* B, float* C) {
-    int tid = threadIdx.x;
-    C[tid] = A[tid] * B[tid];
-}
-
 extern "C" __device__ int check_asy(float Fminus, float Y, float dt) {
     if (Y > 0.0f && Fminus * dt / Y > 1.0f) {
         return 1;

@@ -1,11 +1,9 @@
-kernel: $(BUILD_DIR)/src/kernel.c.o
+kernel: kernel-thermonuclear kernel-neutrino kernel-hydro
 	@
 	
-kernel-rocm: kernel $(BUILD_DIR)/src/rocm/kernel.hip.o
+kernel-rocm: kernel-rocm-thermonuclear kernel-rocm-neutrino kernel-rocm-hydro
 	@
 
-$(BUILD_DIR)/src/kernel.c.o: $(SOURCE_DIR)/kernel/kernel.c
-	$(CC) -o $@ -c $^ $(CFLAGS) $(CLIBS)
-	
-$(BUILD_DIR)/src/rocm/kernel.hip.o: $(SOURCE_DIR)/kernel/kernel.hip
-	$(HIPCC) -o $@ -c $^
+include src/kernel/neutrino/Makefile
+include src/kernel/hydro/Makefile
+include src/kernel/thermonuclear/Makefile

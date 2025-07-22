@@ -1,5 +1,4 @@
 #include "hip-util.h"
-#include "kernel/kernel.h"
 #include <hip/hip_runtime.h>
 
 struct hipDeviceProp_t* get_hip_device() {
@@ -106,13 +105,15 @@ int benchmark_device(struct hipDeviceProp_t* device) {
     args[1] = &d_B;
     args[2] = &d_C;
 
-    if ((error = hipLaunchKernel(vector_mult_kernel, griddim, blockdim, args,
-                                 sharedmem_allocation, hipStreamDefault)) !=
-        hipSuccess) {
-        printf("==apollo== ERROR: encountered error launching kernel: %i\n",
-               error);
-        return 0;
-    }
+    printf("==apollo== DEBUG NOT FULLY IMPLEMENTED!\n");
+    
+    // if ((error = hipLaunchKernel(vector_mult_kernel, griddim, blockdim, args,
+    //                              sharedmem_allocation, hipStreamDefault)) !=
+    //     hipSuccess) {
+    //     printf("==apollo== ERROR: encountered error launching kernel: %i\n",
+    //            error);
+    //     return 0;
+    // }
 
     hipMemcpy(h_C, d_C, 3 * sizeof(float), hipMemcpyDeviceToHost);
 

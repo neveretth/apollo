@@ -1,5 +1,5 @@
-#ifndef __KERNEL_H
-#define __KERNEL_H
+#ifndef __KERNEL_THERMONUCLEAR_H
+#define __KERNEL_THERMONUCLEAR_H
 
 #define __HIP_PLATFORM_AMD__
 #include <hip/hip_runtime.h>
@@ -35,41 +35,7 @@ float compute_timestep(float prevdt, float t, float tmax);
 // *** NOT PRESENTLY USED ***
 float compute_keff(float Fminus, float Y);
 
-// Integrate neutrino network.
-int neunet_integration_kernel(float** rate_in, float** rate_out, float* n_old,
-                              float* ec, float* dv, float dt, float t_end,
-                              float EpsA, float EpsR, float g_a, float g_b, float g_c,
-                              int n_g, int halt);
-
-// Neutrino integration function.
-void compute_rates(float* F, float* k, float** R_In, float** R_Out, float* N,
-                   float* dV, int n_g);
-
-// Neutrino integration function.
-void QSS2(float* Nnew, float* F0, float* Fp, float* k0, float* kp,
-          float* Alpha0, float dt, float* Nold, int n_g);
-
-// Neutrino integration function.
-void QSS1(float* N_p, float* Alpha, float* F, float* k, float dt, float* Nold, int n_g);
-
-// Neutrino integration function.
-float compute_next_timestep(const float* E_O, const float* E_D, float dt_old, int n_g);
-
-// Integrate linear hydro mesh.
-int hydro_integration_kernel(float* temp, float* density, float volume, float h,
-                             float dt, float t_end, int dim);
-
-// Integrate flat hydro mesh.
-int flat_hydro_integration_kernel(float** temp, float** density, float volume, float h,
-                             float dt, float t_end, int* dim);
-
-int rt_hydro_integration_kernel(float*** temp, float*** density, float volume, float h,
-                             float dt, float t_end, int* dim);
-
-// *****************************
-
-// temp kernel for debugging
-__global__ void vector_mult_kernel(float* A, float* B, float* C);
+// HIP KERNEL
 
 __global__ void integration_kernel_hip(
     float* P0, float* P1, float* P2, float* P3, float* P4, float* P5, float* P6,

@@ -1,6 +1,8 @@
 #include "kernel-driver.h"
 
-#include "../kernel/kernel.h"
+#include "../kernel/hydro/kernel.h"
+#include "../kernel/neutrino/kernel.h"
+#include "../kernel/thermonuclear/kernel.h"
 
 #include <stdlib.h>
 
