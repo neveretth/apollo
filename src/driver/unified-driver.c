@@ -3,6 +3,11 @@
 #include "../display.h"
 #include "../numeffect.h"
 #include "../parser.h"
+
+// NOTE: this method of using drivers is intended to be deprecated...
+#include "../kernel/hydro/kernel.h"
+#include "../kernel/neutrino/kernel.h"
+#include "../kernel/thermonuclear/kernel.h"
 #include "kernel-driver.h"
 
 #include <math.h>
@@ -142,6 +147,8 @@ int unified_driver(struct simulation_properties sim_prop,
 
     time_t kerneltime = clock();
 
+    bool fail = false;
+
     while (t < t_end) {
         t_inter += t_inter_lvl;
         while (t < t_inter) {
@@ -149,9 +156,9 @@ int unified_driver(struct simulation_properties sim_prop,
             dt = mesh->dt;
             mesh->t_end = 0; // Single step
             if (sim_prop.hydro) {
-                if (hydro_integrate_rt_mesh(mesh, options) == EXIT_FAILURE) {
-                    rt_hydro_mesh_destroy(&mesh);
-                    return EXIT_FAILURE;
+                if (hydro_integrate_mesh(mesh, options) == EXIT_FAILURE) {
+                    fail = true;
+                    goto exit;
                 }
             }
             if (sim_prop.neutrino) {
@@ -168,7 +175,8 @@ int unified_driver(struct simulation_properties sim_prop,
                             if (neunet_integrate_network(neutrino[i][j][k],
                                                          options) ==
                                 EXIT_FAILURE) {
-                                return EXIT_FAILURE;
+                                fail = true;
+                                goto exit;
                             }
                             // TODO: Retrieve values from neutrino.
                             // Neutrino ==> Hydro
@@ -193,11 +201,13 @@ int unified_driver(struct simulation_properties sim_prop,
                                 rates->prefactor[n] *=
                                     (density[rates->num_react_species[n] - 1]);
                             }
-                            problem_parameters_update(params, rates, thermo[i][j][k]);
+                            problem_parameters_update(params, rates,
+                                                      thermo[i][j][k]);
                             if (tnn_integrate_network(rates, thermo[i][j][k],
                                                       params, options) ==
                                 EXIT_FAILURE) {
-                                return EXIT_FAILURE;
+                                fail = true;
+                                goto exit;
                             }
                         }
                         // Thermo ==> Hydro
@@ -222,6 +232,7 @@ int unified_driver(struct simulation_properties sim_prop,
         printf("==apollo== Kernel clock time: %f (s)\n", kerneltime_seconds);
     }
 
+exit:
     rt_hydro_mesh_destroy(&mesh);
     if (sim_prop.thermo) {
         rate_library_destroy(&rates);
@@ -238,8 +249,8 @@ int unified_driver(struct simulation_properties sim_prop,
             }
         }
     }
+    if (fail) {
+        return EXIT_FAILURE;
+    }
     return EXIT_SUCCESS;
-exit_fail:
-    rt_hydro_mesh_destroy(&mesh);
-    return EXIT_FAILURE;
 }
