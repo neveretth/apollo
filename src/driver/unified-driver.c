@@ -9,9 +9,6 @@
 #include "../kernel/neutrino/kernel.h"
 #include "../kernel/thermonuclear/kernel.h"
 
-// NOTE: this method of using drivers is intended to be deprecated...
-#include "kernel-driver.h"
-
 #include <math.h>
 #include <stdlib.h>
 #include <time.h>

@@ -213,3 +213,23 @@ int neunet_data_preprocess(struct neunet**** neunet, struct rt_hydro_mesh* mesh,
     }
     return EXIT_SUCCESS;
 }
+
+int neunet_integrate_network(struct neunet* network,
+                             struct option_values options) {
+    if (options.rocm_accel) {
+        printf("==apollo== You are running the NON-rocm apollo, try "
+               "apollo-rocm!\n");
+        return EXIT_FAILURE;
+    } else {
+        if (neunet_integration_kernel(
+                network->info->rate_in, network->info->rate_out,
+                network->fptr->n_old, network->fptr->ec, network->fptr->dv,
+                network->f->dt, network->f->t_end, network->f->EpsA,
+                network->f->EpsR, network->f->g_a, network->f->g_b,
+                network->f->g_c, network->info->num_groups,
+                options.halt) == EXIT_FAILURE) {
+            return EXIT_FAILURE;
+        }
+    }
+    return EXIT_SUCCESS;
+}

@@ -29,4 +29,7 @@ real_t compute_next_timestep(const real_t* E_O, const real_t* E_D, real_t dt_old
 int neunet_data_preprocess(struct neunet**** neunet, struct rt_hydro_mesh* mesh,
                            struct simulation_properties sim_prop);
 
+int neunet_integrate_network(struct neunet* network,
+                             struct option_values options);
+
 #endif

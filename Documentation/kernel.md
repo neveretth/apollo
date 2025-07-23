@@ -21,4 +21,16 @@ The main integration loop will activate a trigger corresponding to each kernel
 set activated (hydro, thermonuclear, etc) in the simulation.toml file. This 
 trigger will call the computational kernels outlined in the module.
 
-NOTE: This is just the outline, expect this to change before release!
+Each kernel compute trigger will be expected to handle the data preprocessing
+_and_ MP compute management for each section. This allows each kernel
+implementation to handle all MP aspects (as it will be called individually). 
+
+In the future the plan is to add noncompete conditions, meaning two kernel 
+modules could execute at the same time.
+
+### Note on Kernel MP
+There are two implementations of apollo expected by the build system: apollo, 
+and apollo-rocm. apollo-rocm is linked with ROCm, and is passed the 
+`__MP_ROCM` definition. This allows an rocm and non-rocm implementation. 
+Non-rocm is _required_, rocm is _not_ although if the module is particularly 
+computationally expensive, it is desired.

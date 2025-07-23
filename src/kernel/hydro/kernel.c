@@ -67,3 +67,18 @@ int hydro_integration_kernel(real_t*** temp, real_t*** density, real_t volume,
 int hydro_data_preprocess() {
     return EXIT_SUCCESS;
 }
+
+int hydro_integrate_mesh(struct rt_hydro_mesh* mesh,
+                            struct option_values options) {
+    if (options.rocm_accel) {
+        printf("==apollo== You are running the NON-rocm apollo, try "
+               "apollo-rocm!\n");
+    } else {
+        if (hydro_integration_kernel(mesh->temp, mesh->density, mesh->volume,
+                                        mesh->h, mesh->dt, mesh->t_end,
+                                        mesh->dim) == EXIT_FAILURE) {
+            return EXIT_FAILURE;
+        }
+    }
+    return EXIT_SUCCESS;
+}

@@ -27,10 +27,11 @@ clean:
 apollo: builddir source kernel driver types parser toml
 	$(CC) $(BUILD_DIR)/src/*.o -o $(BUILD_DIR)/apollo $(CLIBS)
 	
-apollo-rocm: builddir source-rocm kernel-rocm driver-rocm types parser toml
-	@# shitty hack to remove duplicate symbol.
-	rm -rf $(BUILD_DIR)/src/kernel-driver.c.o
-	$(HIPCC) $(BUILD_DIR)/src/*.o $(BUILD_DIR)/src/rocm/*.o -o $(BUILD_DIR)/apollo-rocm $(CLIBS)
+# A rewrok on apollo-rocm is in the works.
+# apollo-rocm: builddir source-rocm kernel-rocm driver-rocm types parser toml
+# 	@# shitty hack to remove duplicate symbol.
+# 	rm -rf $(BUILD_DIR)/src/kernel-driver.c.o
+# 	$(HIPCC) $(BUILD_DIR)/src/*.o $(BUILD_DIR)/src/rocm/*.o -o $(BUILD_DIR)/apollo-rocm $(CLIBS)
 	
 rebuild: clean apollo
 
