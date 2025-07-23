@@ -19,7 +19,7 @@ struct option_values {
     char* config_file;
     char* simulation_file;
     int verbose;
-    int rocm_accel;
+    bool rocm_accel;
 };
 
 struct simulation_properties {
@@ -39,6 +39,7 @@ struct simulation_properties {
     int (*hydro_density_effect)(real_t*** data, int i_, int j_, int k_);
     real_t hydro_temp_base;
     real_t hydro_density_base;
+    real_t dt_init;
 };
 
 // Free N pointers at ptr.
@@ -55,11 +56,15 @@ int print_results(const struct rate_library* rates, const struct tnn* network,
 // etc.
 int options_clean(struct option_values options);
 
-// Return simulation_properties from toml_result_t, exiting if failure occurs.
+// Return simulation_properties from toml_result_t.
+// AND: reads config_toml values to option_values.
 struct simulation_properties
-simulation_properties_create(toml_result_t simulation_toml, toml_result_t config_toml);
+simulation_properties_create(toml_result_t simulation_toml,
+                             toml_result_t config_toml,
+                             struct option_values* opts);
 
-// Validate information in simulation_properties, returning EXIT_SUCCESS(FAILURE).
+// Validate information in simulation_properties, returning
+// EXIT_SUCCESS(FAILURE).
 int simulation_properties_validate(struct simulation_properties* sim_prop);
 
 #endif

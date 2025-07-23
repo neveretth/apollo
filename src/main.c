@@ -25,11 +25,21 @@ int main(int argc, char** argv) {
     }
 
     struct simulation_properties sim_prop =
-        simulation_properties_create(simulation_toml, config_toml);
+        simulation_properties_create(simulation_toml, config_toml, &options);
+
+#ifdef __MP_ROCM
+    if (options.rocm_accel) {
+        printf("==apollo== USING ROCM");
+    }
+#else
+    if (options.rocm_accel) {
+        printf("==apollo== NOT USING ROCM (running non-rocm apollo)\n");
+    }
+#endif
 
     printf("==apollo== Simulation config read.\n");
     printf("==apollo== Beginning simulation...\n");
-    
+
     if (unified_driver(sim_prop, options) == EXIT_FAILURE) {
         printf("==apollo== error: driver failed.\n");
         goto exit_fail;

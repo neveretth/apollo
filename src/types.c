@@ -121,9 +121,11 @@ char* toml_string(toml_result_t toml, char* request) {
 }
 
 // I should keep track of a failstate here somewhere for clean exit on fail...
+// NOTE: should the parsing of config_toml be in a separate file?
 struct simulation_properties
 simulation_properties_create(toml_result_t simulation_toml,
-                             toml_result_t config_toml) {
+                             toml_result_t config_toml,
+                             struct option_values* opts) {
     struct simulation_properties sim_prop;
     sim_prop.hydro_out_file = NULL;
     sim_prop.hydro_temp_effect = NULL;
@@ -131,7 +133,7 @@ simulation_properties_create(toml_result_t simulation_toml,
     sim_prop.print_kernel_time = false;
 
     // CONFIG INFO
-    // NONE AT THIS TIME.
+    opts->rocm_accel = toml_bool(config_toml, "base.enablerocm");
 
     // OUTPUT
     sim_prop.output = toml_bool(simulation_toml, "simulation.output.output");
@@ -146,6 +148,7 @@ simulation_properties_create(toml_result_t simulation_toml,
     sim_prop.output_tres = toml_int(simulation_toml, "simulation.time.tres");
     sim_prop.print_kernel_time =
         toml_bool(simulation_toml, "simulation.time.printkerneltime");
+    sim_prop.dt_init = toml_real_t(simulation_toml, "simulation.time.initdt");
 
     // RESOLUTION
     sim_prop.resolution[0] =

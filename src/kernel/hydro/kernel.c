@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 int hydro_integration_kernel(real_t*** temp, real_t*** density, real_t volume,
-                                real_t h, real_t dt, real_t t_end, int* dim) {
+                             real_t h, real_t dt, real_t t_end, int* dim) {
     // This really should be passed, not created each time.
     real_t*** delta_temp = malloc(dim[0] * sizeof(real_t*));
     for (int i = 0; i < dim[0]; i++) {
@@ -17,8 +17,8 @@ int hydro_integration_kernel(real_t*** temp, real_t*** density, real_t volume,
     // For now just assume it's all even. Volume is for each cell.
     real_t area = volume / dim[2]; // Placeholder area of interaction.
 
-    real_t c = 1e8;  // Placeholder contribution value.
-    real_t ntd = 0;  // Nuclear burning temp diff (assume negligible for now)
+    real_t c = 1e8; // Placeholder contribution value.
+    real_t ntd = 0; // Nuclear burning temp diff (assume negligible for now)
 
     real_t t = 0;
 
@@ -64,21 +64,26 @@ int hydro_integration_kernel(real_t*** temp, real_t*** density, real_t volume,
     return EXIT_SUCCESS;
 }
 
-int hydro_data_preprocess() {
-    return EXIT_SUCCESS;
-}
+int hydro_data_preprocess() { return EXIT_SUCCESS; }
 
 int hydro_integrate_mesh(struct rt_hydro_mesh* mesh,
-                            struct option_values options) {
+                         struct option_values options) {
+#ifdef __MP_ROCM
     if (options.rocm_accel) {
-        printf("==apollo== You are running the NON-rocm apollo, try "
-               "apollo-rocm!\n");
+        printf("HYDRO ROCM KERNEL NOT IMPLEMENTED");
     } else {
         if (hydro_integration_kernel(mesh->temp, mesh->density, mesh->volume,
-                                        mesh->h, mesh->dt, mesh->t_end,
-                                        mesh->dim) == EXIT_FAILURE) {
+                                     mesh->h, mesh->dt, mesh->t_end,
+                                     mesh->dim) == EXIT_FAILURE) {
             return EXIT_FAILURE;
         }
     }
+#else
+    if (hydro_integration_kernel(mesh->temp, mesh->density, mesh->volume,
+                                 mesh->h, mesh->dt, mesh->t_end,
+                                 mesh->dim) == EXIT_FAILURE) {
+        return EXIT_FAILURE;
+    }
+#endif
     return EXIT_SUCCESS;
 }

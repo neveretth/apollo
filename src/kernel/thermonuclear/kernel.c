@@ -173,7 +173,7 @@ int tnn_data_preprocess(struct tnn**** tnn, struct rt_hydro_mesh* mesh,
 
 int problem_parameters_update(struct problem_parameters* params,
                               struct rate_library* rates, struct tnn* network) {
-    
+
     params->f_plus_total = 0;
     params->f_minus_total = 0;
 
@@ -316,10 +316,9 @@ void reaction_mask_update(int** mask, struct rate_library* rates,
 int tnn_integrate_network(struct rate_library* rates, struct tnn* network,
                           struct problem_parameters* params,
                           struct option_values options) {
-
+#ifdef __MP_ROCM
     if (options.rocm_accel) {
-        printf("==apollo== You are running the NON-rocm apollo, try "
-               "apollo-rocm!\n");
+        printf("THERMONUCLEAR ROCM KERNEL NOT IMPLEMENTED");
         return EXIT_FAILURE;
     } else {
         if (tnn_integration_kernel(
@@ -337,6 +336,21 @@ int tnn_integrate_network(struct rate_library* rates, struct tnn* network,
             return EXIT_FAILURE;
         }
     }
+#else
+    if (tnn_integration_kernel(
+            rates->p0, rates->p1, rates->p2, rates->p3, rates->p4, rates->p5,
+            rates->p6, rates->prefactor, rates->q_value, rates->rate,
+            rates->flux, params->f_plus, params->f_minus, params->f_plus_factor,
+            params->f_minus_factor, params->f_plus_sum, params->f_minus_sum,
+            params->f_plus_max, params->f_minus_max, params->f_plus_map,
+            params->f_minus_map, network->fptr->y, rates->num_react_species,
+            rates->reactant_1, rates->reactant_2, rates->reactant_3,
+            network->info->number_species, rates->number_reactions,
+            params->f_plus_total, params->f_minus_total, network->f->t9,
+            network->f->t_max, network->f->dt_init) == EXIT_FAILURE) {
+        return EXIT_FAILURE;
+    }
+#endif
 
     return EXIT_SUCCESS;
 }

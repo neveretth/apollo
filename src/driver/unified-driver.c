@@ -25,8 +25,7 @@ int unified_driver(struct simulation_properties sim_prop,
     mesh->h = 10e+12;
     mesh->volume = 1;
     real_t t_end = sim_prop.t_end;
-    // real_t dt = t_end / 100000;
-    real_t dt = t_end / 1000;
+    real_t dt = sim_prop.dt_init;
     real_t t = 0;
     real_t tres = sim_prop.output_tres;
     real_t t_inter_lvl = t_end / tres;
