@@ -50,9 +50,15 @@ void reaction_mask_update(int** mask, struct rate_library* rates,
                           struct problem_parameters* params, int* temp_int1,
                           int* temp_int2);
 
-int tnn_integrate_network(struct rate_library* rates, struct tnn* network,
+int tnn_integrate_network(struct simulation_properties sim_prop,
+                          struct rate_library* rates, struct tnn* network,
                           struct problem_parameters* params,
                           struct option_values options);
+
+int tnn_kernel_trigger(struct simulation_properties sim_prop,
+                       struct rate_library* rates, struct tnn**** network,
+                       struct problem_parameters* params,
+                       struct option_values options);
 
 // HIP KERNEL
 

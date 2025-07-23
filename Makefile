@@ -14,7 +14,6 @@ APOLLO_RUN_CMD = $(BUILD_DIR)/apollo \
 APOLLO_ROCM_RUN_CMD = $(BUILD_DIR)/apollo-rocm \
 	-C config/config.toml \
 	-S simulation/profile.toml \
-	--rocm-accel \
 	
 BUILD_DIR = $(PWD)/build
 SOURCE_DIR = $(PWD)/src
@@ -27,11 +26,11 @@ clean:
 apollo: builddir source kernel driver types parser toml
 	$(CC) $(BUILD_DIR)/src/*.o -o $(BUILD_DIR)/apollo $(CLIBS)
 	
-# A rewrok on apollo-rocm is in the works.
-# apollo-rocm: builddir source-rocm kernel-rocm driver-rocm types parser toml
-# 	@# shitty hack to remove duplicate symbol.
-# 	rm -rf $(BUILD_DIR)/src/kernel-driver.c.o
-# 	$(HIPCC) $(BUILD_DIR)/src/*.o $(BUILD_DIR)/src/rocm/*.o -o $(BUILD_DIR)/apollo-rocm $(CLIBS)
+apollo-rocm: builddir rocm-defs rocm source kernel-rocm driver types parser toml
+	$(HIPCC) $(BUILD_DIR)/src/*.o -o $(BUILD_DIR)/apollo-rocm $(CLIBS)
+
+rocm-defs: 
+	$(eval CFLAGS += -D__MP_ROCM)
 	
 rebuild: clean apollo
 

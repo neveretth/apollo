@@ -313,12 +313,13 @@ void reaction_mask_update(int** mask, struct rate_library* rates,
     }
 }
 
-int tnn_integrate_network(struct rate_library* rates, struct tnn* network,
+int tnn_integrate_network(struct simulation_properties sim_prop,
+                          struct rate_library* rates, struct tnn* network,
                           struct problem_parameters* params,
                           struct option_values options) {
 #ifdef __MP_ROCM
     if (options.rocm_accel) {
-        printf("THERMONUCLEAR ROCM KERNEL NOT IMPLEMENTED");
+        printf("THERMONUCLEAR ROCM KERNEL NOT IMPLEMENTED\n");
         return EXIT_FAILURE;
     } else {
         if (tnn_integration_kernel(
@@ -352,5 +353,35 @@ int tnn_integrate_network(struct rate_library* rates, struct tnn* network,
     }
 #endif
 
+    return EXIT_SUCCESS;
+}
+
+int tnn_kernel_trigger(struct simulation_properties sim_prop,
+                       struct rate_library* rates, struct tnn**** network,
+                       struct problem_parameters* params,
+                       struct option_values options) {
+
+    for (int i = 0; i < sim_prop.resolution[0]; i++) {
+        for (int j = 0; j < sim_prop.resolution[1]; j++) {
+            for (int k = 0; k < sim_prop.resolution[2]; k++) {
+                // This per-network preprocessing should occur in
+                // the compute kernel.
+                real_t density[3];
+                density[0] = 1.0f;
+                density[1] = network[i][j][k]->f->rho;
+                density[2] =
+                    network[i][j][k]->f->rho * network[i][j][k]->f->rho;
+                for (int n = 0; n < rates->number_reactions; n++) {
+                    rates->prefactor[n] *=
+                        (density[rates->num_react_species[n] - 1]);
+                }
+                problem_parameters_update(params, rates, network[i][j][k]);
+                if (tnn_integrate_network(sim_prop, rates, network[i][j][k],
+                                          params, options) == EXIT_FAILURE) {
+                    return EXIT_FAILURE;
+                }
+            }
+        }
+    }
     return EXIT_SUCCESS;
 }

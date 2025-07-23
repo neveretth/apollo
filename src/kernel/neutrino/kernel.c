@@ -210,11 +210,12 @@ int neunet_data_preprocess(struct neunet**** neunet, struct rt_hydro_mesh* mesh,
     return EXIT_SUCCESS;
 }
 
-int neunet_integrate_network(struct neunet* network,
+int neunet_integrate_network(struct simulation_properties sim_prop,
+                             struct neunet* network,
                              struct option_values options) {
 #ifdef __MP_ROCM
     if (options.rocm_accel) {
-        printf("NEUTRINO ROCM KERNEL NOT IMPLEMENTED");
+        printf("NEUTRINO ROCM KERNEL NOT IMPLEMENTED\n");
         return EXIT_FAILURE;
     } else {
         if (neunet_integration_kernel(
@@ -236,5 +237,22 @@ int neunet_integrate_network(struct neunet* network,
         return EXIT_FAILURE;
     }
 #endif
+    return EXIT_SUCCESS;
+}
+
+int neunet_kernel_trigger(struct simulation_properties sim_prop,
+                          struct neunet**** network,
+                          struct option_values options) {
+
+    for (int i = 0; i < sim_prop.resolution[0]; i++) {
+        for (int j = 0; j < sim_prop.resolution[1]; j++) {
+            for (int k = 0; k < sim_prop.resolution[2]; k++) {
+                if (neunet_integrate_network(sim_prop, network[i][j][k],
+                                             options) == EXIT_FAILURE) {
+                    return EXIT_FAILURE;
+                }
+            }
+        }
+    }
     return EXIT_SUCCESS;
 }

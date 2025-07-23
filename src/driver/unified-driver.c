@@ -156,7 +156,8 @@ int unified_driver(struct simulation_properties sim_prop,
                     fail = true;
                     goto exit;
                 }
-                if (hydro_integrate_mesh(mesh, options) == EXIT_FAILURE) {
+                // Not a trigger for now, probably will be at some point.
+                if (hydro_integrate_mesh(sim_prop, mesh, options) == EXIT_FAILURE) {
                     fail = true;
                     goto exit;
                 }
@@ -167,17 +168,10 @@ int unified_driver(struct simulation_properties sim_prop,
                     fail = true;
                     goto exit;
                 }
-                for (int i = 0; i < sim_prop.resolution[0]; i++) {
-                    for (int j = 0; j < sim_prop.resolution[1]; j++) {
-                        for (int k = 0; k < sim_prop.resolution[2]; k++) {
-                            if (neunet_integrate_network(neutrino[i][j][k],
-                                                         options) ==
-                                EXIT_FAILURE) {
-                                fail = true;
-                                goto exit;
-                            }
-                        }
-                    }
+                if (neunet_kernel_trigger(sim_prop, neutrino, options) ==
+                    EXIT_FAILURE) {
+                    fail = true;
+                    goto exit;
                 }
             }
             if (sim_prop.thermo) {
@@ -186,32 +180,10 @@ int unified_driver(struct simulation_properties sim_prop,
                     fail = true;
                     goto exit;
                 }
-                for (int i = 0; i < sim_prop.resolution[0]; i++) {
-                    for (int j = 0; j < sim_prop.resolution[1]; j++) {
-                        for (int k = 0; k < sim_prop.resolution[2]; k++) {
-                            // This per-network preprocessing should occur in
-                            // the compute kernel.
-                            real_t density[3];
-                            density[0] = 1.0f;
-                            density[1] = thermo[i][j][k]->f->rho;
-                            density[2] = thermo[i][j][k]->f->rho *
-                                         thermo[i][j][k]->f->rho;
-                            for (int n = 0; n < rates->number_reactions; n++) {
-                                rates->prefactor[n] *=
-                                    (density[rates->num_react_species[n] - 1]);
-                            }
-                            problem_parameters_update(params, rates,
-                                                      thermo[i][j][k]);
-                            if (tnn_integrate_network(rates, thermo[i][j][k],
-                                                      params, options) ==
-                                EXIT_FAILURE) {
-                                fail = true;
-                                goto exit;
-                            }
-                        }
-                        // Thermo ==> Hydro
-                        // TODO: Retrieve values from thermo.
-                    }
+                if (tnn_kernel_trigger(sim_prop, rates, thermo, params, options) ==
+                    EXIT_FAILURE) {
+                    fail = true;
+                    goto exit;
                 }
             }
             if (sim_prop.output && sim_prop.hydro) {

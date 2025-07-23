@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
 
 #ifdef __MP_ROCM
     if (options.rocm_accel) {
-        printf("==apollo== USING ROCM");
+        printf("==apollo== USING ROCM\n");
     }
 #else
     if (options.rocm_accel) {

@@ -28,6 +28,11 @@ implementation to handle all MP aspects (as it will be called individually).
 In the future the plan is to add noncompete conditions, meaning two kernel 
 modules could execute at the same time.
 
+### Kernel trigger vs preprocessing
+A kernel trigger is intended ONLY to interact with module-specific code, 
+whereas the preprocessing kernel interacts with other module code
+(hydro, mainly).
+
 ### Note on Kernel MP
 There are two implementations of apollo expected by the build system: apollo, 
 and apollo-rocm. apollo-rocm is linked with ROCm, and is passed the 
