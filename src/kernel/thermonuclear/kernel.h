@@ -17,7 +17,7 @@ int tnn_integration_kernel(real_t* P0, real_t* P1, real_t* P2, real_t* P3,
                            int* Reactant2, int* Reactant3, int number_species,
                            int number_reactions, int f_plus_total,
                            int f_minus_total, real_t t9, real_t t_max,
-                           real_t dt_init, int halt);
+                           real_t dt_init);
 
 int check_asy(real_t Fminus, real_t Y, real_t dt);
 

@@ -4,10 +4,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-int neunet_integration_kernel(real_t** rate_in, real_t** rate_out, real_t* n_old,
-                              real_t* ec, real_t* dv, real_t dt, real_t t_end,
-                              real_t EpsA, real_t EpsR, real_t g_a, real_t g_b,
-                              real_t g_c, int n_g, int halt) {
+int neunet_integration_kernel(real_t** rate_in, real_t** rate_out,
+                              real_t* n_old, real_t* ec, real_t* dv, real_t dt,
+                              real_t t_end, real_t EpsA, real_t EpsR,
+                              real_t g_a, real_t g_b, real_t g_c, int n_g) {
     real_t* n_0 = malloc(sizeof(real_t) * n_g);
 
     for (int i = 0; i < n_g; i++) {
@@ -44,10 +44,6 @@ int neunet_integration_kernel(real_t** rate_in, real_t** rate_out, real_t* n_old
 
         if (!restep) {
             cycle++;
-        }
-
-        if (true_cycle >= halt) {
-            goto exit;
         }
 
         memset(n_new, 0, n_g);
@@ -118,18 +114,18 @@ exit:
     return EXIT_SUCCESS;
 }
 
-void QSS1(real_t* N_p, real_t* Alpha, real_t* F, real_t* k, real_t dt, real_t* n_old,
-          int n_g) {
+void QSS1(real_t* N_p, real_t* Alpha, real_t* F, real_t* k, real_t dt,
+          real_t* n_old, int n_g) {
     for (int i = 0; i < n_g; i++) {
         N_p[i] = n_old[i];
         real_t r;
 
         r = 1.0 / (k[i] * dt);
 
-        Alpha[i] =
-            ((160 * pow(r, (real_t)3)) + (60 * pow(r, (real_t)2)) + (11 * r) +
-             1) /
-            ((360 * pow(r, (real_t)3)) + (60 * pow(r, (real_t)2)) + (12 * r) + 1);
+        Alpha[i] = ((160 * pow(r, (real_t)3)) + (60 * pow(r, (real_t)2)) +
+                    (11 * r) + 1) /
+                   ((360 * pow(r, (real_t)3)) + (60 * pow(r, (real_t)2)) +
+                    (12 * r) + 1);
 
         N_p[i] +=
             dt * (F[i] - (k[i] * n_old[i])) / (1.0 + (Alpha[i] * k[i] * dt));
@@ -156,8 +152,8 @@ void QSS2(real_t* Nnew, real_t* f0, real_t* fp, real_t* k0, real_t* kp,
     }
 }
 
-void compute_rates(real_t* F, real_t* k, real_t** R_In, real_t** R_Out, real_t* N,
-                   real_t* dv, int n_g) {
+void compute_rates(real_t* F, real_t* k, real_t** R_In, real_t** R_Out,
+                   real_t* N, real_t* dv, int n_g) {
 
     for (int i = 0; i < n_g; i++) {
         k[i] = 0.0;
@@ -173,8 +169,8 @@ void compute_rates(real_t* F, real_t* k, real_t** R_In, real_t** R_Out, real_t* 
 // "Temporary" for MAX/MIN
 #include <sys/param.h>
 
-real_t compute_next_timestep(const real_t* E_O, const real_t* E_D, real_t dt_old,
-                            int n_g) {
+real_t compute_next_timestep(const real_t* E_O, const real_t* E_D,
+                             real_t dt_old, int n_g) {
 
     real_t E_R = 0.0;
     for (int i = 0; i < n_g; i++) {
@@ -226,8 +222,7 @@ int neunet_integrate_network(struct neunet* network,
                 network->fptr->n_old, network->fptr->ec, network->fptr->dv,
                 network->f->dt, network->f->t_end, network->f->EpsA,
                 network->f->EpsR, network->f->g_a, network->f->g_b,
-                network->f->g_c, network->info->num_groups,
-                options.halt) == EXIT_FAILURE) {
+                network->f->g_c, network->info->num_groups) == EXIT_FAILURE) {
             return EXIT_FAILURE;
         }
     }

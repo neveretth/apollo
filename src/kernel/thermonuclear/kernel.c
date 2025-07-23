@@ -15,7 +15,7 @@ int tnn_integration_kernel(real_t* P0, real_t* P1, real_t* P2, real_t* P3,
                            int* Reactant2, int* Reactant3, int number_species,
                            int number_reactions, int f_plus_total,
                            int f_minus_total, real_t t9, real_t t_max,
-                           real_t dt_init, int halt) {
+                           real_t dt_init) {
 
     int integration_steps = 0;
 
@@ -113,11 +113,6 @@ int tnn_integration_kernel(real_t* P0, real_t* P1, real_t* P2, real_t* P3,
         integration_steps++;
         prevdt = dt;
         dt = compute_timestep(prevdt, t, t_max);
-
-        // Temporary diagnostic halt
-        if (integration_steps >= halt) {
-            break;
-        }
     }
 
     return EXIT_SUCCESS;
@@ -338,8 +333,7 @@ int tnn_integrate_network(struct rate_library* rates, struct tnn* network,
                 rates->reactant_2, rates->reactant_3,
                 network->info->number_species, rates->number_reactions,
                 params->f_plus_total, params->f_minus_total, network->f->t9,
-                network->f->t_max, network->f->dt_init,
-                options.halt) == EXIT_FAILURE) {
+                network->f->t_max, network->f->dt_init) == EXIT_FAILURE) {
             return EXIT_FAILURE;
         }
     }

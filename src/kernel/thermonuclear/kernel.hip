@@ -61,7 +61,6 @@ extern "C" __global__ void integration_kernel_hip(real_t* P0, real_t* P1, real_t
     int number_reactions = int_val[1];
     int f_plus_total = int_val[2];
     int f_minus_total = int_val[3];
-    int halt = int_val[4];
     real_t t9 = real_t_val[0];
     real_t t_max = real_t_val[1];
     real_t dt_init = real_t_val[2];
@@ -169,9 +168,5 @@ extern "C" __global__ void integration_kernel_hip(real_t* P0, real_t* P1, real_t
         dt = compute_timestep(prevdt, t, t_max);
         __syncthreads();
 
-        // Temporary diagnostic halt
-        if (integration_steps >= halt) {
-            break;
-        }
     }
 }

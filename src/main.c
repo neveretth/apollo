@@ -8,12 +8,6 @@ int main(int argc, char** argv) {
     // May exit here if certain conditions are not met...
     struct option_values options = parse_args(argc, argv);
 
-    if (options.rocm_debug) {
-        printf("==apollo== debug not implemented.");
-        options_clean(options);
-        goto exit_fail;
-    }
-
     toml_result_t config_toml = toml_parse_file_ex(options.config_file);
     toml_result_t simulation_toml = toml_parse_file_ex(options.simulation_file);
 

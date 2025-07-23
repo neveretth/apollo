@@ -14,13 +14,12 @@
 #include <stdbool.h>
 
 // Contain values for all options when calling program.
+// Includes values from config.toml
 struct option_values {
     char* config_file;
     char* simulation_file;
     int verbose;
     int rocm_accel;
-    int rocm_debug;
-    int halt;
 };
 
 struct simulation_properties {

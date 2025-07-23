@@ -11,8 +11,8 @@ outputdir = "output"
 
 # No AMR
 [simulation.resolution]
-x = 32
-y = 32
+x = 1
+y = 1
 z = 1
 # Setting this to 1 means 2D, and is much friendlier with visualization.
 

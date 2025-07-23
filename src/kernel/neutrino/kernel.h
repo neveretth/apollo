@@ -7,7 +7,7 @@
 int neunet_integration_kernel(real_t** rate_in, real_t** rate_out, real_t* n_old,
                               real_t* ec, real_t* dv, real_t dt, real_t t_end,
                               real_t EpsA, real_t EpsR, real_t g_a, real_t g_b,
-                              real_t g_c, int n_g, int halt);
+                              real_t g_c, int n_g);
 
 // Neutrino integration function.
 void compute_rates(real_t* F, real_t* k, real_t** R_In, real_t** R_Out, real_t* N,

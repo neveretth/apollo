@@ -20,7 +20,6 @@ struct option_values parse_args(int argc, char** argv) {
 
     struct option_values options;
     options.verbose = 0;
-    options.rocm_debug = 0;
     options.rocm_accel = 0;
     options.config_file = NULL;
     options.simulation_file = NULL;
@@ -39,10 +38,6 @@ struct option_values parse_args(int argc, char** argv) {
                 i++;
             } else if (strcmp(argv[i], "--verbose") == 0) {
                 options.verbose = 1;
-            } else if (strcmp(argv[i], "--rocm-debug") == 0) {
-                options.rocm_debug = 1;
-            } else if (strcmp(argv[i], "--rocm-accel") == 0) {
-                options.rocm_accel = 1;
             } else {
                 printf("==apollo== ERROR: unknown flag: %s\n", argv[i]);
                 printf("%s", help_string);
