@@ -1,9 +1,6 @@
 #ifndef __KERNEL_THERMONUCLEAR_H
 #define __KERNEL_THERMONUCLEAR_H
 
-#define __HIP_PLATFORM_AMD__
-#include <hip/hip_runtime.h>
-
 #include "../../types.h"
 
 // Integrate thermonuclear network.
@@ -61,7 +58,9 @@ int tnn_kernel_trigger(struct simulation_properties sim_prop,
                        struct problem_parameters* params,
                        struct option_values options);
 
-// HIP KERNEL
+#ifdef __MP_ROCM
+#define __HIP_PLATFORM_AMD__
+#include <hip/hip_runtime.h>
 
 __global__ void
 integration_kernel_hip(real_t* P0, real_t* P1, real_t* P2, real_t* P3,
@@ -72,5 +71,6 @@ integration_kernel_hip(real_t* P0, real_t* P1, real_t* P2, real_t* P3,
                        int* FminusMax, int* MapFplus, int* MapFminus, real_t* Y,
                        int* NumReactingSpecies, int* Reactant1, int* Reactant2,
                        int* Reactant3, int* int_val, real_t* real_t_val);
+#endif // __MP_ROCM
 
 #endif

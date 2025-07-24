@@ -21,12 +21,12 @@ SOURCE_DIR = $(PWD)/src
 default-target: apollo
 
 clean:
-	rm -rf $(BUILD_DIR)/*
+	rm -rf $(BUILD_DIR)/src
 
 apollo: builddir source kernel driver types parser toml
 	$(CC) $(BUILD_DIR)/src/*.o -o $(BUILD_DIR)/apollo $(CLIBS)
 	
-apollo-rocm: builddir rocm-defs rocm source kernel-rocm driver types parser toml
+apollo-rocm: rocm-defs builddir rocm source kernel-rocm driver types parser toml
 	$(HIPCC) $(BUILD_DIR)/src/*.o -o $(BUILD_DIR)/apollo-rocm $(CLIBS)
 
 rocm-defs: 
