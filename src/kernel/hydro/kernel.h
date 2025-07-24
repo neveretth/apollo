@@ -12,6 +12,8 @@ int hydro_integration_kernel(real_t*** temp, real_t*** density, real_t volume,
 // Perform preprocessing operations before the primary hydro kernel.
 int hydro_data_preprocess();
 
+int hydro_data_postprocess();
+
 // Hydro integration kernel driver.
 int hydro_integrate_mesh(struct simulation_properties sim_prop,
                          struct rt_hydro_mesh* mesh,

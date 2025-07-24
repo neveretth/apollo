@@ -173,6 +173,10 @@ int unified_driver(struct simulation_properties sim_prop,
                     fail = true;
                     goto exit;
                 }
+                if (hydro_data_postprocess() == EXIT_FAILURE) {
+                    fail = true;
+                    goto exit;
+                }
             }
             if (sim_prop.neutrino) {
                 if (neunet_data_preprocess(neutrino, mesh, sim_prop, options) ==
@@ -182,6 +186,11 @@ int unified_driver(struct simulation_properties sim_prop,
                 }
                 if (neunet_kernel_trigger(sim_prop, neutrino, options) ==
                     EXIT_FAILURE) {
+                    fail = true;
+                    goto exit;
+                }
+                if (neunet_data_postprocess(neutrino, mesh, sim_prop,
+                                            options) == EXIT_FAILURE) {
                     fail = true;
                     goto exit;
                 }
@@ -197,6 +206,11 @@ int unified_driver(struct simulation_properties sim_prop,
                     fail = true;
                     goto exit;
                 }
+                if (tnn_data_postprocess(thermo, mesh, sim_prop, options) ==
+                    EXIT_FAILURE) {
+                    fail = true;
+                    goto exit;
+                }
             }
             if (sim_prop.output && sim_prop.hydro) {
                 fprint_real_t_3d(sim_prop.hydro_out_file, mesh->temp,
@@ -207,6 +221,7 @@ int unified_driver(struct simulation_properties sim_prop,
         }
         printf("\x1b[1A\x1b[2K\x1b[0G  Time: [%6.2f/%6.2f]\n", t, t_end);
     }
+
     kerneltime = clock() - kerneltime;
     printf("\n==apollo== Simulation complete.\n");
     if (sim_prop.print_kernel_time) {

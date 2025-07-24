@@ -30,6 +30,10 @@ int neunet_data_preprocess(struct neunet**** neunet, struct rt_hydro_mesh* mesh,
                            struct simulation_properties sim_prop,
                            struct option_values options);
 
+int neunet_data_postprocess(struct neunet**** neunet, struct rt_hydro_mesh* mesh,
+                           struct simulation_properties sim_prop,
+                           struct option_values options);
+
 int neunet_integrate_network(struct simulation_properties sim_prop,
                              struct neunet* network,
                              struct option_values options, int i, int j, int k);

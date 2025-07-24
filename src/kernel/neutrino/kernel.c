@@ -4,7 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef __MP_ROCM
 #include "../../rocm/hip-util.h"
+#endif
 
 int neunet_integration_kernel(real_t** rate_in, real_t** rate_out,
                               real_t* n_old, real_t* ec, real_t* dv, real_t dt,
@@ -42,6 +44,7 @@ int neunet_integration_kernel(real_t** rate_in, real_t** rate_out,
     real_t* error_observed = malloc(sizeof(real_t) * n_g);
 
     while (done == 0) {
+        // printf("cycle: %i\n", true_cycle);
         true_cycle++;
 
         if (!restep) {
@@ -455,5 +458,13 @@ int neunet_kernel_trigger(struct simulation_properties sim_prop,
     // I'm not sure how this works...
     hipStreamSynchronize(hipStreamDefault);
 #endif
+    return EXIT_SUCCESS;
+}
+
+int neunet_data_postprocess(struct neunet**** neunet,
+                            struct rt_hydro_mesh* mesh,
+                            struct simulation_properties sim_prop,
+                            struct option_values opts) {
+    // (READ FROM GPU AND) SEND CHANGE TO HYDRO
     return EXIT_SUCCESS;
 }

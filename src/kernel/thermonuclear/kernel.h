@@ -39,6 +39,10 @@ int tnn_data_preprocess(struct tnn**** tnn, struct rt_hydro_mesh* mesh,
                         struct simulation_properties sim_prop,
                         struct option_values options);
 
+int tnn_data_postprocess(struct tnn**** tnn, struct rt_hydro_mesh* mesh,
+                        struct simulation_properties sim_prop,
+                        struct option_values options);
+
 // Update tnn kernel parameters.
 int problem_parameters_update(struct problem_parameters* params,
                               struct rate_library* rates, struct tnn* network);

@@ -1,7 +1,7 @@
 [simulation]
 
 [simulation.time]
-endtime = 1.0 # in seconds
+endtime = 100.0 # in seconds
 tres = 100 # Temporal resolution of output
 printkerneltime = true
 initdt = 1e-2
@@ -12,8 +12,8 @@ outputdir = "output"
 
 # No AMR
 [simulation.resolution]
-x = 4
-y = 4
+x = 1
+y = 1
 z = 1
 # Setting this to 1 means 2D, and is much friendlier with visualization.
 
