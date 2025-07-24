@@ -31,3 +31,6 @@ test-rocm-gdb: apollo-rocm
 test-rocm: apollo-rocm
 	$(TIME_CMD) \
 	$(APOLLO_ROCM_RUN_CMD)
+
+test-full: 
+	./tests/test.sh $(BUILD_DIR)
