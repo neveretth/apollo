@@ -4,7 +4,8 @@
 #include "../../types.h"
 
 // Integrate neutrino network.
-int neunet_integration_kernel(real_t** rate_in, real_t** rate_out,
+int neunet_integration_kernel(real_t* real_t_val, int* int_val,
+                              real_t** rate_in, real_t** rate_out,
                               real_t* n_old, real_t* ec, real_t* dv, real_t dt,
                               real_t t_end, real_t EpsA, real_t EpsR,
                               real_t g_a, real_t g_b, real_t g_c, int n_g);
@@ -30,9 +31,10 @@ int neunet_data_preprocess(struct neunet**** neunet, struct rt_hydro_mesh* mesh,
                            struct simulation_properties sim_prop,
                            struct option_values options);
 
-int neunet_data_postprocess(struct neunet**** neunet, struct rt_hydro_mesh* mesh,
-                           struct simulation_properties sim_prop,
-                           struct option_values options);
+int neunet_data_postprocess(struct neunet**** neunet,
+                            struct rt_hydro_mesh* mesh,
+                            struct simulation_properties sim_prop,
+                            struct option_values options);
 
 int neunet_integrate_network(struct simulation_properties sim_prop,
                              struct neunet* network,

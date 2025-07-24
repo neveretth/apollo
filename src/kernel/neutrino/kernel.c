@@ -8,7 +8,9 @@
 #include "../../rocm/hip-util.h"
 #endif
 
-int neunet_integration_kernel(real_t** rate_in, real_t** rate_out,
+// Migrate this to real_t_val and int_val (as the GPU kernel does).
+int neunet_integration_kernel(real_t* real_t_val, int* int_val,
+                              real_t** rate_in, real_t** rate_out,
                               real_t* n_old, real_t* ec, real_t* dv, real_t dt,
                               real_t t_end, real_t EpsA, real_t EpsR,
                               real_t g_a, real_t g_b, real_t g_c, int n_g) {
@@ -21,6 +23,11 @@ int neunet_integration_kernel(real_t** rate_in, real_t** rate_out,
     for (int i = 0; i < n_g; i++) {
         n_old[i] = n_0[i];
     }
+
+    // This should be enumerated as such...
+    // (corresponding to a ptr at neunet->real).
+    // dt = real_t_val[NEUTRINO_REAL_DT];
+    dt = real_t_val[0];
 
     int done = 0;
     int restep = 0;
@@ -44,7 +51,6 @@ int neunet_integration_kernel(real_t** rate_in, real_t** rate_out,
     real_t* error_observed = malloc(sizeof(real_t) * n_g);
 
     while (done == 0) {
-        // printf("cycle: %i\n", true_cycle);
         true_cycle++;
 
         if (!restep) {
@@ -87,6 +93,9 @@ int neunet_integration_kernel(real_t** rate_in, real_t** rate_out,
         }
 
         dt_new = compute_next_timestep(error_observed, error_desired, dt, n_g);
+        if (dt_new > (t_end - t)) {
+            dt_new = t_end - t;
+        }
 
         for (int i = 0; i < n_g; i++) {
             n_old[i] = n_new[i];
@@ -99,6 +108,9 @@ int neunet_integration_kernel(real_t** rate_in, real_t** rate_out,
             break;
         }
     }
+
+    // Corresponds to the opposite expression above.
+    real_t_val[0] = dt;
 
 exit:
     free(n_0);
@@ -425,14 +437,22 @@ int neunet_integrate_network(struct simulation_properties sim_prop,
         }
     }
 #else
+    // What is tmp?
+    // It represents the pointer that may be introduced at network->real
+    // It is currently being used in the kernel to track values persistent
+    // across multiple invocations.
+    real_t* tmp = malloc(1 * sizeof(real_t));
+    tmp[0] = network->f->dt;
     if (neunet_integration_kernel(
-            network->info->rate_in, network->info->rate_out,
+            tmp, NULL, network->info->rate_in, network->info->rate_out,
             network->fptr->n_old, network->fptr->ec, network->fptr->dv,
             network->f->dt, network->f->t_end, network->f->EpsA,
             network->f->EpsR, network->f->g_a, network->f->g_b, network->f->g_c,
             network->info->num_groups) == EXIT_FAILURE) {
         return EXIT_FAILURE;
     }
+    network->f->dt = tmp[0];
+    free(tmp);
 #endif
     return EXIT_SUCCESS;
 }
