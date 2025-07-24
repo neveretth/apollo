@@ -7,4 +7,8 @@ typedef float real_t;
 typedef double real_t;
 #endif
 
+// Currently only used by neutrino kernel
+#define dt_tol_high 1e-1
+#define dt_tol_low 5e-1
+
 #endif

@@ -20,6 +20,7 @@ struct option_values {
     char* simulation_file;
     int verbose;
     bool rocm_accel;
+    void* rocm_device; // Ignored if not __MP_ROCM (type is hipDeviceProp_t*)
 };
 
 struct simulation_properties {

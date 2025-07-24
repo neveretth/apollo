@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../../rocm/hip-util.h"
+
 int neunet_integration_kernel(real_t** rate_in, real_t** rate_out,
                               real_t* n_old, real_t* ec, real_t* dv, real_t dt,
                               real_t t_end, real_t EpsA, real_t EpsR,
@@ -178,9 +180,9 @@ real_t compute_next_timestep(const real_t* E_O, const real_t* E_D,
     }
 
     real_t dt_new;
-    if (E_R > 0.1) {
+    if (E_R > dt_tol_high) {
         dt_new = dt_old * 0.9 * pow(E_R, -1.0);
-    } else if (E_R < 0.5) {
+    } else if (E_R < dt_tol_low) {
         dt_new = dt_old * 0.9 * pow(E_R, -0.5);
     } else {
         dt_new = dt_old;
@@ -193,10 +195,161 @@ real_t compute_next_timestep(const real_t* E_O, const real_t* E_D,
 
 #define BOLTZMANN_CONSTANT 1.380658e-16
 
+enum neunet_kernel_args {
+    REAL_T_VAL = 0,
+    INT_VAL,
+    R_IN,
+    R_OUT,
+    EC,
+    DV,
+    N_EQ,
+    NOLD,
+    NUM_ARGS // THIS MUST BE THE LAST ONE
+};
+
+struct neunet_gpu_status {
+    bool initialized;
+    void***** args; // scary =ω=
+    void* stream;
+};
+
+static struct neunet_gpu_status gpu_stat = {false};
+
+#ifdef __MP_ROCM
+static int device_init_args(struct neunet**** neunet,
+                            struct simulation_properties sim_prop,
+                            struct option_values opts) {
+
+    // Lord please forgive me.
+    gpu_stat.args = malloc(sim_prop.resolution[0] * sizeof(void*));
+    for (int i = 0; i < sim_prop.resolution[0]; i++) {
+        gpu_stat.args[i] = malloc(sim_prop.resolution[0] * sizeof(void*));
+        for (int j = 0; j < sim_prop.resolution[1]; j++) {
+            gpu_stat.args[i][j] =
+                malloc(sim_prop.resolution[1] * sizeof(void*));
+            for (int k = 0; k < sim_prop.resolution[2]; k++) {
+                gpu_stat.args[i][j][k] = malloc(NUM_ARGS * sizeof(void*));
+                for (int z = 0; z < NUM_ARGS; z++) {
+                    gpu_stat.args[i][j][k][z] = malloc(sizeof(void*));
+                }
+            }
+        }
+    }
+
+    // Create unique trackers.
+    for (int i = 0; i < sim_prop.resolution[0]; i++) {
+        for (int j = 0; j < sim_prop.resolution[1]; j++) {
+            for (int k = 0; k < sim_prop.resolution[2]; k++) {
+                if (devbuf_create(gpu_stat.args[i][j][k][EC],
+                                  neunet[i][j][k]->info->num_groups *
+                                      sizeof(real_t)) != EXIT_SUCCESS) {
+                    return EXIT_FAILURE;
+                }
+                if (devbuf_create(gpu_stat.args[i][j][k][DV],
+                                  neunet[i][j][k]->info->num_groups *
+                                      sizeof(real_t)) != EXIT_SUCCESS) {
+                    return EXIT_FAILURE;
+                }
+                if (devbuf_create(gpu_stat.args[i][j][k][NOLD],
+                                  neunet[i][j][k]->info->num_groups *
+                                      sizeof(real_t)) != EXIT_SUCCESS) {
+                    return EXIT_FAILURE;
+                }
+                if (devbuf_create(gpu_stat.args[i][j][k][N_EQ],
+                                  neunet[i][j][k]->info->num_groups *
+                                      sizeof(real_t)) != EXIT_SUCCESS) {
+                    return EXIT_FAILURE;
+                }
+                if (devbuf_create(gpu_stat.args[i][j][k][REAL_T_VAL],
+                                  16 * sizeof(real_t)) != EXIT_SUCCESS) {
+                    return EXIT_FAILURE;
+                }
+                if (devbuf_create(gpu_stat.args[i][j][k][INT_VAL],
+                                  16 * sizeof(int)) != EXIT_SUCCESS) {
+                    return EXIT_FAILURE;
+                }
+                // These are flattened 2D arrays
+                if (devbuf_create(gpu_stat.args[i][j][k][R_IN],
+                                  (pow(neunet[i][j][k]->info->num_groups, 2)) *
+                                      sizeof(real_t)) != EXIT_SUCCESS) {
+                    return EXIT_FAILURE;
+                }
+                if (devbuf_create(gpu_stat.args[i][j][k][R_OUT],
+                                  (pow(neunet[i][j][k]->info->num_groups, 2)) *
+                                      sizeof(real_t)) != EXIT_SUCCESS) {
+                    return EXIT_FAILURE;
+                }
+            }
+        }
+    }
+
+    // Finally, send initial data to GPU
+    for (int i = 0; i < sim_prop.resolution[0]; i++) {
+        for (int j = 0; j < sim_prop.resolution[1]; j++) {
+            for (int k = 0; k < sim_prop.resolution[2]; k++) {
+                if (devbuf_write(gpu_stat.args[i][j][k][EC],
+                                 neunet[i][j][k]->fptr->ec,
+                                 neunet[i][j][k]->info->num_groups *
+                                     sizeof(real_t)) != EXIT_SUCCESS) {
+                    return EXIT_FAILURE;
+                }
+                if (devbuf_write(gpu_stat.args[i][j][k][DV],
+                                 neunet[i][j][k]->fptr->dv,
+                                 neunet[i][j][k]->info->num_groups *
+                                     sizeof(real_t)) != EXIT_SUCCESS) {
+                    return EXIT_FAILURE;
+                }
+                if (devbuf_write(gpu_stat.args[i][j][k][NOLD],
+                                 neunet[i][j][k]->fptr->n_old,
+                                 neunet[i][j][k]->info->num_groups *
+                                     sizeof(real_t)) != EXIT_SUCCESS) {
+                    return EXIT_FAILURE;
+                }
+                if (devbuf_write(gpu_stat.args[i][j][k][N_EQ],
+                                 neunet[i][j][k]->fptr->n_eq,
+                                 neunet[i][j][k]->info->num_groups *
+                                     sizeof(real_t)) != EXIT_SUCCESS) {
+                    return EXIT_FAILURE;
+                }
+                if (devbuf_write(gpu_stat.args[i][j][k][N_EQ],
+                                 neunet[i][j][k]->fptr->n_eq,
+                                 neunet[i][j][k]->info->num_groups *
+                                     sizeof(real_t)) != EXIT_SUCCESS) {
+                    return EXIT_FAILURE;
+                }
+                if (devbuf_write_flatten(gpu_stat.args[i][j][k][R_IN],
+                                         (void*)neunet[i][j][k]->info->rate_in,
+                                         neunet[i][j][k]->info->num_groups,
+                                         sizeof(real_t)) != EXIT_SUCCESS) {
+                    return EXIT_FAILURE;
+                }
+                if (devbuf_write_flatten(gpu_stat.args[i][j][k][R_OUT],
+                                         (void*)neunet[i][j][k]->info->rate_out,
+                                         neunet[i][j][k]->info->num_groups,
+                                         sizeof(real_t)) != EXIT_SUCCESS) {
+                    return EXIT_FAILURE;
+                }
+            }
+        }
+    }
+
+    return EXIT_SUCCESS;
+}
+#endif
+
 // This really highlights the weakness of storing the neutrino network data like
 // this. A rework could be extremely beneficial for parallelization.
 int neunet_data_preprocess(struct neunet**** neunet, struct rt_hydro_mesh* mesh,
-                           struct simulation_properties sim_prop) {
+                           struct simulation_properties sim_prop,
+                           struct option_values opts) {
+#ifdef __MP_ROCM
+    if (!gpu_stat.initialized) {
+        if (device_init_args(neunet, sim_prop, opts) == EXIT_FAILURE) {
+            return EXIT_FAILURE;
+        }
+        gpu_stat.initialized = true;
+    }
+#endif
     for (int i = 0; i < sim_prop.resolution[0]; i++) {
         for (int j = 0; j < sim_prop.resolution[1]; j++) {
             for (int k = 0; k < sim_prop.resolution[2]; k++) {
@@ -207,16 +360,57 @@ int neunet_data_preprocess(struct neunet**** neunet, struct rt_hydro_mesh* mesh,
             }
         }
     }
+    // Parameters need to be updated here... and then sent to GPU...
+
+#ifdef __MP_ROCM
+    // This is not ideal with how streams _should_ work.
+    // This part updates params...
+
+    real_t* tmpreal = malloc(16 * sizeof(real_t));
+    int* tmpint = malloc(16 * sizeof(int));
+    for (int i = 0; i < sim_prop.resolution[0]; i++) {
+        for (int j = 0; j < sim_prop.resolution[1]; j++) {
+            for (int k = 0; k < sim_prop.resolution[2]; k++) {
+                tmpreal[0] = neunet[i][j][k]->f->t; // Should just be 0
+                tmpreal[1] = neunet[i][j][k]->f->dt;
+                tmpreal[2] = neunet[i][j][k]->f->g_a;
+                tmpreal[3] = neunet[i][j][k]->f->g_b;
+                tmpreal[4] = neunet[i][j][k]->f->g_c;
+                tmpreal[5] = neunet[i][j][k]->f->tol;
+                tmpreal[6] = neunet[i][j][k]->f->EpsA;
+                tmpreal[7] = neunet[i][j][k]->f->EpsR;
+                tmpreal[8] = neunet[i][j][k]->f->tol;
+                tmpreal[9] = neunet[i][j][k]->f->err;
+                tmpreal[10] = neunet[i][j][k]->f->t_end;
+                tmpint[0] = neunet[i][j][k]->info->num_groups;
+                devbuf_write(gpu_stat.args[i][j][k][REAL_T_VAL], tmpreal,
+                             16 * sizeof(real_t));
+                devbuf_write(gpu_stat.args[i][j][k][INT_VAL], tmpint,
+                             16 * sizeof(int));
+            }
+        }
+    }
+    free(tmpreal);
+    free(tmpint);
+#endif
     return EXIT_SUCCESS;
 }
 
 int neunet_integrate_network(struct simulation_properties sim_prop,
                              struct neunet* network,
-                             struct option_values options) {
+                             struct option_values options, int i, int j,
+                             int k) {
+
 #ifdef __MP_ROCM
+    struct dim3 blockdim = {network->info->num_groups, 1, 1};
+    struct dim3 griddim = {1, 1, 1};
     if (options.rocm_accel) {
-        printf("NEUTRINO ROCM KERNEL NOT IMPLEMENTED\n");
-        return EXIT_FAILURE;
+        // Pass 0 for sharedmem because I don't know what it does?
+        if (hipLaunchKernel(qss_hip_neunet_kernel, griddim, blockdim,
+                            gpu_stat.args[i][j][k], 0,
+                            hipStreamDefault) != hipSuccess) {
+            return EXIT_FAILURE;
+        }
     } else {
         if (neunet_integration_kernel(
                 network->info->rate_in, network->info->rate_out,
@@ -243,16 +437,23 @@ int neunet_integrate_network(struct simulation_properties sim_prop,
 int neunet_kernel_trigger(struct simulation_properties sim_prop,
                           struct neunet**** network,
                           struct option_values options) {
-
+#ifdef __MP_ROCM
+    // Something something stream....?
+#endif
     for (int i = 0; i < sim_prop.resolution[0]; i++) {
         for (int j = 0; j < sim_prop.resolution[1]; j++) {
             for (int k = 0; k < sim_prop.resolution[2]; k++) {
                 if (neunet_integrate_network(sim_prop, network[i][j][k],
-                                             options) == EXIT_FAILURE) {
+                                             options, i, j,
+                                             k) == EXIT_FAILURE) {
                     return EXIT_FAILURE;
                 }
             }
         }
     }
+#ifdef __MP_ROCM
+    // I'm not sure how this works...
+    hipStreamSynchronize(hipStreamDefault);
+#endif
     return EXIT_SUCCESS;
 }

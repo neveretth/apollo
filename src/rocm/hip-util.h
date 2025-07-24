@@ -14,10 +14,14 @@ struct hipDeviceProp_t* get_hip_device();
 // test.
 int benchmark_device(struct hipDeviceProp_t* device);
 
-// Create buffer at devptr on parallel accelerator and copy mem from host ptr.
-int devbuf_create(void** devptr, void* hostptr, int size);
+int devbuf_create(void** devptr, int size);
 
-// Read data at devptr on parallel accelerator and copy mem to host ptr.
+int devbuf_write(void** devptr, void* hostptr, int size);
+
+// NOTE: len should be the number of rows/columns (they MUST BE EQUAL).
+// size should be the size of the datatype
+int devbuf_write_flatten(void** devptr, void** hostptr, int len, int size);
+
 int devbuf_read(void* hostptr, void** devptr, int size);
 
 #endif

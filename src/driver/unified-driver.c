@@ -9,6 +9,10 @@
 #include "../kernel/neutrino/kernel.h"
 #include "../kernel/thermonuclear/kernel.h"
 
+#ifdef __MP_ROCM
+#include "../rocm/hip-util.h"
+#endif
+
 #include <math.h>
 #include <stdlib.h>
 #include <time.h>
@@ -136,8 +140,15 @@ int unified_driver(struct simulation_properties sim_prop,
 
     if (sim_prop.output && sim_prop.hydro) {
         fprint_real_t_3d(sim_prop.hydro_out_file, mesh->temp, mesh->dim[0],
-                        mesh->dim[1], mesh->dim[2]);
+                         mesh->dim[1], mesh->dim[2]);
     }
+
+    // INIT ROCM IF APPROPRIATE
+#ifdef __MP_ROCM
+    if (options.rocm_accel) {
+        options.rocm_device = get_hip_device();
+    }
+#endif
 
     printf("\n\n");
 
@@ -157,13 +168,14 @@ int unified_driver(struct simulation_properties sim_prop,
                     goto exit;
                 }
                 // Not a trigger for now, probably will be at some point.
-                if (hydro_integrate_mesh(sim_prop, mesh, options) == EXIT_FAILURE) {
+                if (hydro_integrate_mesh(sim_prop, mesh, options) ==
+                    EXIT_FAILURE) {
                     fail = true;
                     goto exit;
                 }
             }
             if (sim_prop.neutrino) {
-                if (neunet_data_preprocess(neutrino, mesh, sim_prop) ==
+                if (neunet_data_preprocess(neutrino, mesh, sim_prop, options) ==
                     EXIT_FAILURE) {
                     fail = true;
                     goto exit;
@@ -175,20 +187,20 @@ int unified_driver(struct simulation_properties sim_prop,
                 }
             }
             if (sim_prop.thermo) {
-                if (tnn_data_preprocess(thermo, mesh, sim_prop) ==
+                if (tnn_data_preprocess(thermo, mesh, sim_prop, options) ==
                     EXIT_FAILURE) {
                     fail = true;
                     goto exit;
                 }
-                if (tnn_kernel_trigger(sim_prop, rates, thermo, params, options) ==
-                    EXIT_FAILURE) {
+                if (tnn_kernel_trigger(sim_prop, rates, thermo, params,
+                                       options) == EXIT_FAILURE) {
                     fail = true;
                     goto exit;
                 }
             }
             if (sim_prop.output && sim_prop.hydro) {
                 fprint_real_t_3d(sim_prop.hydro_out_file, mesh->temp,
-                                mesh->dim[0], mesh->dim[1], mesh->dim[2]);
+                                 mesh->dim[0], mesh->dim[1], mesh->dim[2]);
             }
 
             t += dt;
@@ -208,6 +220,7 @@ exit:
     if (sim_prop.thermo) {
         rate_library_destroy(&rates);
     }
+    // Proper destruction should occur within the kernel modules...
     for (int i = 0; i < sim_prop.resolution[0]; i++) {
         for (int j = 0; j < sim_prop.resolution[1]; j++) {
             for (int k = 0; k < sim_prop.resolution[2]; k++) {

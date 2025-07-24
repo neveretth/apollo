@@ -8,14 +8,25 @@ test-mem: apollo
 PROFILEFLAGS = CPUPROFILE=/tmp/prof.out
 test-prof: apollo
 	rm $(BUILD_DIR)/apollo
-	$(HIPCC) $(BUILD_DIR)/src/*.o -o $(BUILD_DIR)/apollo $(CLIBS) -lprofiler
+	$(CC) $(BUILD_DIR)/src/*.o -o $(BUILD_DIR)/apollo $(CLIBS) -lprofiler
 	
 	$(PROFILEFLAGS) $(APOLLO_RUN_CMD)
 	
 	pprof ./build/apollo /tmp/prof.out
+	
+test-rocm-prof: apollo-rocm
+	rm $(BUILD_DIR)/apollo-rocm
+	$(HIPCC) $(BUILD_DIR)/src/*.o -o $(BUILD_DIR)/apollo-rocm $(CLIBS) -lprofiler
+	
+	$(PROFILEFLAGS) $(APOLLO_ROCM_RUN_CMD)
+	
+	pprof ./build/apollo-rocm /tmp/prof.out
 
 test-gdb: apollo
 	gdb --args $(APOLLO_RUN_CMD)
+	
+test-rocm-gdb: apollo-rocm
+	rocgdb --args $(APOLLO_ROCM_RUN_CMD)
 	
 test-rocm: apollo-rocm
 	$(TIME_CMD) \

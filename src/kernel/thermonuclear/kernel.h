@@ -39,7 +39,8 @@ real_t compute_keff(real_t Fminus, real_t Y);
 
 // Perform preprocessing on thermonuclear network data.
 int tnn_data_preprocess(struct tnn**** tnn, struct rt_hydro_mesh* mesh,
-                        struct simulation_properties sim_prop);
+                        struct simulation_properties sim_prop,
+                        struct option_values options);
 
 // Update tnn kernel parameters.
 int problem_parameters_update(struct problem_parameters* params,
@@ -62,12 +63,14 @@ int tnn_kernel_trigger(struct simulation_properties sim_prop,
 
 // HIP KERNEL
 
-__global__ void integration_kernel_hip(
-    real_t* P0, real_t* P1, real_t* P2, real_t* P3, real_t* P4, real_t* P5, real_t* P6,
-    real_t* Prefac, real_t* Q, real_t* Rate, real_t* Flux, real_t* Fplus,
-    real_t* Fminus, real_t* FplusFac, real_t* FminusFac, real_t* FplusSum,
-    real_t* FminusSum, int* FplusMax, int* FminusMax, int* MapFplus,
-    int* MapFminus, real_t* Y, int* NumReactingSpecies, int* Reactant1,
-    int* Reactant2, int* Reactant3, int* int_val, real_t* real_t_val);
+__global__ void
+integration_kernel_hip(real_t* P0, real_t* P1, real_t* P2, real_t* P3,
+                       real_t* P4, real_t* P5, real_t* P6, real_t* Prefac,
+                       real_t* Q, real_t* Rate, real_t* Flux, real_t* Fplus,
+                       real_t* Fminus, real_t* FplusFac, real_t* FminusFac,
+                       real_t* FplusSum, real_t* FminusSum, int* FplusMax,
+                       int* FminusMax, int* MapFplus, int* MapFminus, real_t* Y,
+                       int* NumReactingSpecies, int* Reactant1, int* Reactant2,
+                       int* Reactant3, int* int_val, real_t* real_t_val);
 
 #endif

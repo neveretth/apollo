@@ -39,3 +39,6 @@ and apollo-rocm. apollo-rocm is linked with ROCm, and is passed the
 `__MP_ROCM` definition. This allows an rocm and non-rocm implementation. 
 Non-rocm is _required_, rocm is _not_ although if the module is particularly 
 computationally expensive, it is desired.
+
+Each kernel module for a set of zones/cells will be passed a single device
+to work on.

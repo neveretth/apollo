@@ -158,7 +158,8 @@ real_t compute_keff(real_t Fminus, real_t Y) {
 
 // Better data organization could massively improve the efficiency of this.
 int tnn_data_preprocess(struct tnn**** tnn, struct rt_hydro_mesh* mesh,
-                        struct simulation_properties sim_prop) {
+                        struct simulation_properties sim_prop,
+                        struct option_values options) {
     for (int i = 0; i < sim_prop.resolution[0]; i++) {
         for (int j = 0; j < sim_prop.resolution[1]; j++) {
             for (int k = 0; k < sim_prop.resolution[2]; k++) {
@@ -318,10 +319,11 @@ int tnn_integrate_network(struct simulation_properties sim_prop,
                           struct problem_parameters* params,
                           struct option_values options) {
 #ifdef __MP_ROCM
-    if (options.rocm_accel) {
-        printf("THERMONUCLEAR ROCM KERNEL NOT IMPLEMENTED\n");
-        return EXIT_FAILURE;
-    } else {
+    // Commented out because we want it to run regardless...
+    // if (options.rocm_accel) {
+    //     printf("THERMONUCLEAR ROCM KERNEL NOT IMPLEMENTED\n");
+    //     return EXIT_FAILURE;
+    // } else {
         if (tnn_integration_kernel(
                 rates->p0, rates->p1, rates->p2, rates->p3, rates->p4,
                 rates->p5, rates->p6, rates->prefactor, rates->q_value,
@@ -336,7 +338,7 @@ int tnn_integrate_network(struct simulation_properties sim_prop,
                 network->f->t_max, network->f->dt_init) == EXIT_FAILURE) {
             return EXIT_FAILURE;
         }
-    }
+    // }
 #else
     if (tnn_integration_kernel(
             rates->p0, rates->p1, rates->p2, rates->p3, rates->p4, rates->p5,

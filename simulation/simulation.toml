@@ -3,7 +3,7 @@
 [simulation.time]
 endtime = 400.0 # in seconds
 tres = 100 # Temporal resolution of output
-printkerneltime = true
+printkerneltime = false
 
 [simulation.output]
 output = true

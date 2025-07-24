@@ -4,7 +4,7 @@
 endtime = 1.0 # in seconds
 tres = 100 # Temporal resolution of output
 printkerneltime = true
-initdt = 1e-1
+initdt = 1e-2
 
 [simulation.output]
 output = true

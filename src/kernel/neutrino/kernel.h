@@ -3,6 +3,9 @@
 
 #include "../../types.h"
 
+#define __HIP_PLATFORM_AMD__
+#include <hip/hip_runtime.h>
+
 // Integrate neutrino network.
 int neunet_integration_kernel(real_t** rate_in, real_t** rate_out,
                               real_t* n_old, real_t* ec, real_t* dv, real_t dt,
@@ -27,14 +30,19 @@ real_t compute_next_timestep(const real_t* E_O, const real_t* E_D,
 
 // Perform preprocessing on neutrino network data.
 int neunet_data_preprocess(struct neunet**** neunet, struct rt_hydro_mesh* mesh,
-                           struct simulation_properties sim_prop);
+                           struct simulation_properties sim_prop,
+                           struct option_values options);
 
 int neunet_integrate_network(struct simulation_properties sim_prop,
                              struct neunet* network,
-                             struct option_values options);
+                             struct option_values options, int i, int j, int k);
 
 int neunet_kernel_trigger(struct simulation_properties sim_prop,
                           struct neunet**** network,
                           struct option_values options);
+
+__global__ void qss_hip_neunet_kernel(real_t* real_t_val, int* int_val,
+                                      real_t* R_In, real_t* R_Out, real_t* eC,
+                                      real_t* dV, real_t* N_Eq, real_t* Nold);
 
 #endif

@@ -1,5 +1,4 @@
 #include "hip-util.h"
-#include <hip/hip_runtime.h>
 
 struct hipDeviceProp_t* get_hip_device() {
     int num_devices = 0;
@@ -20,8 +19,8 @@ struct hipDeviceProp_t* get_hip_device() {
         }
         // clockRate * 1000 since HIP reports it in kHz
         real_t tflops = ((long)temp_device.clockRate * 1000) *
-                       temp_device.multiProcessorCount *
-                       temp_device.maxBlocksPerMultiProcessor;
+                        temp_device.multiProcessorCount *
+                        temp_device.maxBlocksPerMultiProcessor;
         tflops *= 64;    // Estimated number of operations per cycle
         tflops *= 1e-12; // Convert to tera
         printf("==apollo== device: %i (%f TFlops/s)\n", i, tflops);
@@ -48,6 +47,7 @@ struct hipDeviceProp_t* get_hip_device() {
            device->multiProcessorCount * device->maxBlocksPerMultiProcessor);
     printf("==apollo== estimated TFlops/s: %f\n", best_device_tflops);
 
+    // Does this work on a per-core basis (as in an MPI implementation)???
     hipSetDevice(best_device_id);
 
     return device;
@@ -106,7 +106,7 @@ int benchmark_device(struct hipDeviceProp_t* device) {
     args[2] = &d_C;
 
     printf("==apollo== DEBUG NOT FULLY IMPLEMENTED!\n");
-    
+
     // if ((error = hipLaunchKernel(vector_mult_kernel, griddim, blockdim, args,
     //                              sharedmem_allocation, hipStreamDefault)) !=
     //     hipSuccess) {
@@ -126,13 +126,44 @@ int benchmark_device(struct hipDeviceProp_t* device) {
     return EXIT_SUCCESS;
 }
 
-int devbuf_create(void** devptr, void* hostptr, int size) {
-    hipMalloc(devptr, size);
-    hipMemcpy(*devptr, hostptr, size, hipMemcpyHostToDevice);
+int devbuf_create(void** devptr, int size) {
+    if (hipMalloc(devptr, size) != HIP_SUCCESS) {
+        return EXIT_FAILURE;
+    }
+    return EXIT_SUCCESS;
+}
+
+int devbuf_write(void** devptr, void* hostptr, int size) {
+    if (hipMemcpy(*devptr, hostptr, size, hipMemcpyHostToDevice) !=
+        HIP_SUCCESS) {
+        return EXIT_FAILURE;
+    }
     return EXIT_SUCCESS;
 }
 
 int devbuf_read(void* hostptr, void** devptr, int size) {
-    hipMemcpy(hostptr, *devptr, size, hipMemcpyDeviceToHost);
+    if (hipMemcpy(hostptr, *devptr, size, hipMemcpyDeviceToHost) !=
+        HIP_SUCCESS) {
+        return EXIT_FAILURE;
+    }
+    return EXIT_SUCCESS;
+}
+
+// Obviously this is terrible, but it works?
+int devbuf_write_flatten(void** devptr, void** hostptr, int len, int size) {
+    float** host_ = (float**)hostptr;
+    float* host__ = malloc(len * len * size);
+
+    for (int i = 0; i < len; i++) {
+        for (int j = 0; j < len; j++) {
+            host__[(i * len) + j] = host_[i][j];
+        }
+    }
+
+    if (hipMemcpy(*devptr, host__, len * len * size, hipMemcpyHostToDevice) !=
+        HIP_SUCCESS) {
+        return EXIT_FAILURE;
+    }
+    free(host__);
     return EXIT_SUCCESS;
 }
