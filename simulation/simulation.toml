@@ -1,10 +1,10 @@
 [simulation]
 
 [simulation.time]
-endtime = 400.0 # in seconds
+endtime = 1.0 # in seconds
 tres = 100 # Temporal resolution of output
-printkerneltime = false
-initdt = 1e-2
+printkerneltime = true
+initdt = 1e-3
 
 [simulation.output]
 output = true
@@ -36,7 +36,7 @@ effect = "radial"
 
 # NOTE: these relative paths are relative to runner.py
 [simulation.thermo]
-use = false
+use = true
 networkfile = "../data/network-alpha.aad"
 ratefile = "../data/ratelibrary-alpha.aad"
 

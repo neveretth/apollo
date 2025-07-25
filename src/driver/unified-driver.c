@@ -26,7 +26,7 @@ int unified_driver(struct simulation_properties sim_prop,
     struct rate_library* rates;
 
     // Eventually move these to TOML
-    mesh->h = 10e+12;
+    mesh->h = 1e+17; // Probably should be closer to 1e+12
     mesh->volume = 1;
     real_t t_end = sim_prop.t_end;
     real_t dt = sim_prop.dt_init;
@@ -220,6 +220,7 @@ int unified_driver(struct simulation_properties sim_prop,
             t += dt;
         }
         printf("\x1b[1A\x1b[2K\x1b[0G  Time: [%6.2f/%6.2f]\n", t, t_end);
+        // printf("%.10f\n", mesh->temp[0][0][0]);
     }
 
     kerneltime = clock() - kerneltime;

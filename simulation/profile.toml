@@ -12,8 +12,8 @@ outputdir = "output"
 
 # No AMR
 [simulation.resolution]
-x = 1
-y = 1
+x = 2
+y = 2
 z = 1
 # Setting this to 1 means 2D, and is much friendlier with visualization.
 
@@ -40,7 +40,7 @@ networkfile = "data/network-alpha.aad"
 ratefile = "data/ratelibrary-alpha.aad"
 
 [simulation.neutrino]
-use = true
+use = false
 opacityfile = "data/FENNData40M186.h5"
 
 # For the python code only.
