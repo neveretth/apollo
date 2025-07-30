@@ -1,7 +1,7 @@
 [simulation]
 
 [simulation.time]
-endtime = 1.0 # in seconds
+endtime = 1.0e0 # in seconds
 tres = 100 # Temporal resolution of output
 printkerneltime = true
 initdt = 1e-3
@@ -12,8 +12,8 @@ outputdir = "output"
 
 # No AMR
 [simulation.resolution]
-x = 16
-y = 16
+x = 8
+y = 8
 z = 1
 # Setting this to 1 means 2D, and is much friendlier with visualization.
 
@@ -26,12 +26,11 @@ effect = true
 [simulation.hydroeffect]
 
 [simulation.hydroeffect.temp]
-base = 8e09
+base = 8e08 # Higher than this and the code is likely to nan/inf out.
 effect = "radial"
 
 [simulation.hydroeffect.density]
-base = 1e08
-# base = 3e05
+base = 3e8
 effect = "radial"
 
 # NOTE: these relative paths are relative to runner.py

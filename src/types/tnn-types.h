@@ -94,6 +94,7 @@ struct problem_parameters {
                            // factor in F- terms
     real_t* f_plus_sum;     // Sum of F+ for each isotope
     real_t* f_minus_sum;    // Sum of F- for each isotope
+    real_t* prefactor;
     int* f_plus_max;       // Upper index for each isotope in the f_plus array
     int* f_plus_min;       // Lower index for each isotope in the f_plus array
     int* f_minus_max;      // Upper index for each isotope in the f_minus array

@@ -5,6 +5,7 @@
 
 #define THIRD 0.3333333333333333
 
+// This code has a remarkably bad habit of nan/inf-ing out.
 int tnn_integration_kernel(
     real_t* real_t_val, int* int_val, real_t* P0, real_t* P1, real_t* P2,
     real_t* P3, real_t* P4, real_t* P5, real_t* P6, real_t* Prefac, real_t* Q,
@@ -31,9 +32,8 @@ int tnn_integration_kernel(
     real_t t6 = logf(t9);
 
     for (int i = 0; i < number_reactions; i++) {
-        Rate[i] =
-            Prefac[i] * expf(P0[i] + t1 * P1[i] + t2 * P2[i] + t3 * P3[i] +
-                             t4 * P4[i] + t5 * P5[i] + t6 * P6[i]);
+        Rate[i] = Prefac[i] * expf(P0[i] + t1 * P1[i] + t2 * P2[i] + t3 * P3[i] +
+                                  t4 * P4[i] + t5 * P5[i] + t6 * P6[i]);
     }
 
     /*
@@ -112,17 +112,13 @@ int tnn_integration_kernel(
             }
         }
 
-        // Calculate the change in temperature caused by the nuclear burning.
+        // Calculate the change in temperature caused by nuclear burning.
         real_t tmp = 0;
         for (int i = 0; i < number_reactions; i++) {
             tmp += Flux[i] * Q[i];
         }
-        // This should not be neccessary, _but_ this thermo code likes to go
-        // insane.
-        if (!isnan(tmp) && !isinf(tmp)) {
-            tmp *= dt;
-            dE += tmp;
-        }
+        tmp *= dt;
+        dE += tmp;
 
         // Increment the integration time and set the new timestep
         t += dt;
@@ -132,6 +128,7 @@ int tnn_integration_kernel(
     }
 
     // Placeholder for proper dT/mC calc.
+    // ~ t9 += dE / (rho*volume * c)
     t9 += (dE / (1e08 * 1e08));
 
     real_t_val[0] = t9;
@@ -378,15 +375,16 @@ int tnn_integrate_network(struct simulation_properties sim_prop,
     tmp[0] = network->f->t9;
     if (tnn_integration_kernel(
             tmp, NULL, rates->p0, rates->p1, rates->p2, rates->p3, rates->p4,
-            rates->p5, rates->p6, rates->prefactor, rates->q_value, rates->rate,
-            rates->flux, params->f_plus, params->f_minus, params->f_plus_factor,
-            params->f_minus_factor, params->f_plus_sum, params->f_minus_sum,
-            params->f_plus_max, params->f_minus_max, params->f_plus_map,
-            params->f_minus_map, network->fptr->y, rates->num_react_species,
-            rates->reactant_1, rates->reactant_2, rates->reactant_3,
-            network->info->number_species, rates->number_reactions,
-            params->f_plus_total, params->f_minus_total, network->f->t9,
-            network->f->t_max, network->f->dt_init) == EXIT_FAILURE) {
+            rates->p5, rates->p6, params->prefactor, rates->q_value,
+            rates->rate, rates->flux, params->f_plus, params->f_minus,
+            params->f_plus_factor, params->f_minus_factor, params->f_plus_sum,
+            params->f_minus_sum, params->f_plus_max, params->f_minus_max,
+            params->f_plus_map, params->f_minus_map, network->fptr->y,
+            rates->num_react_species, rates->reactant_1, rates->reactant_2,
+            rates->reactant_3, network->info->number_species,
+            rates->number_reactions, params->f_plus_total,
+            params->f_minus_total, network->f->t9, network->f->t_max,
+            network->f->dt_init) == EXIT_FAILURE) {
         return EXIT_FAILURE;
     }
     network->f->t9 = tmp[0];
@@ -411,11 +409,12 @@ int tnn_kernel_trigger(struct simulation_properties sim_prop,
                 density[1] = network[i][j][k]->f->rho;
                 density[2] =
                     network[i][j][k]->f->rho * network[i][j][k]->f->rho;
+                problem_parameters_update(params, rates, network[i][j][k]);
                 for (int n = 0; n < rates->number_reactions; n++) {
-                    rates->prefactor[n] *=
+                    params->prefactor[n] =
+                        rates->prefactor[n] *
                         (density[rates->num_react_species[n] - 1]);
                 }
-                problem_parameters_update(params, rates, network[i][j][k]);
                 if (tnn_integrate_network(sim_prop, rates, network[i][j][k],
                                           params, options) == EXIT_FAILURE) {
                     return EXIT_FAILURE;
