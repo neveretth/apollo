@@ -1,8 +1,8 @@
 [simulation]
 
 [simulation.time]
-endtime = 400.0 # in seconds
-tres = 100 # Temporal resolution of output
+endtime = 1e3
+tres = 100
 printkerneltime = false
 initdt = 1e-2
 
@@ -10,12 +10,10 @@ initdt = 1e-2
 output = true
 outputdir = "output"
 
-# No AMR
 [simulation.resolution]
 x = 16
 y = 16
 z = 1
-# Setting this to 1 means 2D, and is much friendlier with visualization.
 
 [simulation.hydro]
 use = true
@@ -31,18 +29,16 @@ effect = "radial"
 
 [simulation.hydroeffect.density]
 base = 1e08
-# base = 3e05
 effect = "radial"
 
-# NOTE: these relative paths are relative to runner.py
 [simulation.thermo]
 use = false
-networkfile = "../data/network-alpha.aad"
-ratefile = "../data/ratelibrary-alpha.aad"
+networkfile = "data/network-alpha.aad"
+ratefile = "data/ratelibrary-alpha.aad"
 
 [simulation.neutrino]
 use = false
-opacityfile = "../data/FENNData40M186.h5"
+opacityfile = "data/FENNData40M186.h5"
 
 # For the python code only.
 [visualization]

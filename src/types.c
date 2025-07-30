@@ -3,6 +3,7 @@
 #include "numeffect.h"
 
 #include <H5Include.h>
+#include <linux/limits.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -78,7 +79,9 @@ int print_results(const struct rate_library* rates, const struct tnn* network,
 }
 
 int options_clean(struct option_values options) {
-    // NOTHING.
+    free(options.root_dir);
+    // free(options.config_file);
+    // free(options.simulation_file);
     return EXIT_SUCCESS;
 }
 
@@ -164,10 +167,10 @@ simulation_properties_create(toml_result_t simulation_toml,
     if (sim_prop.hydro && sim_prop.output) {
         char* tmp = toml_string(simulation_toml, "simulation.hydro.outputfile");
         char tmpp[256];
-        snprintf(tmpp, 256, "%s/%s", outputdir, tmp);
+        snprintf(tmpp, 256, "%s/%s/%s", opts->root_dir, outputdir, tmp);
         sim_prop.hydro_out_file = fopen(tmpp, "wa");
         if (sim_prop.hydro_out_file == NULL) {
-            printf("==apollo== error: could not open file: %s\n", tmp);
+            printf("==apollo== error: could not open file: %s\n", tmpp);
             goto exit_fail;
         }
         free(tmp);
@@ -209,14 +212,17 @@ simulation_properties_create(toml_result_t simulation_toml,
     if (sim_prop.thermo) {
         char* tmp =
             toml_string(simulation_toml, "simulation.thermo.networkfile");
-        sim_prop.network_file = fopen(tmp, "r");
+        char file[PATH_MAX];
+        snprintf(file, PATH_MAX, "%s/%s", opts->root_dir, tmp);
+        sim_prop.network_file = fopen(file, "r");
         if (sim_prop.network_file == NULL) {
             printf("==apollo== error: cannot open thermo network \"%s\"\n",
                    tmp);
             exit(1);
         }
         tmp = toml_string(simulation_toml, "simulation.thermo.ratefile");
-        sim_prop.rate_library_file = fopen(tmp, "r");
+        snprintf(file, PATH_MAX, "%s/%s", opts->root_dir, tmp);
+        sim_prop.rate_library_file = fopen(file, "r");
         if (sim_prop.rate_library_file == NULL) {
             printf("==apollo== error: cannot open thermo ratelib \"%s\"\n",
                    tmp);
@@ -235,7 +241,9 @@ simulation_properties_create(toml_result_t simulation_toml,
             printf("==apollo== error: cannot open neutrino file \"%s\"\n", tmp);
             exit(123);
         }
-        if ((sim_prop.neutrino_file = H5Fopen(tmp, H5F_ACC_RDONLY, fapl)) ==
+        char file[PATH_MAX];
+        snprintf(file, PATH_MAX, "%s/%s", opts->root_dir, tmp);
+        if ((sim_prop.neutrino_file = H5Fopen(file, H5F_ACC_RDONLY, fapl)) ==
             H5I_INVALID_HID) {
             printf("==apollo== error: cannot open neutrino file \"%s\"\n", tmp);
             exit(123);

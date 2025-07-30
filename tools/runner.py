@@ -13,7 +13,7 @@ fig, ax = plt.subplots()
 def graph_flat(sim_prop):  # 2D graph
     size = int(sim_prop["simulation"]["resolution"]["x"])
 
-    datafile = sim_prop["simulation"]["output"]["outputdir"] + "/" + \
+    datafile = "../" + sim_prop["simulation"]["output"]["outputdir"] + "/" + \
         sim_prop["simulation"]["hydro"]["outputfile"]
 
     data = pd.read_csv(datafile, delimiter=' ', header=None)
@@ -44,7 +44,7 @@ def graph_rt(sim_prop):  # 3D graph
     sizey = int(sim_prop["simulation"]["resolution"]["y"])
     sizez = int(sim_prop["simulation"]["resolution"]["z"])
 
-    datafile = sim_prop["simulation"]["output"]["outputdir"] + "/" + \
+    datafile = "../" + sim_prop["simulation"]["output"]["outputdir"] + "/" + \
         sim_prop["simulation"]["hydro"]["outputfile"]
 
     data = pd.read_csv(datafile, delimiter=' ', header=None)
@@ -97,11 +97,14 @@ if __name__ == "__main__":
     with open(sys.argv[1], "rb") as f:
         sim_prop = tomllib.load(f)
 
-    if not os.path.exists(sim_prop["simulation"]["output"]["outputdir"]):
-        os.mkdir(sim_prop["simulation"]["output"]["outputdir"])
-
     popen = subprocess.run(
-        ["../build/apollo", "-C", "../config/config.toml", "-S", sys.argv[1]])
+        ["rm", "-rf", "../" + sim_prop["simulation"]["output"]["outputdir"]])
+    popen = subprocess.run(
+        ["mkdir", "-p", "../" + sim_prop["simulation"]["output"]["outputdir"]])
+
+    # -P passes a relative path to fix issues with data location and whatnot.
+    popen = subprocess.run(
+        ["../build/apollo", "-C", "../config/config.toml", "-S", sys.argv[1], "-P", "../"])
 
     if sim_prop["simulation"]["resolution"]["z"] == 1:
         graph_flat(sim_prop)

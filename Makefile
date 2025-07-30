@@ -9,11 +9,11 @@ TIME_CMD = /bin/time -f "\n| Time: %e | CPU: %P | User: %U | Kernel: %S | MinPF:
 
 APOLLO_RUN_CMD = $(BUILD_DIR)/apollo \
 	-C config/config.toml \
-	-S simulation/profile.toml \
+	-S simulation/simulation.toml \
 	
 APOLLO_ROCM_RUN_CMD = $(BUILD_DIR)/apollo-rocm \
 	-C config/config.toml \
-	-S simulation/profile.toml \
+	-S simulation/simulation.toml \
 	
 BUILD_DIR = $(PWD)/build
 SOURCE_DIR = $(PWD)/src

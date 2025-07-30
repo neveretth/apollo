@@ -1,15 +1,16 @@
 #include "args.h"
 
 #include <H5Include.h>
+#include <linux/limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 static char* help_string =
     "apollo: An astrophysics solver.\n\n  help: apollo --help\n"
     "\n    Configuration of apollo is done in the simulation.toml file...\n"
     "    ...please refer to the Documentation for further information\n";
-
 
 struct option_values parse_args(int argc, char** argv) {
 
@@ -24,6 +25,12 @@ struct option_values parse_args(int argc, char** argv) {
     options.config_file = NULL;
     options.simulation_file = NULL;
 
+    // Get the root dir if not set by args.
+    char cwd[PATH_MAX];
+    getcwd(cwd, sizeof(cwd));
+    options.root_dir = malloc(PATH_MAX * sizeof(char));
+    snprintf(options.root_dir, PATH_MAX, "%s/", cwd);
+
     // Not a lot of safety here...
     if (argc > 1) {
         for (int i = 1; i < argc; i++) {
@@ -35,6 +42,9 @@ struct option_values parse_args(int argc, char** argv) {
                 i++;
             } else if (strcmp(argv[i], "-S") == 0) {
                 options.simulation_file = argv[i + 1];
+                i++;
+            } else if (strcmp(argv[i], "-P") == 0) {
+                strcat(options.root_dir, argv[i+1]);
                 i++;
             } else if (strcmp(argv[i], "--verbose") == 0) {
                 options.verbose = 1;

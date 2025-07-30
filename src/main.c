@@ -5,6 +5,7 @@
 #include <stdlib.h>
 
 int main(int argc, char** argv) {
+    
     // May exit here if certain conditions are not met...
     struct option_values options = parse_args(argc, argv);
 
