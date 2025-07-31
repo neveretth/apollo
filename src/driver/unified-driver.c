@@ -212,13 +212,15 @@ int unified_driver(struct simulation_properties sim_prop,
                     goto exit;
                 }
             }
-            if (sim_prop.output && sim_prop.hydro) {
-                fprint_real_t_3d(sim_prop.hydro_out_file, mesh->temp,
-                                 mesh->dim[0], mesh->dim[1], mesh->dim[2]);
-            }
 
             t += dt;
         }
+        
+        if (sim_prop.output && sim_prop.hydro) {
+            fprint_real_t_3d(sim_prop.hydro_out_file, mesh->temp,
+                             mesh->dim[0], mesh->dim[1], mesh->dim[2]);
+        }
+        
         printf("\x1b[1A\x1b[2K\x1b[0G  Time: [%6.2f/%6.2f]\n", t, t_end);
     }
 

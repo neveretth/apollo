@@ -1,4 +1,3 @@
-import os
 import tomllib
 import subprocess
 import matplotlib.pyplot as plt
@@ -10,7 +9,42 @@ import sys
 fig, ax = plt.subplots()
 
 
-def graph_flat(sim_prop):  # 2D graph
+# Display animated figure to screen (generated from list of figs "ims")
+def display_fig(ims, sim_prop):
+    ani = aplt.ArtistAnimation(
+        fig, ims, interval=25, blit=True, repeat_delay=100)
+    if (sim_prop["visualization"]["save"]):
+        ani.save("export/" + sim_prop["visualization"]["saveas"], dpi=400)
+    plt.show()
+
+
+# Generate graph from linear data.
+def graph_linear(sim_prop):
+    datafile = "../" + sim_prop["simulation"]["output"]["outputdir"] + "/" + \
+        sim_prop["simulation"]["hydro"]["outputfile"]
+
+    data = pd.read_csv(datafile, delimiter=' ', header=None)
+    ims = []
+    grid = data.iloc[0].to_numpy()
+    im, = ax.plot(grid)
+    ylim = ax.get_ylim()
+    ims.append([im])
+    tres = sim_prop["simulation"]["time"]["tres"]
+
+    ax.set_xlabel("Zone")
+    ax.set_ylabel("Temperature")
+
+    for i in range(1, tres):
+        ax.set_ylim(ylim)
+        grid = data.iloc[i].to_numpy()
+        im, = ax.plot(grid, color="Black")
+        ims.append([im])
+
+    display_fig(ims, sim_prop)
+
+
+# Generate graph from 2D data.
+def graph_flat(sim_prop):
     size = int(sim_prop["simulation"]["resolution"]["x"])
 
     datafile = "../" + sim_prop["simulation"]["output"]["outputdir"] + "/" + \
@@ -25,6 +59,10 @@ def graph_flat(sim_prop):  # 2D graph
     clim = im.properties()['clim']
     ims.append([im])
 
+    ax.set_title("Color = Temp")
+    ax.set_xlabel("Zone x")
+    ax.set_ylabel("Zone y")
+
     for i in range(1, sim_prop["simulation"]["time"]["tres"]):
         grid = data.iloc[i].to_numpy()
         grid = np.reshape(grid, (-1, size))
@@ -32,14 +70,11 @@ def graph_flat(sim_prop):  # 2D graph
                        interpolation='none', animated=True, clim=clim)
         ims.append([im])
 
-    ani = aplt.ArtistAnimation(
-        fig, ims, interval=25, blit=True, repeat_delay=10)
-    if (sim_prop["visualization"]["save"]):
-        ani.save("export/" + sim_prop["visualization"]["saveas"], dpi=400)
-    plt.show()
+    display_fig(ims, sim_prop)
 
 
-def graph_rt(sim_prop):  # 3D graph
+# Generate graph from 3D data.
+def graph_rt(sim_prop):
     sizex = int(sim_prop["simulation"]["resolution"]["x"])
     sizey = int(sim_prop["simulation"]["resolution"]["y"])
     sizez = int(sim_prop["simulation"]["resolution"]["z"])
@@ -81,11 +116,7 @@ def graph_rt(sim_prop):  # 3D graph
         im = ax
         ims.append([im])
 
-    ani = aplt.ArtistAnimation(
-        fig, ims, interval=20, blit=False, repeat_delay=100)
-    if (sim_prop["visualization"]["save"]):
-        ani.save("export/" + sim_prop["visualization"]["saveas"], dpi=400)
-    plt.show()
+    display_fig(ims, sim_prop)
 
 
 if __name__ == "__main__":
@@ -106,7 +137,9 @@ if __name__ == "__main__":
     popen = subprocess.run(
         ["../build/apollo", "-C", "../config/config.toml", "-S", sys.argv[1], "-P", "../"])
 
-    if sim_prop["simulation"]["resolution"]["z"] == 1:
+    if sim_prop["simulation"]["resolution"]["y"] == 1:
+        graph_linear(sim_prop)
+    elif sim_prop["simulation"]["resolution"]["z"] == 1:
         graph_flat(sim_prop)
     else:
         graph_rt(sim_prop)

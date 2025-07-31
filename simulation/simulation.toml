@@ -1,18 +1,18 @@
 [simulation]
 
 [simulation.time]
-endtime = 1e3
+endtime = 1e6
 tres = 100
 printkerneltime = false
-initdt = 1e-2
+initdt = 1e2
 
 [simulation.output]
 output = true
 outputdir = "output"
 
 [simulation.resolution]
-x = 16
-y = 16
+x = 128
+y = 1
 z = 1
 
 [simulation.hydro]
