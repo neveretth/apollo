@@ -26,7 +26,7 @@ int unified_driver(struct simulation_properties sim_prop,
     struct rate_library* rates;
 
     // Eventually move these to TOML
-    mesh->h = 10e+12;
+    mesh->h = 1e+17; // Probably should be closer to 1e+12
     mesh->volume = 1;
     real_t t_end = sim_prop.t_end;
     real_t dt = sim_prop.dt_init;
@@ -138,7 +138,7 @@ int unified_driver(struct simulation_properties sim_prop,
                                       mesh->dim[2]);
     }
 
-    if (sim_prop.output && sim_prop.hydro) {
+    if (sim_prop.output) {
         fprint_real_t_3d(sim_prop.hydro_out_file, mesh->temp, mesh->dim[0],
                          mesh->dim[1], mesh->dim[2]);
     }
@@ -216,12 +216,13 @@ int unified_driver(struct simulation_properties sim_prop,
             t += dt;
         }
         
-        if (sim_prop.output && sim_prop.hydro) {
+        if (sim_prop.output) {
             fprint_real_t_3d(sim_prop.hydro_out_file, mesh->temp,
                              mesh->dim[0], mesh->dim[1], mesh->dim[2]);
         }
         
         printf("\x1b[1A\x1b[2K\x1b[0G  Time: [%6.2f/%6.2f]\n", t, t_end);
+        // printf("%.10f\n", mesh->temp[0][0][0]);
     }
 
     kerneltime = clock() - kerneltime;

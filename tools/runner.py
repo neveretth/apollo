@@ -21,7 +21,7 @@ def display_fig(ims, sim_prop):
 # Generate graph from linear data.
 def graph_linear(sim_prop):
     datafile = "../" + sim_prop["simulation"]["output"]["outputdir"] + "/" + \
-        sim_prop["simulation"]["hydro"]["outputfile"]
+        sim_prop["simulation"]["output"]["outputfile"]
 
     data = pd.read_csv(datafile, delimiter=' ', header=None)
     ims = []
@@ -48,7 +48,7 @@ def graph_flat(sim_prop):
     size = int(sim_prop["simulation"]["resolution"]["x"])
 
     datafile = "../" + sim_prop["simulation"]["output"]["outputdir"] + "/" + \
-        sim_prop["simulation"]["hydro"]["outputfile"]
+        sim_prop["simulation"]["output"]["outputfile"]
 
     data = pd.read_csv(datafile, delimiter=' ', header=None)
     ims = []
@@ -80,7 +80,7 @@ def graph_rt(sim_prop):
     sizez = int(sim_prop["simulation"]["resolution"]["z"])
 
     datafile = "../" + sim_prop["simulation"]["output"]["outputdir"] + "/" + \
-        sim_prop["simulation"]["hydro"]["outputfile"]
+        sim_prop["simulation"]["output"]["outputfile"]
 
     data = pd.read_csv(datafile, delimiter=' ', header=None)
     ims = []

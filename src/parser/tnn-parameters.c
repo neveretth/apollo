@@ -8,6 +8,8 @@ problem_parameters_create(struct rate_library* rates, struct tnn* network,
                           struct option_values options) {
     struct problem_parameters* params =
         calloc(1, sizeof(struct problem_parameters));
+    
+    params->prefactor = malloc(sizeof(real_t) * rates->number_reactions);
 
     // Find for each isotope all reactions that change its population.  This
     // analysis of the network is required only once at the very beginning of

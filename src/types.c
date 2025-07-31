@@ -144,6 +144,15 @@ simulation_properties_create(toml_result_t simulation_toml,
     char* outputdir;
     if (sim_prop.output) {
         outputdir = toml_string(simulation_toml, "simulation.output.outputdir");
+        char* tmp = toml_string(simulation_toml, "simulation.output.outputfile");
+        char tmpp[256];
+        snprintf(tmpp, 256, "%s/%s/%s", opts->root_dir, outputdir, tmp);
+        sim_prop.hydro_out_file = fopen(tmpp, "wa");
+        if (sim_prop.hydro_out_file == NULL) {
+            printf("==apollo== error: could not open file: %s\n", tmpp);
+            goto exit_fail;
+        }
+        free(tmp);
     }
 
     // TIME
@@ -163,18 +172,6 @@ simulation_properties_create(toml_result_t simulation_toml,
 
     // HYDRO
     sim_prop.hydro = toml_bool(simulation_toml, "simulation.hydro.use");
-
-    if (sim_prop.hydro && sim_prop.output) {
-        char* tmp = toml_string(simulation_toml, "simulation.hydro.outputfile");
-        char tmpp[256];
-        snprintf(tmpp, 256, "%s/%s/%s", opts->root_dir, outputdir, tmp);
-        sim_prop.hydro_out_file = fopen(tmpp, "wa");
-        if (sim_prop.hydro_out_file == NULL) {
-            printf("==apollo== error: could not open file: %s\n", tmpp);
-            goto exit_fail;
-        }
-        free(tmp);
-    }
 
     bool usehydroeffect = toml_bool(simulation_toml, "simulation.hydro.effect");
 

@@ -5,19 +5,22 @@
 
 #define THIRD 0.3333333333333333
 
-int tnn_integration_kernel(real_t* P0, real_t* P1, real_t* P2, real_t* P3,
-                           real_t* P4, real_t* P5, real_t* P6, real_t* Prefac,
-                           real_t* Q, real_t* Rate, real_t* Flux, real_t* Fplus,
-                           real_t* Fminus, real_t* FplusFac, real_t* FminusFac,
-                           real_t* FplusSum, real_t* FminusSum, int* FplusMax,
-                           int* FminusMax, int* MapFplus, int* MapFminus,
-                           real_t* Y, int* NumReactingSpecies, int* Reactant1,
-                           int* Reactant2, int* Reactant3, int number_species,
-                           int number_reactions, int f_plus_total,
-                           int f_minus_total, real_t t9, real_t t_max,
-                           real_t dt_init) {
+// This code has a remarkably bad habit of nan/inf-ing out.
+int tnn_integration_kernel(
+    real_t* real_t_val, int* int_val, real_t* P0, real_t* P1, real_t* P2,
+    real_t* P3, real_t* P4, real_t* P5, real_t* P6, real_t* Prefac, real_t* Q,
+    real_t* Rate, real_t* Flux, real_t* Fplus, real_t* Fminus, real_t* FplusFac,
+    real_t* FminusFac, real_t* FplusSum, real_t* FminusSum, int* FplusMax,
+    int* FminusMax, int* MapFplus, int* MapFminus, real_t* Y,
+    int* NumReactingSpecies, int* Reactant1, int* Reactant2, int* Reactant3,
+    int number_species, int number_reactions, int f_plus_total,
+    int f_minus_total, real_t t9, real_t t_max, real_t dt_init) {
 
     int integration_steps = 0;
+
+    // Placeholder transfer for tmp vars, this will be implemented properly in
+    // a future version.
+    t9 = real_t_val[0];
 
     // Compute the temperature-dependent factors for the rates.
     real_t t93 = powf(t9, THIRD);
@@ -29,9 +32,8 @@ int tnn_integration_kernel(real_t* P0, real_t* P1, real_t* P2, real_t* P3,
     real_t t6 = logf(t9);
 
     for (int i = 0; i < number_reactions; i++) {
-        Rate[i] =
-            Prefac[i] * expf(P0[i] + t1 * P1[i] + t2 * P2[i] + t3 * P3[i] +
-                             t4 * P4[i] + t5 * P5[i] + t6 * P6[i]);
+        Rate[i] = Prefac[i] * expf(P0[i] + t1 * P1[i] + t2 * P2[i] + t3 * P3[i] +
+                                  t4 * P4[i] + t5 * P5[i] + t6 * P6[i]);
     }
 
     /*
@@ -41,6 +43,8 @@ int tnn_integration_kernel(real_t* P0, real_t* P1, real_t* P2, real_t* P3,
     real_t t = 1.0e-16;      // The current integration time
     real_t dt = dt_init;     // The current integration timestep
     real_t prevdt = dt_init; // The integration timestep from the previous step
+
+    real_t dE = 0;
 
     // Main time integration loop
     while (t < t_max) {
@@ -108,12 +112,26 @@ int tnn_integration_kernel(real_t* P0, real_t* P1, real_t* P2, real_t* P3,
             }
         }
 
+        // Calculate the change in temperature caused by nuclear burning.
+        real_t tmp = 0;
+        for (int i = 0; i < number_reactions; i++) {
+            tmp += Flux[i] * Q[i];
+        }
+        tmp *= dt;
+        dE += tmp;
+
         // Increment the integration time and set the new timestep
         t += dt;
         integration_steps++;
         prevdt = dt;
         dt = compute_timestep(prevdt, t, t_max);
     }
+
+    // Placeholder for proper dT/mC calc.
+    // ~ t9 += dE / (rho*volume * c)
+    t9 += (dE / (1e08 * 1e08));
+
+    real_t_val[0] = t9;
 
     return EXIT_SUCCESS;
 }
@@ -175,6 +193,13 @@ int tnn_data_preprocess(struct tnn**** tnn, struct rt_hydro_mesh* mesh,
 int tnn_data_postprocess(struct tnn**** tnn, struct rt_hydro_mesh* mesh,
                          struct simulation_properties sim_prop,
                          struct option_values options) {
+    for (int i = 0; i < sim_prop.resolution[0]; i++) {
+        for (int j = 0; j < sim_prop.resolution[1]; j++) {
+            for (int k = 0; k < sim_prop.resolution[2]; k++) {
+                mesh->temp[i][j][k] = tnn[i][j][k]->f->t9 * 1e9;
+            }
+        }
+    }
     return EXIT_SUCCESS;
 }
 
@@ -345,19 +370,25 @@ int tnn_integrate_network(struct simulation_properties sim_prop,
     }
     // }
 #else
+    // tmp? More info is in the neutrino kernel (in the same place).
+    real_t* tmp = malloc(1 * sizeof(real_t));
+    tmp[0] = network->f->t9;
     if (tnn_integration_kernel(
-            rates->p0, rates->p1, rates->p2, rates->p3, rates->p4, rates->p5,
-            rates->p6, rates->prefactor, rates->q_value, rates->rate,
-            rates->flux, params->f_plus, params->f_minus, params->f_plus_factor,
-            params->f_minus_factor, params->f_plus_sum, params->f_minus_sum,
-            params->f_plus_max, params->f_minus_max, params->f_plus_map,
-            params->f_minus_map, network->fptr->y, rates->num_react_species,
-            rates->reactant_1, rates->reactant_2, rates->reactant_3,
-            network->info->number_species, rates->number_reactions,
-            params->f_plus_total, params->f_minus_total, network->f->t9,
-            network->f->t_max, network->f->dt_init) == EXIT_FAILURE) {
+            tmp, NULL, rates->p0, rates->p1, rates->p2, rates->p3, rates->p4,
+            rates->p5, rates->p6, params->prefactor, rates->q_value,
+            rates->rate, rates->flux, params->f_plus, params->f_minus,
+            params->f_plus_factor, params->f_minus_factor, params->f_plus_sum,
+            params->f_minus_sum, params->f_plus_max, params->f_minus_max,
+            params->f_plus_map, params->f_minus_map, network->fptr->y,
+            rates->num_react_species, rates->reactant_1, rates->reactant_2,
+            rates->reactant_3, network->info->number_species,
+            rates->number_reactions, params->f_plus_total,
+            params->f_minus_total, network->f->t9, network->f->t_max,
+            network->f->dt_init) == EXIT_FAILURE) {
         return EXIT_FAILURE;
     }
+    network->f->t9 = tmp[0];
+    free(tmp);
 #endif
 
     return EXIT_SUCCESS;
@@ -378,11 +409,12 @@ int tnn_kernel_trigger(struct simulation_properties sim_prop,
                 density[1] = network[i][j][k]->f->rho;
                 density[2] =
                     network[i][j][k]->f->rho * network[i][j][k]->f->rho;
+                problem_parameters_update(params, rates, network[i][j][k]);
                 for (int n = 0; n < rates->number_reactions; n++) {
-                    rates->prefactor[n] *=
+                    params->prefactor[n] =
+                        rates->prefactor[n] *
                         (density[rates->num_react_species[n] - 1]);
                 }
-                problem_parameters_update(params, rates, network[i][j][k]);
                 if (tnn_integrate_network(sim_prop, rates, network[i][j][k],
                                           params, options) == EXIT_FAILURE) {
                     return EXIT_FAILURE;

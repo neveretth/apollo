@@ -4,17 +4,15 @@
 #include "../../types.h"
 
 // Integrate thermonuclear network.
-int tnn_integration_kernel(real_t* P0, real_t* P1, real_t* P2, real_t* P3,
-                           real_t* P4, real_t* P5, real_t* P6, real_t* Prefac,
-                           real_t* Q, real_t* Rate, real_t* Flux, real_t* Fplus,
-                           real_t* Fminus, real_t* FplusFac, real_t* FminusFac,
-                           real_t* FplusSum, real_t* FminusSum, int* FplusMax,
-                           int* FminusMax, int* MapFplus, int* MapFminus,
-                           real_t* Y, int* NumReactingSpecies, int* Reactant1,
-                           int* Reactant2, int* Reactant3, int number_species,
-                           int number_reactions, int f_plus_total,
-                           int f_minus_total, real_t t9, real_t t_max,
-                           real_t dt_init);
+int tnn_integration_kernel(
+    real_t* real_t_val, int* int_val, real_t* P0, real_t* P1, real_t* P2,
+    real_t* P3, real_t* P4, real_t* P5, real_t* P6, real_t* Prefac, real_t* Q,
+    real_t* Rate, real_t* Flux, real_t* Fplus, real_t* Fminus, real_t* FplusFac,
+    real_t* FminusFac, real_t* FplusSum, real_t* FminusSum, int* FplusMax,
+    int* FminusMax, int* MapFplus, int* MapFminus, real_t* Y,
+    int* NumReactingSpecies, int* Reactant1, int* Reactant2, int* Reactant3,
+    int number_species, int number_reactions, int f_plus_total,
+    int f_minus_total, real_t t9, real_t t_max, real_t dt_init);
 
 int check_asy(real_t Fminus, real_t Y, real_t dt);
 
@@ -40,8 +38,8 @@ int tnn_data_preprocess(struct tnn**** tnn, struct rt_hydro_mesh* mesh,
                         struct option_values options);
 
 int tnn_data_postprocess(struct tnn**** tnn, struct rt_hydro_mesh* mesh,
-                        struct simulation_properties sim_prop,
-                        struct option_values options);
+                         struct simulation_properties sim_prop,
+                         struct option_values options);
 
 // Update tnn kernel parameters.
 int problem_parameters_update(struct problem_parameters* params,

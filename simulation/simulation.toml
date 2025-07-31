@@ -1,30 +1,31 @@
 [simulation]
 
 [simulation.time]
-endtime = 1e6
+endtime = 1e-0
 tres = 100
 printkerneltime = false
-initdt = 1e2
+initdt = 1e-4
 
 [simulation.output]
 output = true
 outputdir = "output"
+# Only one output file as we are only doing temp output at the moment.
+outputfile = "temp.out"
 
 [simulation.resolution]
-x = 128
+x = 16
 y = 1
 z = 1
 
 [simulation.hydro]
 use = true
-outputfile = "hydro.out"
 effect = true
 
 # Use of hydroeffect is required at the moment since we cannot import data.
 [simulation.hydroeffect]
 
 [simulation.hydroeffect.temp]
-base = 8e09
+base = 8e08 # Higher than this and the code is likely to nan/inf out.
 effect = "radial"
 
 [simulation.hydroeffect.density]
@@ -32,7 +33,7 @@ base = 1e08
 effect = "radial"
 
 [simulation.thermo]
-use = false
+use = true
 networkfile = "data/network-alpha.aad"
 ratefile = "data/ratelibrary-alpha.aad"
 
