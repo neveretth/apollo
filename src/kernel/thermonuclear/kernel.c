@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #define THIRD 0.3333333333333333
+#define ECON 9.5768e17 // Convert MeV/nucleon/s to erg/g/s
 
 // This code has a remarkably bad habit of nan/inf-ing out.
 int tnn_integration_kernel(
@@ -32,8 +33,9 @@ int tnn_integration_kernel(
     real_t t6 = logf(t9);
 
     for (int i = 0; i < number_reactions; i++) {
-        Rate[i] = Prefac[i] * expf(P0[i] + t1 * P1[i] + t2 * P2[i] + t3 * P3[i] +
-                                  t4 * P4[i] + t5 * P5[i] + t6 * P6[i]);
+        Rate[i] =
+            Prefac[i] * expf(P0[i] + t1 * P1[i] + t2 * P2[i] + t3 * P3[i] +
+                             t4 * P4[i] + t5 * P5[i] + t6 * P6[i]);
     }
 
     /*
@@ -54,14 +56,14 @@ int tnn_integration_kernel(
             int nr = NumReactingSpecies[i];
             switch (nr) {
             case 1:
-                Flux[i] = Rate[i] * Y[*(Reactant1 + i)];
+                Flux[i] = Rate[i] * Y[Reactant1[i]];
                 break;
             case 2:
-                Flux[i] = Rate[i] * Y[*(Reactant1 + i)] * Y[*(Reactant2 + i)];
+                Flux[i] = Rate[i] * Y[Reactant1[i]] * Y[Reactant2[i]];
                 break;
             case 3:
-                Flux[i] = Rate[i] * Y[*(Reactant1 + i)] * Y[*(Reactant2 + i)] *
-                          Y[*(Reactant3 + i)];
+                Flux[i] = Rate[i] * Y[Reactant1[i]] * Y[Reactant2[i]] *
+                          Y[Reactant3[i]];
                 break;
             }
         }
@@ -118,8 +120,8 @@ int tnn_integration_kernel(
             tmp += Flux[i] * Q[i];
         }
         tmp *= dt;
-        dE += tmp;
-
+        dE += tmp * ECON;
+        
         // Increment the integration time and set the new timestep
         t += dt;
         integration_steps++;
@@ -129,7 +131,8 @@ int tnn_integration_kernel(
 
     // Placeholder for proper dT/mC calc.
     // ~ t9 += dE / (rho*volume * c)
-    t9 += (dE / (1e08 * 1e08));
+    // ...and account for the div by 1e9
+    t9 += (dE / (1e05 * 1e9));
 
     real_t_val[0] = t9;
 

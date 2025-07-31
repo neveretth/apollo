@@ -26,8 +26,8 @@ int unified_driver(struct simulation_properties sim_prop,
     struct rate_library* rates;
 
     // Eventually move these to TOML
-    mesh->h = 1e+17; // Probably should be closer to 1e+12
-    mesh->volume = 1;
+    mesh->h = sim_prop.h;
+    mesh->volume = sim_prop.volume;
     real_t t_end = sim_prop.t_end;
     real_t dt = sim_prop.dt_init;
     real_t t = 0;

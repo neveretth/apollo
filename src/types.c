@@ -144,7 +144,8 @@ simulation_properties_create(toml_result_t simulation_toml,
     char* outputdir;
     if (sim_prop.output) {
         outputdir = toml_string(simulation_toml, "simulation.output.outputdir");
-        char* tmp = toml_string(simulation_toml, "simulation.output.outputfile");
+        char* tmp =
+            toml_string(simulation_toml, "simulation.output.outputfile");
         char tmpp[256];
         snprintf(tmpp, 256, "%s/%s/%s", opts->root_dir, outputdir, tmp);
         sim_prop.hydro_out_file = fopen(tmpp, "wa");
@@ -172,8 +173,10 @@ simulation_properties_create(toml_result_t simulation_toml,
 
     // HYDRO
     sim_prop.hydro = toml_bool(simulation_toml, "simulation.hydro.use");
-
     bool usehydroeffect = toml_bool(simulation_toml, "simulation.hydro.effect");
+    // sim vars (in hydro)
+    sim_prop.h = toml_real_t(simulation_toml, "simulation.hydro.ttc");
+    sim_prop.volume = toml_real_t(simulation_toml, "simulation.hydro.volume");
 
     // If we are using a hydro effect:
     // NOTE: I'm not including validation, as I need to make that a func...
@@ -182,8 +185,12 @@ simulation_properties_create(toml_result_t simulation_toml,
             toml_string(simulation_toml, "simulation.hydroeffect.temp.effect");
         if (strcmp(tmp, "random") == 0) {
             sim_prop.hydro_temp_effect = effect_rand;
-        } else if (strcmp(tmp, "radial") == 0) {
-            sim_prop.hydro_temp_effect = effect_radial;
+        } else if (strcmp(tmp, "radial1") == 0) {
+            sim_prop.hydro_temp_effect = effect_radial1;
+        } else if (strcmp(tmp, "radial2") == 0) {
+            sim_prop.hydro_temp_effect = effect_radial2;
+        } else if (strcmp(tmp, "radial3") == 0) {
+            sim_prop.hydro_temp_effect = effect_radial3;
         } else if (strcmp(tmp, "gradient") == 0) {
             sim_prop.hydro_temp_effect = effect_gradient;
         }
@@ -191,8 +198,12 @@ simulation_properties_create(toml_result_t simulation_toml,
                           "simulation.hydroeffect.density.effect");
         if (strcmp(tmp, "random") == 0) {
             sim_prop.hydro_density_effect = effect_rand;
-        } else if (strcmp(tmp, "radial") == 0) {
-            sim_prop.hydro_density_effect = effect_radial;
+        } else if (strcmp(tmp, "radial1") == 0) {
+            sim_prop.hydro_density_effect = effect_radial1;
+        } else if (strcmp(tmp, "radial2") == 0) {
+            sim_prop.hydro_density_effect = effect_radial2;
+        } else if (strcmp(tmp, "radial3") == 0) {
+            sim_prop.hydro_density_effect = effect_radial3;
         } else if (strcmp(tmp, "gradient") == 0) {
             sim_prop.hydro_density_effect = effect_gradient;
         }

@@ -42,6 +42,8 @@ struct simulation_properties {
     real_t hydro_temp_base;
     real_t hydro_density_base;
     real_t dt_init;
+    real_t volume;
+    real_t h;
 };
 
 // Free N pointers at ptr.

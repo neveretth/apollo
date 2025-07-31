@@ -3,7 +3,7 @@
 
 #ifndef __REAL_TYPE_DOUBLE
 typedef float real_t;
-#else
+#else // __REAL_TYPE_FLOAT
 typedef double real_t;
 #endif
 

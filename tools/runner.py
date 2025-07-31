@@ -12,7 +12,7 @@ fig, ax = plt.subplots()
 # Display animated figure to screen (generated from list of figs "ims")
 def display_fig(ims, sim_prop):
     ani = aplt.ArtistAnimation(
-        fig, ims, interval=25, blit=True, repeat_delay=100)
+        fig, ims, interval=30, blit=True, repeat_delay=0)
     if (sim_prop["visualization"]["save"]):
         ani.save("export/" + sim_prop["visualization"]["saveas"], dpi=400)
     plt.show()
@@ -27,7 +27,6 @@ def graph_linear(sim_prop):
     ims = []
     grid = data.iloc[0].to_numpy()
     im, = ax.plot(grid)
-    ylim = ax.get_ylim()
     ims.append([im])
     tres = sim_prop["simulation"]["time"]["tres"]
 
@@ -35,7 +34,6 @@ def graph_linear(sim_prop):
     ax.set_ylabel("Temperature")
 
     for i in range(1, tres):
-        ax.set_ylim(ylim)
         grid = data.iloc[i].to_numpy()
         im, = ax.plot(grid, color="Black")
         ims.append([im])

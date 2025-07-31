@@ -1,10 +1,10 @@
 [simulation]
 
 [simulation.time]
-endtime = 1e-0
+endtime = 1.6e0
 tres = 100
-printkerneltime = false
-initdt = 1e-4
+printkerneltime = true
+initdt = 2e-3
 
 [simulation.output]
 output = true
@@ -14,23 +14,25 @@ outputfile = "temp.out"
 
 [simulation.resolution]
 x = 16
-y = 1
+y = 16
 z = 1
 
 [simulation.hydro]
 use = true
 effect = true
+ttc = 1.2e18 # h in code
+volume = 1e0
 
 # Use of hydroeffect is required at the moment since we cannot import data.
 [simulation.hydroeffect]
 
 [simulation.hydroeffect.temp]
 base = 8e08 # Higher than this and the code is likely to nan/inf out.
-effect = "radial"
+effect = "radial1"
 
 [simulation.hydroeffect.density]
-base = 1e08
-effect = "radial"
+base = 8.5e08
+effect = "radial1"
 
 [simulation.thermo]
 use = true

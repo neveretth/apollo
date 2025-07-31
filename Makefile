@@ -1,6 +1,6 @@
 CC = /bin/gcc
 HIPCC = /opt/rocm/bin/hipcc
-CFLAGS = -std=c99 -O3 -Wall -Wextra --pedantic -g3
+CFLAGS = -std=c99 -O3 -Wall -Wextra --pedantic -g3 -D__REAL_TYPE_FLOAT
 HIPFLAGS = -x c
 CLIBS = -lm -lhdf5 -lc
 

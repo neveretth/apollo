@@ -9,7 +9,9 @@
 int effect_rand(real_t*** data, int i_, int j_, int k_);
 
 // Apply radial of one less order of magnitude than the given data.
-int effect_radial(real_t*** data, int i_, int j_, int k_);
+int effect_radial1(real_t*** data, int i_, int j_, int k_);
+int effect_radial2(real_t*** data, int i_, int j_, int k_);
+int effect_radial3(real_t*** data, int i_, int j_, int k_);
 
 // Apply gradient of one less order of magnitude than the given data.
 int effect_gradient(real_t*** data, int i_, int j_, int k_);

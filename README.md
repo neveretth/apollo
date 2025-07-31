@@ -9,6 +9,8 @@ change regularly.
 ## Documentation
 Documentation for Apollo exists in the Documentation/ directory.
 
+WARNING: It is not up to date. (Apollo is pre-beta... that's the excuse.)
+
 ## Contributors
 - Nicholas Everett Howard (https://neveretth.xyz)
 
