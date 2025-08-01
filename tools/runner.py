@@ -8,20 +8,46 @@ import sys
 
 fig, ax = plt.subplots()
 
+def get_bool_input(msg):
+    while 1:
+        val = input(msg + " ")
+        try:
+            val = str(val)
+            if val[0] == 'y':
+                return True
+            elif val[0] == 'n':
+                return False
+            print(":: invalid input? try again.")
+        except:
+            print(":: invalid input? try again.")
+
+    return False
+
+def get_int_input(msg):
+    while 1:
+        val = input(msg + " ")
+        try:
+            val = int(val)
+            return val
+        except:
+            print(":: invalid input? try again.")
+
+    return 0
+
 
 # Display animated figure to screen (generated from list of figs "ims")
 def display_fig(ims, sim_prop):
     ani = aplt.ArtistAnimation(
         fig, ims, interval=30, blit=True, repeat_delay=0)
-    if (sim_prop["visualization"]["save"]):
-        ani.save("export/" + sim_prop["visualization"]["saveas"], dpi=400)
-    plt.show()
+    plt.show(block=False)
+    if get_bool_input(":: save figure? (y/n)"):
+        saveas = input(":: save as: ")
+        print(":: saving fig to export/" + saveas + ".mp4")
+        ani.save("export/" + saveas + ".mp4", dpi=400)
 
 
 # Generate graph from linear data.
-def graph_linear(sim_prop):
-    datafile = "../" + sim_prop["simulation"]["output"]["outputdir"] + "/" + \
-        sim_prop["simulation"]["output"]["outputfile"]
+def graph_linear(sim_prop, datafile):
 
     data = pd.read_csv(datafile, delimiter=' ', header=None)
     ims = []
@@ -73,6 +99,7 @@ def graph_flat(sim_prop):
 
 # Generate graph from 3D data.
 def graph_rt(sim_prop):
+    print("here")
     sizex = int(sim_prop["simulation"]["resolution"]["x"])
     sizey = int(sim_prop["simulation"]["resolution"]["y"])
     sizez = int(sim_prop["simulation"]["resolution"]["z"])
@@ -117,6 +144,15 @@ def graph_rt(sim_prop):
     display_fig(ims, sim_prop)
 
 
+def gen_graph(sim_prop, datafile):
+    if sim_prop["simulation"]["resolution"]["y"] == 1:
+        graph_linear(sim_prop, datafile)
+    elif sim_prop["simulation"]["resolution"]["z"] == 1:
+        graph_flat(sim_prop, datafile)
+    else:
+        graph_rt(sim_prop, datafile)
+
+
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("error: incorrect usage of runner.py")
@@ -135,9 +171,30 @@ if __name__ == "__main__":
     popen = subprocess.run(
         ["../build/apollo", "-C", "../config/config.toml", "-S", sys.argv[1], "-P", "../"])
 
-    if sim_prop["simulation"]["resolution"]["y"] == 1:
-        graph_linear(sim_prop)
-    elif sim_prop["simulation"]["resolution"]["z"] == 1:
-        graph_flat(sim_prop)
-    else:
-        graph_rt(sim_prop)
+    datafile_temp = "../" + \
+        sim_prop["simulation"]["output"]["outputdir"] + "/temp.out"
+    datafile_density = "../" + \
+        sim_prop["simulation"]["output"]["outputdir"] + "/density.out"
+    datafile_entropy = "../" + \
+        sim_prop["simulation"]["output"]["outputdir"] + "/entropy.out"
+
+    do_graph = get_bool_input(":: generate graph? (y/n)")
+
+    while do_graph:
+        print(":: temperature . . (1)")
+        print(":: density . . . . (2)")
+        print(":: entropy . . . . (3)")
+        print(":: . . . . . . . . . .")
+        val = get_int_input(":: select type . . (#)");
+        if val == 1:
+            gen_graph(sim_prop, datafile_temp)
+        elif val == 2:
+            gen_graph(sim_prop, datafile_density)
+        elif val == 3:
+            gen_graph(sim_prop, datafile_entropy)
+        else:
+            print(":: invalid input: " + val)
+            continue
+
+        fig, ax = plt.subplots()
+        do_graph = get_bool_input("\n:: generate graph? (y/n)")

@@ -36,7 +36,9 @@ struct simulation_properties {
     bool print_kernel_time;
     real_t t_end;
     int output_tres;
-    FILE* hydro_out_file;
+    FILE* temp_out_file;
+    FILE* density_out_file;
+    FILE* entropy_out_file;
     int (*hydro_temp_effect)(real_t*** data, int i_, int j_, int k_);
     int (*hydro_density_effect)(real_t*** data, int i_, int j_, int k_);
     real_t hydro_temp_base;

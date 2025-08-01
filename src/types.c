@@ -123,6 +123,10 @@ char* toml_string(toml_result_t toml, char* request) {
     return str;
 }
 
+char temp_out_filename[] = "temp.out";
+char density_out_filename[] = "density.out";
+char entropy_out_filename[] = "entropy.out";
+
 // I should keep track of a failstate here somewhere for clean exit on fail...
 // NOTE: should the parsing of config_toml be in a separate file?
 struct simulation_properties
@@ -130,7 +134,9 @@ simulation_properties_create(toml_result_t simulation_toml,
                              toml_result_t config_toml,
                              struct option_values* opts) {
     struct simulation_properties sim_prop;
-    sim_prop.hydro_out_file = NULL;
+    sim_prop.temp_out_file = NULL;
+    sim_prop.density_out_file = NULL;
+    sim_prop.entropy_out_file = NULL;
     sim_prop.hydro_temp_effect = NULL;
     sim_prop.hydro_density_effect = NULL;
     sim_prop.print_kernel_time = false;
@@ -144,16 +150,35 @@ simulation_properties_create(toml_result_t simulation_toml,
     char* outputdir;
     if (sim_prop.output) {
         outputdir = toml_string(simulation_toml, "simulation.output.outputdir");
-        char* tmp =
-            toml_string(simulation_toml, "simulation.output.outputfile");
         char tmpp[256];
-        snprintf(tmpp, 256, "%s/%s/%s", opts->root_dir, outputdir, tmp);
-        sim_prop.hydro_out_file = fopen(tmpp, "wa");
-        if (sim_prop.hydro_out_file == NULL) {
-            printf("==apollo== error: could not open file: %s\n", tmpp);
-            goto exit_fail;
+        if (toml_bool(simulation_toml, "simulation.output.temp")) {
+            snprintf(tmpp, 256, "%s/%s/%s", opts->root_dir, outputdir,
+                     temp_out_filename);
+            sim_prop.temp_out_file = fopen(tmpp, "wa");
+            if (sim_prop.temp_out_file == NULL) {
+                printf("==apollo== error: could not open file: %s\n", tmpp);
+                goto exit_fail;
+            }
         }
-        free(tmp);
+        if (toml_bool(simulation_toml, "simulation.output.density")) {
+            snprintf(tmpp, 256, "%s/%s/%s", opts->root_dir, outputdir,
+                     density_out_filename);
+            sim_prop.density_out_file = fopen(tmpp, "wa");
+            if (sim_prop.density_out_file == NULL) {
+                printf("==apollo== error: could not open file: %s\n", tmpp);
+                goto exit_fail;
+            }
+        }
+        if (toml_bool(simulation_toml, "simulation.output.entropy")) {
+            snprintf(tmpp, 256, "%s/%s/%s", opts->root_dir, outputdir,
+                     entropy_out_filename);
+            sim_prop.entropy_out_file = fopen(tmpp, "wa");
+            if (sim_prop.temp_out_file == NULL) {
+                printf("==apollo== error: could not open file: %s\n", tmpp);
+                goto exit_fail;
+            }
+        }
+        free(outputdir);
     }
 
     // TIME

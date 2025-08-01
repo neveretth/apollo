@@ -9,12 +9,13 @@ initdt = 2e-3
 [simulation.output]
 output = true
 outputdir = "output"
-# Only one output file as we are only doing temp output at the moment.
-outputfile = "temp.out"
+temp = true
+density = true
+entropy = true
 
 [simulation.resolution]
 x = 16
-y = 16
+y = 1
 z = 1
 
 [simulation.hydro]
@@ -42,8 +43,3 @@ ratefile = "data/ratelibrary-alpha.aad"
 [simulation.neutrino]
 use = false
 opacityfile = "data/FENNData40M186.h5"
-
-# For the python code only.
-[visualization]
-save = false
-saveas = "out.mp4"

@@ -17,6 +17,24 @@
 #include <stdlib.h>
 #include <time.h>
 
+int write_output(struct simulation_properties sim_prop, struct rt_hydro_mesh* mesh) {
+    if (sim_prop.output) {
+        if (sim_prop.temp_out_file != NULL) {
+            fprint_real_t_3d(sim_prop.temp_out_file, mesh->temp,
+                             mesh->dim[0], mesh->dim[1], mesh->dim[2]);
+        }
+        if (sim_prop.density_out_file != NULL) {
+            fprint_real_t_3d(sim_prop.density_out_file, mesh->density,
+                             mesh->dim[0], mesh->dim[1], mesh->dim[2]);
+        }
+        if (sim_prop.entropy_out_file != NULL) {
+            // fprint_real_t_3d(sim_prop.entropy_out_file, mesh->entropy,
+            //                  mesh->dim[0], mesh->dim[1], mesh->dim[2]);
+        }
+    }
+    return EXIT_SUCCESS;
+}
+
 int unified_driver(struct simulation_properties sim_prop,
                    struct option_values options) {
 
@@ -138,10 +156,6 @@ int unified_driver(struct simulation_properties sim_prop,
                                       mesh->dim[2]);
     }
 
-    if (sim_prop.output) {
-        fprint_real_t_3d(sim_prop.hydro_out_file, mesh->temp, mesh->dim[0],
-                         mesh->dim[1], mesh->dim[2]);
-    }
 
     // INIT ROCM IF APPROPRIATE
 #ifdef __MP_ROCM
@@ -155,6 +169,9 @@ int unified_driver(struct simulation_properties sim_prop,
     time_t kerneltime = clock();
 
     bool fail = false;
+    
+    // Write initial state.
+    write_output(sim_prop, mesh);
 
     while (t < t_end) {
         t_inter += t_inter_lvl;
@@ -216,13 +233,9 @@ int unified_driver(struct simulation_properties sim_prop,
             t += dt;
         }
         
-        if (sim_prop.output) {
-            fprint_real_t_3d(sim_prop.hydro_out_file, mesh->temp,
-                             mesh->dim[0], mesh->dim[1], mesh->dim[2]);
-        }
+        write_output(sim_prop, mesh);
         
         printf("\x1b[1A\x1b[2K\x1b[0G  Time: [%6.2f/%6.2f]\n", t, t_end);
-        // printf("%.10f\n", mesh->temp[0][0][0]);
     }
 
     kerneltime = clock() - kerneltime;
