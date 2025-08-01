@@ -51,12 +51,14 @@ int main(int argc, char** argv) {
     // to it's name.
 
 exit:
+    simulation_properties_clean(sim_prop);
     options_clean(options);
     toml_free(config_toml);
     toml_free(simulation_toml);
     return EXIT_SUCCESS;
 
 exit_fail:
+    simulation_properties_clean(sim_prop);
     options_clean(options);
     toml_free(config_toml);
     toml_free(simulation_toml);

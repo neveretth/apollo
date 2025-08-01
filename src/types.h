@@ -58,9 +58,11 @@ int print_abundances(const struct tnn* network);
 int print_results(const struct rate_library* rates, const struct tnn* network,
                   const struct problem_parameters* params);
 
-// Clean up all options given passed to code, freeing pointers, clearing caches,
-// etc.
+// Clean up all options given passed to code, freeing pointers, etc.
 int options_clean(struct option_values options);
+
+// Clean all simulation_properties pointers, close files, etc.
+int simulation_properties_clean(struct simulation_properties sim_prop);
 
 // Return simulation_properties from toml_result_t.
 // AND: reads config_toml values to option_values.

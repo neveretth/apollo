@@ -80,8 +80,13 @@ int print_results(const struct rate_library* rates, const struct tnn* network,
 
 int options_clean(struct option_values options) {
     free(options.root_dir);
-    // free(options.config_file);
-    // free(options.simulation_file);
+    return EXIT_SUCCESS;
+}
+
+int simulation_properties_clean(struct simulation_properties sim_prop) {
+    fclose(sim_prop.temp_out_file);
+    fclose(sim_prop.density_out_file);
+    fclose(sim_prop.entropy_out_file);
     return EXIT_SUCCESS;
 }
 
