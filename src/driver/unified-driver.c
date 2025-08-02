@@ -17,19 +17,21 @@
 #include <stdlib.h>
 #include <time.h>
 
-int write_output(struct simulation_properties sim_prop, struct rt_hydro_mesh* mesh) {
+// This should go in a diff file...
+int write_output(struct simulation_properties sim_prop,
+                 struct rt_hydro_mesh* mesh) {
     if (sim_prop.output) {
         if (sim_prop.temp_out_file != NULL) {
-            fprint_real_t_3d(sim_prop.temp_out_file, mesh->temp,
-                             mesh->dim[0], mesh->dim[1], mesh->dim[2]);
+            fprint_real_t_3d(sim_prop.temp_out_file, mesh->temp, mesh->dim[0],
+                             mesh->dim[1], mesh->dim[2]);
         }
         if (sim_prop.density_out_file != NULL) {
             fprint_real_t_3d(sim_prop.density_out_file, mesh->density,
                              mesh->dim[0], mesh->dim[1], mesh->dim[2]);
         }
         if (sim_prop.entropy_out_file != NULL) {
-            // fprint_real_t_3d(sim_prop.entropy_out_file, mesh->entropy,
-            //                  mesh->dim[0], mesh->dim[1], mesh->dim[2]);
+            fprint_real_t_3d(sim_prop.entropy_out_file, mesh->entropy,
+                             mesh->dim[0], mesh->dim[1], mesh->dim[2]);
         }
     }
     return EXIT_SUCCESS;
@@ -156,7 +158,6 @@ int unified_driver(struct simulation_properties sim_prop,
                                       mesh->dim[2]);
     }
 
-
     // INIT ROCM IF APPROPRIATE
 #ifdef __MP_ROCM
     if (options.rocm_accel) {
@@ -169,6 +170,23 @@ int unified_driver(struct simulation_properties sim_prop,
     time_t kerneltime = clock();
 
     bool fail = false;
+
+    // TEMP DEBUG FOR ENTROPY IDEA
+    real_t*** entropy = malloc(mesh->dim[0] * sizeof(real_t*));
+    real_t*** prev_temp = malloc(mesh->dim[0] * sizeof(real_t*));
+    mesh->entropy = entropy; // quick fix for print
+    for (int i = 0; i < mesh->dim[0]; i++) {
+        entropy[i] = malloc(mesh->dim[1] * sizeof(real_t*));
+        prev_temp[i] = malloc(mesh->dim[1] * sizeof(real_t*));
+        for (int j = 0; j < mesh->dim[1]; j++) {
+            entropy[i][j] = malloc(mesh->dim[2] * sizeof(real_t));
+            prev_temp[i][j] = malloc(mesh->dim[2] * sizeof(real_t));
+            for (int k = 0; k < mesh->dim[2]; k++) {
+                entropy[i][j][k] = 0;
+                prev_temp[i][j][k] = mesh->temp[i][j][k];
+            }
+        }
+    }
     
     // Write initial state.
     write_output(sim_prop, mesh);
@@ -230,11 +248,23 @@ int unified_driver(struct simulation_properties sim_prop,
                 }
             }
 
+            for (int i = 0; i < mesh->dim[0]; i++) {
+                for (int j = 0; j < mesh->dim[1]; j++) {
+                    for (int k = 0; k < mesh->dim[2]; k++) {
+                        entropy[i][j][k] +=
+                            1e8 * 2 *
+                            ((mesh->temp[i][j][k] - prev_temp[i][j][k]) /
+                             (mesh->temp[i][j][k] + prev_temp[i][j][k]));
+                        prev_temp[i][j][k] = mesh->temp[i][j][k];
+                    }
+                }
+            }
+
             t += dt;
         }
-        
+
         write_output(sim_prop, mesh);
-        
+
         printf("\x1b[1A\x1b[2K\x1b[0G  Time: [%6.2f/%6.2f]\n", t, t_end);
     }
 

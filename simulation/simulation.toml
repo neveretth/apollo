@@ -1,7 +1,7 @@
 [simulation]
 
 [simulation.time]
-endtime = 1.6e0
+endtime = 1.4e0
 tres = 100
 printkerneltime = true
 initdt = 2e-3
@@ -14,8 +14,8 @@ density = true
 entropy = true
 
 [simulation.resolution]
-x = 16
-y = 1
+x = 32
+y = 32
 z = 1
 
 [simulation.hydro]
@@ -28,7 +28,7 @@ volume = 1e0
 [simulation.hydroeffect]
 
 [simulation.hydroeffect.temp]
-base = 8e08 # Higher than this and the code is likely to nan/inf out.
+base = 7.9e08 # Higher than this and the code is likely to nan/inf out.
 effect = "radial1"
 
 [simulation.hydroeffect.density]

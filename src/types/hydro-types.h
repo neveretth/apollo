@@ -29,6 +29,7 @@ struct flat_hydro_mesh {
 struct rt_hydro_mesh {
     real_t*** temp;
     real_t*** density;
+    real_t*** entropy;
     real_t volume;
     real_t dt;
     real_t t_end;

@@ -52,9 +52,11 @@ int rt_hydro_mesh_destroy(struct rt_hydro_mesh** __src) {
         for (int j = 0; j < src->dim[1]; j++) {
             free(src->temp[i][j]);
             free(src->density[i][j]);
+            free(src->entropy[i][j]);
         }
         free(src->temp[i]);
         free(src->density[i]);
+        free(src->entropy[i]);
     }
     free(src->temp);
     free(src->density);
