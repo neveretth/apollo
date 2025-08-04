@@ -8,6 +8,7 @@
 #include "../kernel/hydro/kernel.h"
 #include "../kernel/neutrino/kernel.h"
 #include "../kernel/thermonuclear/kernel.h"
+#include "../kernel/advout/kernel.h"
 
 #ifdef __MP_ROCM
 #include "../rocm/hip-util.h"
@@ -17,19 +18,21 @@
 #include <stdlib.h>
 #include <time.h>
 
-int write_output(struct simulation_properties sim_prop, struct rt_hydro_mesh* mesh) {
+// This should go in a diff file...
+int write_output(struct simulation_properties sim_prop,
+                 struct rt_hydro_mesh* mesh, struct advout_t* advout_data) {
     if (sim_prop.output) {
         if (sim_prop.temp_out_file != NULL) {
-            fprint_real_t_3d(sim_prop.temp_out_file, mesh->temp,
-                             mesh->dim[0], mesh->dim[1], mesh->dim[2]);
+            fprint_real_t_3d(sim_prop.temp_out_file, mesh->temp, mesh->dim[0],
+                             mesh->dim[1], mesh->dim[2]);
         }
         if (sim_prop.density_out_file != NULL) {
             fprint_real_t_3d(sim_prop.density_out_file, mesh->density,
                              mesh->dim[0], mesh->dim[1], mesh->dim[2]);
         }
         if (sim_prop.entropy_out_file != NULL) {
-            // fprint_real_t_3d(sim_prop.entropy_out_file, mesh->entropy,
-            //                  mesh->dim[0], mesh->dim[1], mesh->dim[2]);
+            fprint_real_t_3d(sim_prop.entropy_out_file, advout_data->entropy,
+                             mesh->dim[0], mesh->dim[1], mesh->dim[2]);
         }
     }
     return EXIT_SUCCESS;
@@ -156,7 +159,6 @@ int unified_driver(struct simulation_properties sim_prop,
                                       mesh->dim[2]);
     }
 
-
     // INIT ROCM IF APPROPRIATE
 #ifdef __MP_ROCM
     if (options.rocm_accel) {
@@ -169,9 +171,15 @@ int unified_driver(struct simulation_properties sim_prop,
     time_t kerneltime = clock();
 
     bool fail = false;
+
+    struct advout_t* advout_data = advout_data_create(mesh, sim_prop);
+
+    if (advout_data_setup(advout_data, mesh, sim_prop) == EXIT_FAILURE) {
+        return EXIT_FAILURE;
+    }
     
     // Write initial state.
-    write_output(sim_prop, mesh);
+    write_output(sim_prop, mesh, advout_data);
 
     while (t < t_end) {
         t_inter += t_inter_lvl;
@@ -229,12 +237,19 @@ int unified_driver(struct simulation_properties sim_prop,
                     goto exit;
                 }
             }
+            
+            if (sim_prop.entropy_out_file != NULL) {
+                if (advout_entropy(advout_data, mesh, &sim_prop) == EXIT_FAILURE) {
+                    fail = true;
+                    goto exit;
+                }
+            }
 
             t += dt;
         }
-        
-        write_output(sim_prop, mesh);
-        
+
+        write_output(sim_prop, mesh, advout_data);
+
         printf("\x1b[1A\x1b[2K\x1b[0G  Time: [%6.2f/%6.2f]\n", t, t_end);
     }
 
@@ -248,6 +263,7 @@ int unified_driver(struct simulation_properties sim_prop,
 
 exit:
     rt_hydro_mesh_destroy(&mesh);
+    advout_data_destroy(&advout_data, sim_prop);
     if (sim_prop.thermo) {
         rate_library_destroy(&rates);
     }

@@ -64,9 +64,9 @@ int fprint_real_t_3d(FILE* file, real_t*** grid, int i_, int j_, int k_) {
         for (int j = 0; j < j_; j++) {
             for (int k = 0; k < k_; k++) {
                 if (i + j + k == 0) {
-                    fprintf(file, "%12.8f", grid[i][j][k]);
+                    fprintf(file, "%.8f", grid[i][j][k]);
                 } else {
-                    fprintf(file, " %12.8f", grid[i][j][k]);
+                    fprintf(file, " %.8f", grid[i][j][k]);
                 }
             }
         }

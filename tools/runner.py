@@ -8,6 +8,7 @@ import sys
 
 fig, ax = plt.subplots()
 
+
 def get_bool_input(msg):
     while 1:
         val = input(msg + " ")
@@ -22,6 +23,7 @@ def get_bool_input(msg):
             print(":: invalid input? try again.")
 
     return False
+
 
 def get_int_input(msg):
     while 1:
@@ -47,17 +49,17 @@ def display_fig(ims, sim_prop):
 
 
 # Generate graph from linear data.
-def graph_linear(sim_prop, datafile):
+def graph_linear(sim_prop, datafile, label):
 
     data = pd.read_csv(datafile, delimiter=' ', header=None)
     ims = []
     grid = data.iloc[0].to_numpy()
-    im, = ax.plot(grid)
+    im, = ax.plot(grid, color="Black")
     ims.append([im])
     tres = sim_prop["simulation"]["time"]["tres"]
 
     ax.set_xlabel("Zone")
-    ax.set_ylabel("Temperature")
+    ax.set_ylabel(label)
 
     for i in range(1, tres):
         grid = data.iloc[i].to_numpy()
@@ -68,22 +70,29 @@ def graph_linear(sim_prop, datafile):
 
 
 # Generate graph from 2D data.
-def graph_flat(sim_prop):
+def graph_flat(sim_prop, datafile, label):
     size = int(sim_prop["simulation"]["resolution"]["x"])
 
-    datafile = "../" + sim_prop["simulation"]["output"]["outputdir"] + "/" + \
-        sim_prop["simulation"]["output"]["outputfile"]
-
     data = pd.read_csv(datafile, delimiter=' ', header=None)
+
+    # Shitty hack to find clim
+    clim_min = float("inf")
+    clim_max = float("-inf")
+    for i in range(0, sim_prop["simulation"]["time"]["tres"]):
+        grid = data.iloc[i].to_numpy()
+        grid = np.reshape(grid, (-1, size))
+        clim_min = min(np.min(grid), clim_min)
+        clim_max = max(np.max(grid), clim_max)
+
     ims = []
     grid = data.iloc[0].to_numpy()
     grid = np.reshape(grid, (-1, size))
     im = ax.imshow(grid, cmap='hot',
                    interpolation='none', animated=True)
-    clim = im.properties()['clim']
+    im.set_clim(clim_min, clim_max)
     ims.append([im])
 
-    ax.set_title("Color = Temp")
+    ax.set_title("Color = " + label)
     ax.set_xlabel("Zone x")
     ax.set_ylabel("Zone y")
 
@@ -91,21 +100,19 @@ def graph_flat(sim_prop):
         grid = data.iloc[i].to_numpy()
         grid = np.reshape(grid, (-1, size))
         im = ax.imshow(grid, cmap='hot',
-                       interpolation='none', animated=True, clim=clim)
+                       interpolation='none', animated=True)
+        im.set_clim(clim_min, clim_max)
         ims.append([im])
 
     display_fig(ims, sim_prop)
 
 
 # Generate graph from 3D data.
-def graph_rt(sim_prop):
+def graph_rt(sim_prop, datafile, label):
     print("here")
     sizex = int(sim_prop["simulation"]["resolution"]["x"])
     sizey = int(sim_prop["simulation"]["resolution"]["y"])
     sizez = int(sim_prop["simulation"]["resolution"]["z"])
-
-    datafile = "../" + sim_prop["simulation"]["output"]["outputdir"] + "/" + \
-        sim_prop["simulation"]["output"]["outputfile"]
 
     data = pd.read_csv(datafile, delimiter=' ', header=None)
     ims = []
@@ -144,13 +151,13 @@ def graph_rt(sim_prop):
     display_fig(ims, sim_prop)
 
 
-def gen_graph(sim_prop, datafile):
+def gen_graph(sim_prop, datafile, label):
     if sim_prop["simulation"]["resolution"]["y"] == 1:
-        graph_linear(sim_prop, datafile)
+        graph_linear(sim_prop, datafile, label)
     elif sim_prop["simulation"]["resolution"]["z"] == 1:
-        graph_flat(sim_prop, datafile)
+        graph_flat(sim_prop, datafile, label)
     else:
-        graph_rt(sim_prop, datafile)
+        graph_rt(sim_prop, datafile, label)
 
 
 if __name__ == "__main__":
@@ -178,23 +185,23 @@ if __name__ == "__main__":
     datafile_entropy = "../" + \
         sim_prop["simulation"]["output"]["outputdir"] + "/entropy.out"
 
-    do_graph = get_bool_input(":: generate graph? (y/n)")
-
-    while do_graph:
+    while 1:
+        print(":: . . . . . . . . . .")
         print(":: temperature . . (1)")
         print(":: density . . . . (2)")
         print(":: entropy . . . . (3)")
         print(":: . . . . . . . . . .")
-        val = get_int_input(":: select type . . (#)");
-        if val == 1:
-            gen_graph(sim_prop, datafile_temp)
+        print(":: quit  . . . . . (0)")
+        val = get_int_input(":: select type . . (#)")
+        if val == 0:
+            break
+        elif val == 1:
+            gen_graph(sim_prop, datafile_temp, "Temperature")
         elif val == 2:
-            gen_graph(sim_prop, datafile_density)
+            gen_graph(sim_prop, datafile_density, "Density")
         elif val == 3:
-            gen_graph(sim_prop, datafile_entropy)
+            gen_graph(sim_prop, datafile_entropy, "Entropy")
         else:
-            print(":: invalid input: " + val)
+            print(":: invalid input: " + str(val))
             continue
-
         fig, ax = plt.subplots()
-        do_graph = get_bool_input("\n:: generate graph? (y/n)")
