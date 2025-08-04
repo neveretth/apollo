@@ -193,7 +193,7 @@ int unified_driver(struct simulation_properties sim_prop,
                     goto exit;
                 }
                 // Not a trigger for now, probably will be at some point.
-                if (hydro_integrate_mesh(sim_prop, mesh, options) ==
+                if (hydro_integrate_mesh(mesh, &sim_prop) ==
                     EXIT_FAILURE) {
                     fail = true;
                     goto exit;
@@ -221,17 +221,17 @@ int unified_driver(struct simulation_properties sim_prop,
                 }
             }
             if (sim_prop.thermo) {
-                if (tnn_data_preprocess(thermo, mesh, sim_prop, options) ==
+                if (tnn_data_preprocess(thermo, mesh, &sim_prop) ==
                     EXIT_FAILURE) {
                     fail = true;
                     goto exit;
                 }
-                if (tnn_kernel_trigger(sim_prop, rates, thermo, params,
-                                       options) == EXIT_FAILURE) {
+                if (tnn_kernel_trigger(rates, thermo, params,
+                                       &sim_prop) == EXIT_FAILURE) {
                     fail = true;
                     goto exit;
                 }
-                if (tnn_data_postprocess(thermo, mesh, sim_prop, options) ==
+                if (tnn_data_postprocess(thermo, mesh, &sim_prop) ==
                     EXIT_FAILURE) {
                     fail = true;
                     goto exit;
@@ -259,6 +259,9 @@ int unified_driver(struct simulation_properties sim_prop,
         real_t kerneltime_seconds = kerneltime;
         kerneltime_seconds /= CLOCKS_PER_SEC;
         printf("==apollo== Kernel clock time: %f (s)\n", kerneltime_seconds);
+        FILE* tmptimeout = fopen("/tmp/apollotime", "wa");
+        fprintf(tmptimeout, "%f", kerneltime_seconds);
+        fclose(tmptimeout);
     }
 
 exit:

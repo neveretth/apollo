@@ -68,9 +68,8 @@ int hydro_data_preprocess() { return EXIT_SUCCESS; }
 
 int hydro_data_postprocess() { return EXIT_SUCCESS; }
 
-int hydro_integrate_mesh(struct simulation_properties sim_prop,
-                         struct rt_hydro_mesh* mesh,
-                         struct option_values options) {
+int hydro_integrate_mesh(struct rt_hydro_mesh* mesh,
+                         struct simulation_properties* sim_prop) {
 #ifdef __MP_ROCM
     if (hydro_integration_kernel(mesh->temp, mesh->density, mesh->volume,
                                  mesh->h, mesh->dt, mesh->t_end,

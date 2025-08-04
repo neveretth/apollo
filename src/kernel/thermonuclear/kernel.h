@@ -34,12 +34,10 @@ real_t compute_keff(real_t Fminus, real_t Y);
 
 // Perform preprocessing on thermonuclear network data.
 int tnn_data_preprocess(struct tnn**** tnn, struct rt_hydro_mesh* mesh,
-                        struct simulation_properties sim_prop,
-                        struct option_values options);
+                        struct simulation_properties* sim_prop);
 
 int tnn_data_postprocess(struct tnn**** tnn, struct rt_hydro_mesh* mesh,
-                         struct simulation_properties sim_prop,
-                         struct option_values options);
+                         struct simulation_properties* sim_prop);
 
 // Update tnn kernel parameters.
 int problem_parameters_update(struct problem_parameters* params,
@@ -50,15 +48,13 @@ void reaction_mask_update(int** mask, struct rate_library* rates,
                           struct problem_parameters* params, int* temp_int1,
                           int* temp_int2);
 
-int tnn_integrate_network(struct simulation_properties sim_prop,
+int tnn_integrate_network(struct problem_parameters* params,
                           struct rate_library* rates, struct tnn* network,
-                          struct problem_parameters* params,
-                          struct option_values options);
+                          struct simulation_properties* sim_prop);
 
-int tnn_kernel_trigger(struct simulation_properties sim_prop,
-                       struct rate_library* rates, struct tnn**** network,
+int tnn_kernel_trigger(struct rate_library* rates, struct tnn**** network,
                        struct problem_parameters* params,
-                       struct option_values options);
+                       struct simulation_properties* sim_prop);
 
 #ifdef __MP_ROCM
 #define __HIP_PLATFORM_AMD__

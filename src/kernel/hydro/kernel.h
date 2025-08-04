@@ -15,8 +15,7 @@ int hydro_data_preprocess();
 int hydro_data_postprocess();
 
 // Hydro integration kernel driver.
-int hydro_integrate_mesh(struct simulation_properties sim_prop,
-                         struct rt_hydro_mesh* mesh,
-                         struct option_values options);
+int hydro_integrate_mesh(struct rt_hydro_mesh* mesh,
+                         struct simulation_properties* sim_prop);
 
 #endif

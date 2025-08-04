@@ -121,7 +121,7 @@ int tnn_integration_kernel(
         }
         tmp *= dt;
         dE += tmp * ECON;
-        
+
         // Increment the integration time and set the new timestep
         t += dt;
         integration_steps++;
@@ -179,11 +179,10 @@ real_t compute_keff(real_t Fminus, real_t Y) {
 
 // Better data organization could massively improve the efficiency of this.
 int tnn_data_preprocess(struct tnn**** tnn, struct rt_hydro_mesh* mesh,
-                        struct simulation_properties sim_prop,
-                        struct option_values options) {
-    for (int i = 0; i < sim_prop.resolution[0]; i++) {
-        for (int j = 0; j < sim_prop.resolution[1]; j++) {
-            for (int k = 0; k < sim_prop.resolution[2]; k++) {
+                        struct simulation_properties* sim_prop) {
+    for (int i = 0; i < sim_prop->resolution[0]; i++) {
+        for (int j = 0; j < sim_prop->resolution[1]; j++) {
+            for (int k = 0; k < sim_prop->resolution[2]; k++) {
                 tnn[i][j][k]->f->rho = mesh->density[i][j][k];
                 tnn[i][j][k]->f->t9 = mesh->temp[i][j][k] / 1e9;
                 tnn[i][j][k]->f->t_max = mesh->dt;
@@ -194,11 +193,10 @@ int tnn_data_preprocess(struct tnn**** tnn, struct rt_hydro_mesh* mesh,
 }
 
 int tnn_data_postprocess(struct tnn**** tnn, struct rt_hydro_mesh* mesh,
-                         struct simulation_properties sim_prop,
-                         struct option_values options) {
-    for (int i = 0; i < sim_prop.resolution[0]; i++) {
-        for (int j = 0; j < sim_prop.resolution[1]; j++) {
-            for (int k = 0; k < sim_prop.resolution[2]; k++) {
+                         struct simulation_properties* sim_prop) {
+    for (int i = 0; i < sim_prop->resolution[0]; i++) {
+        for (int j = 0; j < sim_prop->resolution[1]; j++) {
+            for (int k = 0; k < sim_prop->resolution[2]; k++) {
                 mesh->temp[i][j][k] = tnn[i][j][k]->f->t9 * 1e9;
             }
         }
@@ -348,10 +346,9 @@ void reaction_mask_update(int** mask, struct rate_library* rates,
     }
 }
 
-int tnn_integrate_network(struct simulation_properties sim_prop,
+int tnn_integrate_network(struct problem_parameters* params,
                           struct rate_library* rates, struct tnn* network,
-                          struct problem_parameters* params,
-                          struct option_values options) {
+                          struct simulation_properties* sim_prop) {
 #ifdef __MP_ROCM
     // Commented out because we want it to run regardless...
     // if (options.rocm_accel) {
@@ -397,14 +394,13 @@ int tnn_integrate_network(struct simulation_properties sim_prop,
     return EXIT_SUCCESS;
 }
 
-int tnn_kernel_trigger(struct simulation_properties sim_prop,
-                       struct rate_library* rates, struct tnn**** network,
+int tnn_kernel_trigger(struct rate_library* rates, struct tnn**** network,
                        struct problem_parameters* params,
-                       struct option_values options) {
+                       struct simulation_properties* sim_prop) {
 
-    for (int i = 0; i < sim_prop.resolution[0]; i++) {
-        for (int j = 0; j < sim_prop.resolution[1]; j++) {
-            for (int k = 0; k < sim_prop.resolution[2]; k++) {
+    for (int i = 0; i < sim_prop->resolution[0]; i++) {
+        for (int j = 0; j < sim_prop->resolution[1]; j++) {
+            for (int k = 0; k < sim_prop->resolution[2]; k++) {
                 // This per-network preprocessing should occur in
                 // the compute kernel.
                 real_t density[3];
@@ -418,8 +414,8 @@ int tnn_kernel_trigger(struct simulation_properties sim_prop,
                         rates->prefactor[n] *
                         (density[rates->num_react_species[n] - 1]);
                 }
-                if (tnn_integrate_network(sim_prop, rates, network[i][j][k],
-                                          params, options) == EXIT_FAILURE) {
+                if (tnn_integrate_network(params, rates, network[i][j][k],
+                                          sim_prop) == EXIT_FAILURE) {
                     return EXIT_FAILURE;
                 }
             }
