@@ -18,4 +18,7 @@ int hydro_data_postprocess();
 int hydro_integrate_mesh(struct rt_hydro_mesh* mesh,
                          struct simulation_properties* sim_prop);
 
+// Return pointer to initialized hydro_mesh struct.
+struct rt_hydro_mesh* hydro_mesh_create(struct simulation_properties sim_prop);
+
 #endif

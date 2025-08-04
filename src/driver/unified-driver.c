@@ -5,10 +5,10 @@
 #include "../parser.h"
 #include "../parser/tnn-parameters.h"
 
+#include "../kernel/advout/kernel.h"
 #include "../kernel/hydro/kernel.h"
 #include "../kernel/neutrino/kernel.h"
 #include "../kernel/thermonuclear/kernel.h"
-#include "../kernel/advout/kernel.h"
 
 #ifdef __MP_ROCM
 #include "../rocm/hip-util.h"
@@ -41,7 +41,7 @@ int write_output(struct simulation_properties sim_prop,
 int unified_driver(struct simulation_properties sim_prop,
                    struct option_values options) {
 
-    struct rt_hydro_mesh* mesh = malloc(sizeof(struct rt_hydro_mesh));
+    struct rt_hydro_mesh* mesh;
     struct neunet**** neutrino;
     struct tnn**** thermo;
     struct rate_library* rates;
@@ -62,25 +62,11 @@ int unified_driver(struct simulation_properties sim_prop,
     // is not run.
     // if (sim_prop.hydro) {
     if (1) {
-        mesh->dim[0] = sim_prop.resolution[0];
-        mesh->dim[1] = sim_prop.resolution[1];
-        mesh->dim[2] = sim_prop.resolution[2];
-        mesh->dt = dt;
-
+        mesh = hydro_mesh_create(sim_prop);
         mesh->volume = mesh->volume / mesh->dim[0];
         mesh->volume = mesh->volume / mesh->dim[1];
         mesh->volume = mesh->volume / mesh->dim[2];
-
-        mesh->temp = malloc(mesh->dim[0] * sizeof(real_t*));
-        mesh->density = malloc(mesh->dim[0] * sizeof(real_t*));
-        for (int i = 0; i < mesh->dim[0]; i++) {
-            mesh->temp[i] = malloc(mesh->dim[1] * sizeof(real_t*));
-            mesh->density[i] = malloc(mesh->dim[1] * sizeof(real_t*));
-            for (int j = 0; j < mesh->dim[1]; j++) {
-                mesh->temp[i][j] = malloc(mesh->dim[2] * sizeof(real_t));
-                mesh->density[i][j] = malloc(mesh->dim[2] * sizeof(real_t));
-            }
-        }
+        mesh->dt = dt;
         for (int i = 0; i < mesh->dim[0]; i++) {
             for (int j = 0; j < mesh->dim[1]; j++) {
                 for (int k = 0; k < mesh->dim[2]; k++) {
@@ -177,7 +163,7 @@ int unified_driver(struct simulation_properties sim_prop,
     if (advout_data_setup(advout_data, mesh, sim_prop) == EXIT_FAILURE) {
         return EXIT_FAILURE;
     }
-    
+
     // Write initial state.
     write_output(sim_prop, mesh, advout_data);
 
@@ -193,8 +179,7 @@ int unified_driver(struct simulation_properties sim_prop,
                     goto exit;
                 }
                 // Not a trigger for now, probably will be at some point.
-                if (hydro_integrate_mesh(mesh, &sim_prop) ==
-                    EXIT_FAILURE) {
+                if (hydro_integrate_mesh(mesh, &sim_prop) == EXIT_FAILURE) {
                     fail = true;
                     goto exit;
                 }
@@ -226,8 +211,8 @@ int unified_driver(struct simulation_properties sim_prop,
                     fail = true;
                     goto exit;
                 }
-                if (tnn_kernel_trigger(rates, thermo, params,
-                                       &sim_prop) == EXIT_FAILURE) {
+                if (tnn_kernel_trigger(rates, thermo, params, &sim_prop) ==
+                    EXIT_FAILURE) {
                     fail = true;
                     goto exit;
                 }
@@ -237,9 +222,10 @@ int unified_driver(struct simulation_properties sim_prop,
                     goto exit;
                 }
             }
-            
+
             if (sim_prop.entropy_out_file != NULL) {
-                if (advout_entropy(advout_data, mesh, &sim_prop) == EXIT_FAILURE) {
+                if (advout_entropy(advout_data, mesh, &sim_prop) ==
+                    EXIT_FAILURE) {
                     fail = true;
                     goto exit;
                 }

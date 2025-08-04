@@ -90,3 +90,22 @@ int hydro_integrate_mesh(struct rt_hydro_mesh* mesh,
 #endif
     return EXIT_SUCCESS;
 }
+
+struct rt_hydro_mesh* hydro_mesh_create(struct simulation_properties sim_prop) {
+    struct rt_hydro_mesh* mesh = malloc(sizeof(struct rt_hydro_mesh));
+    mesh->dim[0] = sim_prop.resolution[0];
+    mesh->dim[1] = sim_prop.resolution[1];
+    mesh->dim[2] = sim_prop.resolution[2];
+
+    mesh->temp = malloc(mesh->dim[0] * sizeof(real_t*));
+    mesh->density = malloc(mesh->dim[0] * sizeof(real_t*));
+    for (int i = 0; i < mesh->dim[0]; i++) {
+        mesh->temp[i] = malloc(mesh->dim[1] * sizeof(real_t*));
+        mesh->density[i] = malloc(mesh->dim[1] * sizeof(real_t*));
+        for (int j = 0; j < mesh->dim[1]; j++) {
+            mesh->temp[i][j] = malloc(mesh->dim[2] * sizeof(real_t));
+            mesh->density[i][j] = malloc(mesh->dim[2] * sizeof(real_t));
+        }
+    }
+    return mesh;
+}
