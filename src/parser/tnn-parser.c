@@ -36,7 +36,8 @@ struct tnn* network_create(struct simulation_properties sim_prop) {
     network->fptr->y = malloc(size * sizeof(real_t));
     network->fptr->mass_excess = malloc(size * sizeof(real_t));
 
-    network->info->part_func = malloc(size * sizeof(real_t*));
+    // calloc since we rely on this being set to NULL (0)
+    network->info->part_func = calloc(size, sizeof(real_t*));
     network->info->iso_label = malloc(size * sizeof(char*));
 
     char line[60];

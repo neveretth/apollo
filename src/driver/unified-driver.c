@@ -47,8 +47,6 @@ int unified_driver(struct simulation_properties sim_prop,
     struct rate_library* rates;
 
     // Eventually move these to TOML
-    mesh->h = sim_prop.h;
-    mesh->volume = sim_prop.volume;
     real_t t_end = sim_prop.t_end;
     real_t dt = sim_prop.dt_init;
     real_t t = 0;
@@ -63,6 +61,8 @@ int unified_driver(struct simulation_properties sim_prop,
     // if (sim_prop.hydro) {
     if (1) {
         mesh = hydro_mesh_create(sim_prop);
+        mesh->h = sim_prop.h;
+        mesh->volume = sim_prop.volume;
         mesh->volume = mesh->volume / mesh->dim[0];
         mesh->volume = mesh->volume / mesh->dim[1];
         mesh->volume = mesh->volume / mesh->dim[2];
@@ -255,6 +255,8 @@ exit:
     advout_data_destroy(&advout_data, sim_prop);
     if (sim_prop.thermo) {
         rate_library_destroy(&rates);
+        problem_parameters_destroy(&params,
+                                   thermo[0][0][0]->info->number_species);
     }
     // Proper destruction should occur within the kernel modules...
     for (int i = 0; i < sim_prop.resolution[0]; i++) {
@@ -267,7 +269,25 @@ exit:
                     network_destroy(&thermo[i][j][k]);
                 }
             }
+            if (sim_prop.neutrino) {
+                free(neutrino[i][j]);
+            }
+            if (sim_prop.thermo) {
+                free(thermo[i][j]);
+            }
         }
+        if (sim_prop.neutrino) {
+            free(neutrino[i]);
+        }
+        if (sim_prop.thermo) {
+            free(thermo[i]);
+        }
+    }
+    if (sim_prop.neutrino) {
+        free(neutrino);
+    }
+    if (sim_prop.thermo) {
+        free(thermo);
     }
     if (fail) {
         return EXIT_FAILURE;

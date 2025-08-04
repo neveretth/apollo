@@ -68,6 +68,7 @@ int network_destroy(struct tnn** __src) {
 int problem_parameters_destroy(struct problem_parameters** __src,
                                int reactions) {
     struct problem_parameters* src = *__src;
+    free(src->prefactor);
     free(src->f_plus);
     free(src->f_minus);
     free(src->f_plus_factor);

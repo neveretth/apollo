@@ -92,10 +92,11 @@ struct neunet* neunet_create(struct simulation_properties sim_prop) {
 
     network->info->rate_in = hdf5_read_2d(sim_prop.neutrino_file, dataset_name);
 
-    // Invert the bastard. This is slow but it really doesn't matter (for now).
+    // Transpose the bastard. This is slow but it really doesn't matter (for now).
     // O(who cares)
     for (int i = 0; i < network->info->num_groups; i++) {
         for (int k = 1; k < network->info->num_groups / 2; k++) {
+            // "you should use xor" This is faster. (gcc recognizes the swap)
             real_t tmp = network->info->rate_in[i][k];
             network->info->rate_in[i][k] = network->info->rate_in[k][i];
             network->info->rate_in[k][i] = tmp;

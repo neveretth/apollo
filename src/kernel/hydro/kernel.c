@@ -17,7 +17,7 @@ int hydro_integration_kernel(real_t*** temp, real_t*** density, real_t volume,
     // For now just assume it's all even. Volume is for each cell.
     real_t area = volume / dim[2]; // Placeholder area of interaction.
 
-    real_t c = 1e8; // Placeholder contribution value.
+    real_t c = 1e8; // Placeholder thermal coefficient.
     real_t ntd = 0; // Nuclear burning temp diff (assume negligible for now)
 
     real_t t = 0;

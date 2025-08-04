@@ -10,5 +10,6 @@ int validate_file(FILE* file) {
         printf("==apollo== ERROR: invalid header in file\n");
         return EXIT_FAILURE;
     }
+    free(filesig);
     return EXIT_SUCCESS;
 }

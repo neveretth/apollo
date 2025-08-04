@@ -84,9 +84,22 @@ int options_clean(struct option_values options) {
 }
 
 int simulation_properties_clean(struct simulation_properties sim_prop) {
-    fclose(sim_prop.temp_out_file);
-    fclose(sim_prop.density_out_file);
-    fclose(sim_prop.entropy_out_file);
+    if (sim_prop.temp_out_file != NULL) {
+        fclose(sim_prop.temp_out_file);
+    }
+    if (sim_prop.density_out_file != NULL) {
+        fclose(sim_prop.density_out_file);
+    }
+    if (sim_prop.entropy_out_file != NULL) {
+        fclose(sim_prop.entropy_out_file);
+    }
+    if (sim_prop.network_file != NULL) {
+        fclose(sim_prop.network_file);
+    }
+    if (sim_prop.rate_library_file != NULL) {
+        fclose(sim_prop.rate_library_file);
+    }
+    H5close();
     return EXIT_SUCCESS;
 }
 
@@ -143,8 +156,10 @@ simulation_properties_create(toml_result_t simulation_toml,
     sim_prop.density_out_file = NULL;
     sim_prop.entropy_out_file = NULL;
     sim_prop.hydro_temp_effect = NULL;
-    sim_prop.hydro_density_effect = NULL;
+    sim_prop.rate_library_file = NULL;
+    sim_prop.network_file = NULL;
     sim_prop.print_kernel_time = false;
+    sim_prop.hydro_density_effect = NULL;
 
     // CONFIG INFO
     opts->rocm_accel = toml_bool(config_toml, "base.enablerocm");
@@ -224,6 +239,7 @@ simulation_properties_create(toml_result_t simulation_toml,
         } else if (strcmp(tmp, "gradient") == 0) {
             sim_prop.hydro_temp_effect = effect_gradient;
         }
+        free(tmp);
         tmp = toml_string(simulation_toml,
                           "simulation.hydroeffect.density.effect");
         if (strcmp(tmp, "random") == 0) {
@@ -258,6 +274,7 @@ simulation_properties_create(toml_result_t simulation_toml,
                    tmp);
             exit(1);
         }
+        free(tmp);
         tmp = toml_string(simulation_toml, "simulation.thermo.ratefile");
         snprintf(file, PATH_MAX, "%s/%s", opts->root_dir, tmp);
         sim_prop.rate_library_file = fopen(file, "r");

@@ -1,6 +1,15 @@
 CC = /bin/gcc
 HIPCC = /opt/rocm/bin/hipcc
-CFLAGS = -std=c99 -O3 -Wall -Wextra --pedantic -g3 -D__REAL_TYPE_FLOAT
+# GCCOPTS is for optimization. We can do away with
+# much of strict compliance, but we _cannot_ use
+# -ffast-math as it breaks too much IEEE 754 and while
+# this is _probably_ fine, we choose to avoid it.
+# Essentially, we assume apollo is being well behaved (note
+# that it is often _not_, we just _assume) and optimize for
+# that. If the end result is nan/inf... whoops, maybe comment
+# out GCCOPTS and try again (or make changes to the args).
+GCCOPTS = -O3 -fno-math-errno -ffinite-math-only -frounding-math
+CFLAGS = -std=c99 -Wall -Wextra --pedantic -g3 -D__REAL_TYPE_FLOAT $(GCCOPTS)
 HIPFLAGS = -x c
 CLIBS = -lm -lhdf5 -lc
 

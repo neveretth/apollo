@@ -12,17 +12,21 @@ int main(int argc, char** argv) {
     toml_result_t config_toml = toml_parse_file_ex(options.config_file);
     toml_result_t simulation_toml = toml_parse_file_ex(options.simulation_file);
 
+    bool fail = false;
+
     if (!config_toml.ok) {
         printf("==apollo== error: config file \"%s\" is invalid.\n",
                options.config_file);
         printf("[TOML ERROR]: %s\n", config_toml.errmsg);
-        goto exit_fail;
+        fail = true;
+        goto exit;
     }
     if (!simulation_toml.ok) {
         printf("==apollo== error: config file \"%s\" is invalid.\n",
                options.simulation_file);
         printf("[TOML ERROR]: %s\n", simulation_toml.errmsg);
-        goto exit_fail;
+        fail = true;
+        goto exit;
     }
 
     struct simulation_properties sim_prop =
@@ -43,24 +47,17 @@ int main(int argc, char** argv) {
 
     if (unified_driver(sim_prop, options) == EXIT_FAILURE) {
         printf("==apollo== error: driver failed.\n");
-        goto exit_fail;
+        fail = true;
+        goto exit;
     }
 
-    // Need to destory simulation_properties.
-    // But it's not a big deal since it's only made once and has like 10 bytes
-    // to it's name.
-
 exit:
-    // simulation_properties_clean(sim_prop);
+    simulation_properties_clean(sim_prop);
     options_clean(options);
     toml_free(config_toml);
     toml_free(simulation_toml);
+    if (fail) {
+        return EXIT_FAILURE;
+    }
     return EXIT_SUCCESS;
-
-exit_fail:
-    // simulation_properties_clean(sim_prop);
-    options_clean(options);
-    toml_free(config_toml);
-    toml_free(simulation_toml);
-    return EXIT_FAILURE;
 }
