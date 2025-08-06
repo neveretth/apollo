@@ -188,12 +188,23 @@ int unified_driver(struct simulation_properties sim_prop,
                     goto exit;
                 }
             }
+            // All preprocessing happens before the kernels, postprocessing can
+            // happen immediately after the kernel.
             if (sim_prop.neutrino) {
                 if (neunet_data_preprocess(neutrino, mesh, sim_prop, options) ==
                     EXIT_FAILURE) {
                     fail = true;
                     goto exit;
                 }
+            }
+            if (sim_prop.thermo) {
+                if (tnn_data_preprocess(thermo, mesh, &sim_prop) ==
+                    EXIT_FAILURE) {
+                    fail = true;
+                    goto exit;
+                }
+            }
+            if (sim_prop.neutrino) {
                 if (neunet_kernel_trigger(sim_prop, neutrino, options) ==
                     EXIT_FAILURE) {
                     fail = true;
@@ -206,11 +217,6 @@ int unified_driver(struct simulation_properties sim_prop,
                 }
             }
             if (sim_prop.thermo) {
-                if (tnn_data_preprocess(thermo, mesh, &sim_prop) ==
-                    EXIT_FAILURE) {
-                    fail = true;
-                    goto exit;
-                }
                 if (tnn_kernel_trigger(rates, thermo, params, &sim_prop) ==
                     EXIT_FAILURE) {
                     fail = true;
