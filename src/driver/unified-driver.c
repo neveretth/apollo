@@ -46,15 +46,42 @@ int unified_driver(struct simulation_properties sim_prop,
     struct tnn**** thermo;
     struct rate_library* rates;
 
-    // Eventually move these to TOML
     real_t t_end = sim_prop.t_end;
     real_t dt = sim_prop.dt_init;
     real_t t = 0;
     real_t tres = sim_prop.output_tres;
-    real_t t_inter_lvl = t_end / tres;
-    real_t t_inter = 0;
     real_t base_temp = sim_prop.hydro_temp_base;
     real_t base_density = sim_prop.hydro_density_base;
+    real_t* t_inter = malloc(tres * sizeof(real_t));
+
+    if (sim_prop.timescale == TIMESCALE_LOGSKEW) {
+        // This comes from an old visualization tool.
+        t = 1e-10; // Changing this changes the skew.
+        for (int i = 0; i < tres; i++) {
+            real_t tmp =
+                log2(t) + ((log2(t_end) - log2(t)) * ((i + 1) / (tres)));
+            t_inter[i] = pow(2, tmp);
+        }
+    } else if (sim_prop.timescale == TIMESCALE_LINEAR) {
+        real_t tmp = t_end / tres;
+        for (int i = 0; i < tres; i++) {
+            t_inter[i] = tmp * (i + 1);
+        }
+    } else if (sim_prop.timescale == TIMESCALE_LOG2) {
+        real_t tmp = t_end;
+        int tres_int = tres;
+        for (int i = 0; i < tres; i++) {
+            t_inter[tres_int-i] = tmp;
+            tmp /= 2;
+        }
+    } else if (sim_prop.timescale == TIMESCALE_LOG10) {
+        real_t tmp = t_end;
+        int tres_int = tres;
+        for (int i = 0; i < tres; i++) {
+            t_inter[tres_int-i] = tmp;
+            tmp /= 10;
+        }
+    }
 
     // For now hydro mesh must always be initialized, even if the compute kernel
     // is not run.
@@ -167,9 +194,9 @@ int unified_driver(struct simulation_properties sim_prop,
     // Write initial state.
     write_output(sim_prop, mesh, advout_data);
 
+    int t_inter_idx = 0;
     while (t < t_end) {
-        t_inter += t_inter_lvl;
-        while (t < t_inter) {
+        while (t < t_inter[t_inter_idx]) {
             // If the mesh adjusts the timestep.
             dt = mesh->dt;
             mesh->t_end = 0; // Single step
@@ -234,21 +261,23 @@ int unified_driver(struct simulation_properties sim_prop,
             t += dt;
         }
 
+        t_inter_idx++;
+
         write_output(sim_prop, mesh, advout_data);
 
-        printf("\x1b[1A\x1b[2K\x1b[0G  Time: [%6.2f/%6.2f]\n", t, t_end);
+        if (sim_prop.print_kernel_time) {
+            printf("\x1b[1A\x1b[2K\x1b[0G  Time: [%6.2f/%6.2f]\n", t, t_end);
+        }
     }
 
     kerneltime = clock() - kerneltime;
     printf("\n==apollo== Simulation complete.\n");
-    if (sim_prop.print_kernel_time) {
-        real_t kerneltime_seconds = kerneltime;
-        kerneltime_seconds /= CLOCKS_PER_SEC;
-        printf("==apollo== Kernel clock time: %f (s)\n", kerneltime_seconds);
-        FILE* tmptimeout = fopen("/tmp/apollotime", "wa");
-        fprintf(tmptimeout, "%f", kerneltime_seconds);
-        fclose(tmptimeout);
-    }
+    real_t kerneltime_seconds = kerneltime;
+    kerneltime_seconds /= CLOCKS_PER_SEC;
+    printf("==apollo== Kernel clock time: %f (s)\n", kerneltime_seconds);
+    FILE* tmptimeout = fopen("/tmp/apollotime", "wa");
+    fprintf(tmptimeout, "%f", kerneltime_seconds);
+    fclose(tmptimeout);
 
 exit:
     rt_hydro_mesh_destroy(&mesh);

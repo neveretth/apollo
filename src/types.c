@@ -207,6 +207,25 @@ simulation_properties_create(toml_result_t simulation_toml,
     sim_prop.print_kernel_time =
         toml_bool(simulation_toml, "simulation.time.printkerneltime");
     sim_prop.dt_init = toml_real_t(simulation_toml, "simulation.time.initdt");
+    if (sim_prop.output) {
+        char* tmp;
+        tmp = toml_string(simulation_toml, "simulation.time.timescale");
+        if (strcmp(tmp, "linear") == 0) {
+            sim_prop.timescale = TIMESCALE_LINEAR;
+        } else if (strcmp(tmp, "logskew") == 0) {
+            sim_prop.timescale = TIMESCALE_LOGSKEW;
+        } else if (strcmp(tmp, "log") == 0) {
+            sim_prop.timescale = TIMESCALE_LOG2;
+        } else if (strcmp(tmp, "log2") == 0) {
+            sim_prop.timescale = TIMESCALE_LOG2;
+        } else if (strcmp(tmp, "log10") == 0) {
+            sim_prop.timescale = TIMESCALE_LOG10;
+        } else {
+            printf("==apollo== No timescale specified: using linear.\n");
+            sim_prop.timescale = TIMESCALE_LINEAR;
+        }
+        free(tmp);
+    }
 
     // RESOLUTION
     sim_prop.resolution[0] =
