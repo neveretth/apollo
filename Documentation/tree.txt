@@ -1,0 +1,23 @@
+Apollo
+├── build/                         # Build artifacts (consider .gitignore here)
+│   └── src/
+│       └── rocm/                  # Compiled ROCm/HIP objects (GPU)
+├── config/                        # Configuration files (input decks, params)
+├── data/                          # Simulation input/output data
+├── Documentation/                # Project documentation (README, design notes)
+├── simulation/                    # (Suggest: entry points or main runners?)
+├── src/                           # Main source code
+│   ├── driver/                    # High-level simulation control / main loop
+│   ├── kernel/                    # Core physics kernels
+│   │   ├── hydro/                 # Hydrodynamics kernels
+│   │   ├── neutrino/              # Neutrino transport & interactions
+│   │   └── thermonuclear/         # Thermonuclear reaction network kernels
+│   ├── parser/                    # Config parsing (likely TOML)
+│   ├── rocm/                      # ROCm/HIP GPU-specific wrappers
+│   ├── toml/                      # TOML config utilities (parser or bindings)
+│   └── types/                     # Type definitions, structs, units
+├── tests/                         # All tests
+│   ├── hydro-test/                # Unit/integration tests for hydro module
+│   ├── neutrino-test/             # Unit/integration tests for neutrino module
+│   └── thermo-test/               # Unit/integration tests for thermonuclear
+└── tools/                         # Helper scripts, viz tools, runners, etc.
