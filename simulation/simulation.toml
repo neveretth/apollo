@@ -3,6 +3,7 @@
 [simulation.time]
 endtime = 1.4e0
 tres = 100
+timescale = "linear"
 printkerneltime = true
 initdt = 2e-3
 

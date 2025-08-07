@@ -61,7 +61,7 @@ def graph_linear(sim_prop, datafile, label):
     ax.set_xlabel("Zone")
     ax.set_ylabel(label)
 
-    for i in range(1, tres):
+    for i in range(1, tres+1):
         grid = data.iloc[i].to_numpy()
         im, = ax.plot(grid, color="Black")
         ims.append([im])
@@ -96,7 +96,7 @@ def graph_flat(sim_prop, datafile, label):
     ax.set_xlabel("Zone x")
     ax.set_ylabel("Zone y")
 
-    for i in range(1, sim_prop["simulation"]["time"]["tres"]):
+    for i in range(1, sim_prop["simulation"]["time"]["tres"] + 1):
         grid = data.iloc[i].to_numpy()
         grid = np.reshape(grid, (-1, size))
         im = ax.imshow(grid, cmap='hot',
@@ -135,7 +135,7 @@ def graph_rt(sim_prop, datafile, label):
     im = ax
     ims.append([im])
 
-    for i in range(1, sim_prop["simulation"]["time"]["tres"]):
+    for i in range(1, sim_prop["simulation"]["time"]["tres"] + 1):
         rtgrid = np.zeros((sizex, sizey, sizez))
         grid = data.iloc[i].to_numpy()
         grid = np.reshape(grid, (-1, sizex*sizey))

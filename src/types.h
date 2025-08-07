@@ -24,6 +24,13 @@ struct option_values {
     void* rocm_device; // Ignored if not __MP_ROCM (type is hipDeviceProp_t*)
 };
 
+enum TIMESCALE {
+    TIMESCALE_LINEAR,
+    TIMESCALE_LOGSKEW,
+    TIMESCALE_LOG2,
+    TIMESCALE_LOG10,
+};
+
 struct simulation_properties {
     int resolution[3];
     bool hydro;
@@ -36,6 +43,7 @@ struct simulation_properties {
     bool print_kernel_time;
     real_t t_end;
     int output_tres;
+    int timescale;
     FILE* temp_out_file;
     FILE* density_out_file;
     FILE* entropy_out_file;
