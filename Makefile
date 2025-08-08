@@ -31,6 +31,7 @@ default-target: apollo
 
 clean:
 	rm -rf $(BUILD_DIR)/src
+	rm -rf $(BUILD_DIR)/tests
 
 apollo: builddir source kernel driver types parser toml
 	$(CC) $(BUILD_DIR)/src/*.o -o $(BUILD_DIR)/apollo $(CLIBS)
@@ -46,7 +47,10 @@ rebuild: clean apollo
 builddir:
 	mkdir -p $(BUILD_DIR)/src
 	mkdir -p $(BUILD_DIR)/src/rocm
+	mkdir -p $(BUILD_DIR)/tests
 
 include Makefile.test
+
+include tests/Makefile
 
 include src/Makefile
