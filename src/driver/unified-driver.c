@@ -71,14 +71,14 @@ int unified_driver(struct simulation_properties sim_prop,
         real_t tmp = t_end;
         int tres_int = tres;
         for (int i = 0; i < tres; i++) {
-            t_inter[tres_int-i] = tmp;
+            t_inter[tres_int - i] = tmp;
             tmp /= 2;
         }
     } else if (sim_prop.timescale == TIMESCALE_LOG10) {
         real_t tmp = t_end;
         int tres_int = tres;
         for (int i = 0; i < tres; i++) {
-            t_inter[tres_int-i] = tmp;
+            t_inter[tres_int - i] = tmp;
             tmp /= 10;
         }
     }
@@ -90,15 +90,15 @@ int unified_driver(struct simulation_properties sim_prop,
         mesh = hydro_mesh_create(sim_prop);
         mesh->h = sim_prop.h;
         mesh->volume = sim_prop.volume;
-        mesh->volume = mesh->volume / mesh->dim[0];
-        mesh->volume = mesh->volume / mesh->dim[1];
-        mesh->volume = mesh->volume / mesh->dim[2];
+        mesh->volume = mesh->volume / mesh->dim[XDIM];
+        mesh->volume = mesh->volume / mesh->dim[YDIM];
+        mesh->volume = mesh->volume / mesh->dim[ZDIM];
         mesh->dt = dt;
-        for (int i = 0; i < mesh->dim[0]; i++) {
-            for (int j = 0; j < mesh->dim[1]; j++) {
-                for (int k = 0; k < mesh->dim[2]; k++) {
-                    mesh->temp[i][j][k] = base_temp;
-                    mesh->density[i][j][k] = base_density;
+        for (int k = 0; k < mesh->dim[ZDIM]; k++) {
+            for (int j = 0; j < mesh->dim[YDIM]; j++) {
+                for (int i = 0; i < mesh->dim[XDIM]; i++) {
+                    mesh->temp[k][j][i] = base_temp;
+                    mesh->density[k][j][i] = base_density;
                 }
             }
         }
@@ -327,5 +327,6 @@ exit:
     if (fail) {
         return EXIT_FAILURE;
     }
+    free(t_inter);
     return EXIT_SUCCESS;
 }

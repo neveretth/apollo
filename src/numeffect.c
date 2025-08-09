@@ -7,8 +7,8 @@ int effect_rand(real_t*** data, int i_, int j_, int k_) {
     for (int i = 0; i < i_; i++) {
         for (int j = 0; j < j_; j++) {
             for (int k = 0; k < k_; k++) {
-                data[i][j][k] +=
-                    (real_t)rand() / (10 * (real_t)(RAND_MAX / data[i][j][k]));
+                data[k][j][i] +=
+                    (real_t)rand() / (10 * (real_t)(RAND_MAX / data[k][j][i]));
             }
         }
     }
@@ -23,7 +23,7 @@ int effect_radial1(real_t*** data, int i_, int j_, int k_) {
                 real_t len = sqrt((i * i) + (j * j) + (k * k)) / rad;
                 len = 1 - len;
                 len *= len;
-                data[i][j][k] += (data[i][j][k] / 10) * len;
+                data[k][j][i] += (data[k][j][i] / 10) * len;
             }
         }
     }
@@ -37,7 +37,7 @@ int effect_radial2(real_t*** data, int i_, int j_, int k_) {
             for (int k = 0; k < k_; k++) {
                 real_t len = sqrt((i * i) + (j * j) + (k * k)) / rad;
                 len = 1 - len;
-                data[i][j][k] += (data[i][j][k] / 10) * len;
+                data[k][j][i] += (data[k][j][i] / 10) * len;
             }
         }
     }
@@ -51,7 +51,7 @@ int effect_radial3(real_t*** data, int i_, int j_, int k_) {
                 real_t len = sqrt((i * i) + (j * j) + (k * k)) / rad;
                 len *= len;
                 len = 1 - len;
-                data[i][j][k] += (data[i][j][k] / 10) * len;
+                data[k][j][i] += (data[k][j][i] / 10) * len;
             }
         }
     }
@@ -63,7 +63,7 @@ int effect_gradient(real_t*** data, int i_, int j_, int k_) {
     for (int i = 0; i < i_; i++) {
         for (int j = 0; j < j_; j++) {
             for (int k = 0; k < k_; k++) {
-                data[i][j][k] += (data[i][j][k] / 10) * (i / bound);
+                data[k][j][i] += (data[k][j][i] / 10) * (i / bound);
             }
         }
     }

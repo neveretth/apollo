@@ -7,7 +7,9 @@
 
 struct advout_t {
     real_t*** prev_temp;
+    real_t*** prev_temp_block;
     real_t*** entropy;
+    real_t*** entropy_block;
 };
 
 // Compute the timestep for entropy the given mesh.

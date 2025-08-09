@@ -4,9 +4,14 @@
 #include "../defs.h"
 
 // R3 (3D) hydro mesh
+// "block" ptrs are to the flat memory, the normal ptrs are to the ND data.
 struct rt_hydro_mesh {
     real_t*** temp;
+    real_t*** temp_block;
     real_t*** density;
+    real_t*** density_block;
+    real_t*** delta_temp;
+    real_t*** delta_temp_block;
     real_t volume;
     real_t dt;
     real_t t_end;

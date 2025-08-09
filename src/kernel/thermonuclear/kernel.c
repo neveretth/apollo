@@ -180,11 +180,11 @@ real_t compute_keff(real_t Fminus, real_t Y) {
 // Better data organization could massively improve the efficiency of this.
 int tnn_data_preprocess(struct tnn**** tnn, struct rt_hydro_mesh* mesh,
                         struct simulation_properties* sim_prop) {
-    for (int i = 0; i < sim_prop->resolution[0]; i++) {
-        for (int j = 0; j < sim_prop->resolution[1]; j++) {
-            for (int k = 0; k < sim_prop->resolution[2]; k++) {
-                tnn[i][j][k]->f->rho = mesh->density[i][j][k];
-                tnn[i][j][k]->f->t9 = mesh->temp[i][j][k] / 1e9;
+    for (int k = 0; k < sim_prop->resolution[ZDIM]; k++) {
+        for (int j = 0; j < sim_prop->resolution[YDIM]; j++) {
+            for (int i = 0; i < sim_prop->resolution[XDIM]; i++) {
+                tnn[i][j][k]->f->rho = mesh->density[k][j][i];
+                tnn[i][j][k]->f->t9 = mesh->temp[k][j][i] / 1e9;
                 tnn[i][j][k]->f->t_max = mesh->dt;
             }
         }
@@ -194,10 +194,10 @@ int tnn_data_preprocess(struct tnn**** tnn, struct rt_hydro_mesh* mesh,
 
 int tnn_data_postprocess(struct tnn**** tnn, struct rt_hydro_mesh* mesh,
                          struct simulation_properties* sim_prop) {
-    for (int i = 0; i < sim_prop->resolution[0]; i++) {
-        for (int j = 0; j < sim_prop->resolution[1]; j++) {
-            for (int k = 0; k < sim_prop->resolution[2]; k++) {
-                mesh->temp[i][j][k] = tnn[i][j][k]->f->t9 * 1e9;
+    for (int k = 0; k < sim_prop->resolution[ZDIM]; k++) {
+        for (int j = 0; j < sim_prop->resolution[YDIM]; j++) {
+            for (int i = 0; i < sim_prop->resolution[XDIM]; i++) {
+                mesh->temp[k][j][i] = tnn[i][j][k]->f->t9 * 1e9;
             }
         }
     }

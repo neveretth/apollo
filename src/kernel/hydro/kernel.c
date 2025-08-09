@@ -3,16 +3,9 @@
 #include <math.h>
 #include <stdlib.h>
 
-int hydro_integration_kernel(real_t*** temp, real_t*** density, real_t volume,
-                             real_t h, real_t dt, real_t t_end, int* dim) {
-    // This really should be passed, not created each time.
-    real_t*** delta_temp = malloc(dim[0] * sizeof(real_t*));
-    for (int i = 0; i < dim[0]; i++) {
-        delta_temp[i] = malloc(dim[1] * sizeof(real_t*));
-        for (int j = 0; j < dim[1]; j++) {
-            delta_temp[i][j] = malloc(dim[2] * sizeof(real_t));
-        }
-    }
+int hydro_integration_kernel(real_t*** temp, real_t*** density,
+                             real_t*** delta_temp, real_t volume, real_t h,
+                             real_t dt, real_t t_end, int* dim) {
 
     // For now just assume it's all even. Volume is for each cell.
     real_t area = volume / dim[2]; // Placeholder area of interaction.
@@ -24,42 +17,34 @@ int hydro_integration_kernel(real_t*** temp, real_t*** density, real_t volume,
 
     // Does one integration (single step if t_end = 0)
     do {
-        for (int i = 0; i < dim[0]; i++) {
+        for (int k = 0; k < dim[2]; k++) {
             for (int j = 0; j < dim[1]; j++) {
-                for (int k = 0; k < dim[2]; k++) {
-                    real_t pdvh = 1 / (density[i][j][k] * volume * c);
-                    real_t temp_diff = -(6 * temp[i][j][k]);
+                for (int i = 0; i < dim[0]; i++) {
+                    real_t pdvh = 1 / (density[k][j][i] * volume * c);
+                    real_t temp_diff = -(6 * temp[k][j][i]);
 
                     // As with the linear integration, towards idx=0 is positive
-                    temp_diff += temp[i - (i > 0)][j][k];
-                    temp_diff += temp[i + (i < dim[0] - 1)][j][k];
-                    temp_diff += temp[i][j - (j > 0)][k];
-                    temp_diff += temp[i][j + (j < dim[1] - 1)][k];
-                    temp_diff += temp[i][j][k - (k > 0)];
-                    temp_diff += temp[i][j][k + (k < dim[2] - 1)];
+                    temp_diff += temp[k][j][i - (i > 0)];
+                    temp_diff += temp[k][j][i + (i < dim[0] - 1)];
+                    temp_diff += temp[k][j - (j > 0)][i];
+                    temp_diff += temp[k][j + (j < dim[1] - 1)][i];
+                    temp_diff += temp[k - (k > 0)][j][i];
+                    temp_diff += temp[k + (k < dim[2] - 1)][j][i];
 
-                    delta_temp[i][j][k] =
+                    delta_temp[k][j][i] =
                         dt * (pdvh * (ntd + (h * area * temp_diff)));
                 }
             }
         }
-        for (int i = 0; i < dim[0]; i++) {
+        for (int k = 0; k < dim[2]; k++) {
             for (int j = 0; j < dim[1]; j++) {
-                for (int k = 0; k < dim[2]; k++) {
-                    temp[i][j][k] += delta_temp[i][j][k];
+                for (int i = 0; i < dim[0]; i++) {
+                    temp[k][j][i] += delta_temp[k][j][i];
                 }
             }
         }
         t += dt;
     } while (t < t_end);
-
-    for (int i = 0; i < dim[0]; i++) {
-        for (int j = 0; j < dim[1]; j++) {
-            free(delta_temp[i][j]);
-        }
-        free(delta_temp[i]);
-    }
-    free(delta_temp);
 
     return EXIT_SUCCESS;
 }
@@ -82,8 +67,8 @@ int hydro_integrate_mesh(struct rt_hydro_mesh* mesh,
     // } else {
     // }
 #else
-    if (hydro_integration_kernel(mesh->temp, mesh->density, mesh->volume,
-                                 mesh->h, mesh->dt, mesh->t_end,
+    if (hydro_integration_kernel(mesh->temp, mesh->density, mesh->delta_temp,
+                                 mesh->volume, mesh->h, mesh->dt, mesh->t_end,
                                  mesh->dim) == EXIT_FAILURE) {
         return EXIT_FAILURE;
     }
@@ -93,19 +78,39 @@ int hydro_integrate_mesh(struct rt_hydro_mesh* mesh,
 
 struct rt_hydro_mesh* hydro_mesh_create(struct simulation_properties sim_prop) {
     struct rt_hydro_mesh* mesh = malloc(sizeof(struct rt_hydro_mesh));
-    mesh->dim[0] = sim_prop.resolution[0];
-    mesh->dim[1] = sim_prop.resolution[1];
-    mesh->dim[2] = sim_prop.resolution[2];
+    mesh->dim[XDIM] = sim_prop.resolution[XDIM];
+    mesh->dim[YDIM] = sim_prop.resolution[YDIM];
+    mesh->dim[ZDIM] = sim_prop.resolution[ZDIM];
 
-    mesh->temp = malloc(mesh->dim[0] * sizeof(real_t*));
-    mesh->density = malloc(mesh->dim[0] * sizeof(real_t*));
-    for (int i = 0; i < mesh->dim[0]; i++) {
-        mesh->temp[i] = malloc(mesh->dim[1] * sizeof(real_t*));
-        mesh->density[i] = malloc(mesh->dim[1] * sizeof(real_t*));
-        for (int j = 0; j < mesh->dim[1]; j++) {
-            mesh->temp[i][j] = malloc(mesh->dim[2] * sizeof(real_t));
-            mesh->density[i][j] = malloc(mesh->dim[2] * sizeof(real_t));
+    int flat_len = mesh->dim[XDIM] * mesh->dim[YDIM] * mesh->dim[ZDIM];
+
+    mesh->temp_block = malloc(flat_len * sizeof(real_t));
+    mesh->density_block = malloc(flat_len * sizeof(real_t));
+    mesh->delta_temp_block = malloc(flat_len * sizeof(real_t));
+
+    mesh->temp = malloc(mesh->dim[XDIM] * sizeof(real_t*));
+    mesh->density = malloc(mesh->dim[XDIM] * sizeof(real_t*));
+    mesh->delta_temp = malloc(mesh->dim[XDIM] * sizeof(real_t*));
+
+    mesh->temp = malloc(mesh->dim[ZDIM] * sizeof(real_t*));
+    mesh->density = malloc(mesh->dim[ZDIM] * sizeof(real_t*));
+    mesh->delta_temp = malloc(mesh->dim[XDIM] * sizeof(real_t*));
+    for (int k = 0; k < mesh->dim[ZDIM]; k++) {
+        mesh->temp[k] = malloc(mesh->dim[YDIM] * sizeof(real_t*));
+        mesh->density[k] = malloc(mesh->dim[YDIM] * sizeof(real_t*));
+        mesh->delta_temp[k] = malloc(mesh->dim[YDIM] * sizeof(real_t*));
+        for (int j = 0; j < mesh->dim[YDIM]; j++) {
+            mesh->temp[k][j] = (real_t*)mesh->temp_block +
+                               (mesh->dim[XDIM] * j) +
+                               (mesh->dim[XDIM] * mesh->dim[YDIM] * k);
+            mesh->density[k][j] = (real_t*)mesh->density_block +
+                                  (mesh->dim[XDIM] * j) +
+                                  (mesh->dim[XDIM] * mesh->dim[YDIM] * k);
+            mesh->delta_temp[k][j] = (real_t*)mesh->delta_temp_block +
+                                  (mesh->dim[XDIM] * j) +
+                                  (mesh->dim[XDIM] * mesh->dim[YDIM] * k);
         }
     }
+
     return mesh;
 }

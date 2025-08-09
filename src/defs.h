@@ -11,4 +11,14 @@ typedef double real_t;
 #define dt_tol_high 1e-1
 #define dt_tol_low 5e-1
 
+// Dimension standards (obvious, but this avoids "magic numbers")
+enum DIMENSION {
+    XDIM = 0,
+    IHAT = XDIM,
+    YDIM = 1,
+    JHAT = YDIM,
+    ZDIM = 2,
+    KHAT = ZDIM,
+};
+
 #endif
