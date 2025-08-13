@@ -208,8 +208,6 @@ real_t compute_next_timestep(const real_t* E_O, const real_t* E_D,
     return dt_new;
 }
 
-#define BOLTZMANN_CONSTANT 1.380658e-16
-
 enum neunet_kernel_args {
     REAL_T_VAL = 0,
     INT_VAL,

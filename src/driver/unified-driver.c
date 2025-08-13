@@ -97,8 +97,20 @@ int unified_driver(struct simulation_properties sim_prop,
         for (int k = 0; k < mesh->dim[ZDIM]; k++) {
             for (int j = 0; j < mesh->dim[YDIM]; j++) {
                 for (int i = 0; i < mesh->dim[XDIM]; i++) {
+                    // TODO: proper init based on stellar equations.
+                    // This should be an improvement with how hydroeffect works.
+                    // AKA: finally answer the data question.
                     mesh->temp[k][j][i] = base_temp;
                     mesh->density[k][j][i] = base_density;
+                    mesh->pressure[k][j][i] = 0;
+                    mesh->mean_mol_mass[k][j][i] = 8;
+                    mesh->velocity[k][j][i + XDIM] = 0;
+                    if (mesh->dim[YDIM] > 1) {
+                        mesh->velocity[k][j][i + YDIM] = 0;
+                    }
+                    if (mesh->dim[ZDIM] > 1) {
+                        mesh->velocity[k][j][i + ZDIM] = 0;
+                    }
                 }
             }
         }

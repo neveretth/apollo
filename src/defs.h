@@ -21,4 +21,9 @@ enum DIMENSION {
     KHAT = ZDIM,
 };
 
+// PHYSICAL CONSTANTS
+
+#define BOLTZMANN_CONSTANT 1.380658e-16
+#define AMU 1.380649e-16
+
 #endif
