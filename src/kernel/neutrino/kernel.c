@@ -8,12 +8,45 @@
 #include "../../rocm/hip-util.h"
 #endif
 
+enum NEUTRINO_REAL_VAL {
+    NEUREALVAL_DT = 0,
+    NEUREALVAL_TEMP,
+    NEUREALVAL_NUM_ARGS,
+};
+
 // Migrate this to real_t_val and int_val (as the GPU kernel does).
-int neunet_integration_kernel(real_t* real_t_val, int* int_val,
+int neunet_integration_kernel(real_t* real_val, int* int_val,
                               real_t** rate_in, real_t** rate_out,
                               real_t* n_old, real_t* ec, real_t* dv, real_t dt,
                               real_t t_end, real_t EpsA, real_t EpsR,
                               real_t g_a, real_t g_b, real_t g_c, int n_g) {
+
+    // Initialize n_eq based on mu and kt for the current model
+    // real_t* n_eq = malloc(sizeof(real_t) * n_g);
+    // for (int i = 0; i < n_g; i++) {
+    //     n_eq[i] =
+    //         1.0 /
+    //         (exp((ec[i] - mu) / kt) +
+    //          1.0);
+    // }
+
+    dt = real_val[NEUREALVAL_DT];
+    real_t kt = real_val[NEUREALVAL_TEMP];
+    
+    for (int i = 0; i < n_g; i++) {
+        for (int j = 0; j < n_g; j++) {
+            if (j < i) {
+                rate_in[i][j] = rate_in[j][i] * exp((ec[i]) / kt);
+            }
+        }
+    }
+
+    for (int i = 0; i < n_g; i++) {
+        for (int j = 0; j < n_g; j++) {
+            rate_out[i][j] = rate_in[j][i];
+        }
+    }
+
     real_t* n_0 = malloc(sizeof(real_t) * n_g);
 
     for (int i = 0; i < n_g; i++) {
@@ -23,11 +56,6 @@ int neunet_integration_kernel(real_t* real_t_val, int* int_val,
     for (int i = 0; i < n_g; i++) {
         n_old[i] = n_0[i];
     }
-
-    // This should be enumerated as such...
-    // (corresponding to a ptr at neunet->real).
-    // dt = real_t_val[NEUTRINO_REAL_DT];
-    dt = real_t_val[0];
 
     int done = 0;
     int restep = 0;
@@ -110,7 +138,7 @@ int neunet_integration_kernel(real_t* real_t_val, int* int_val,
     }
 
     // Corresponds to the opposite expression above.
-    real_t_val[0] = dt;
+    real_val[NEUREALVAL_DT] = dt;
 
 exit:
     free(n_0);
@@ -363,12 +391,14 @@ int neunet_data_preprocess(struct neunet**** neunet, struct rt_hydro_mesh* mesh,
         gpu_stat.initialized = true;
     }
 #endif
-    for (int i = 0; i < sim_prop.resolution[0]; i++) {
-        for (int j = 0; j < sim_prop.resolution[1]; j++) {
-            for (int k = 0; k < sim_prop.resolution[2]; k++) {
+    for (int i = 0; i < sim_prop.resolution[XDIM]; i++) {
+        for (int j = 0; j < sim_prop.resolution[YDIM]; j++) {
+            for (int k = 0; k < sim_prop.resolution[ZDIM]; k++) {
+                // TODO: we don't know the exact units.
+                // MeV?
                 neunet[i][j][k]->f->kt =
-                    mesh->temp[i][j][k] * BOLTZMANN_CONSTANT;
-                neunet[i][j][k]->f->rho = mesh->density[i][j][k];
+                    mesh->temp[k][j][i] * 8.621738e-5 * BOLTZMANN_CONSTANT * 1e12;
+                neunet[i][j][k]->f->rho = mesh->density[k][j][i];
                 neunet[i][j][k]->f->t_end = mesh->dt;
             }
         }
@@ -439,8 +469,9 @@ int neunet_integrate_network(struct simulation_properties sim_prop,
     // It represents the pointer that may be introduced at network->real
     // It is currently being used in the kernel to track values persistent
     // across multiple invocations.
-    real_t* tmp = malloc(1 * sizeof(real_t));
-    tmp[0] = network->f->dt;
+    real_t* tmp = malloc(NEUREALVAL_NUM_ARGS * sizeof(real_t));
+    tmp[NEUREALVAL_TEMP] = network->f->kt;
+    tmp[NEUREALVAL_DT] = network->f->dt;
     if (neunet_integration_kernel(
             tmp, NULL, network->info->rate_in, network->info->rate_out,
             network->fptr->n_old, network->fptr->ec, network->fptr->dv,
@@ -449,7 +480,7 @@ int neunet_integrate_network(struct simulation_properties sim_prop,
             network->info->num_groups) == EXIT_FAILURE) {
         return EXIT_FAILURE;
     }
-    network->f->dt = tmp[0];
+    network->f->dt = tmp[NEUREALVAL_DT];
     free(tmp);
 #endif
     return EXIT_SUCCESS;

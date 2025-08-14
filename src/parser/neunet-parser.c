@@ -103,23 +103,21 @@ struct neunet* neunet_create(struct simulation_properties sim_prop) {
         }
     }
 
-    real_t c = 2.99792458e10;
-
     // Multiply each element by c
     for (int i = 0; i < network->info->num_groups; ++i) {
         for (int j = 0; j < network->info->num_groups; ++j) {
-            network->info->rate_in[i][j] *= c;
+            network->info->rate_in[i][j] *= C;
         }
     }
 
     // Initialize n_eq based on mu and kt for the current model
     network->fptr->n_eq = malloc(sizeof(real_t) * network->info->num_groups);
-    for (int i = 0; i < network->info->num_groups; i++) {
-        network->fptr->n_eq[i] =
-            1.0 /
-            (exp((network->fptr->ec[i] - network->f->mu) / network->f->kt) +
-             1.0);
-    }
+    // for (int i = 0; i < network->info->num_groups; i++) {
+    //     network->fptr->n_eq[i] =
+    //         1.0 /
+    //         (exp((network->fptr->ec[i] - network->f->mu) / network->f->kt) +
+    //          1.0);
+    // }
 
     for (int i = 0; i < network->info->num_groups; i++) {
         for (int j = 0; j < network->info->num_groups; j++) {
@@ -139,11 +137,11 @@ struct neunet* neunet_create(struct simulation_properties sim_prop) {
             malloc(sizeof(real_t) * network->info->num_groups);
     }
 
-    for (int i = 0; i < network->info->num_groups; i++) {
-        for (int j = 0; j < network->info->num_groups; j++) {
-            network->info->rate_out[i][j] = network->info->rate_in[j][i];
-        }
-    }
+    // for (int i = 0; i < network->info->num_groups; i++) {
+    //     for (int j = 0; j < network->info->num_groups; j++) {
+    //         network->info->rate_out[i][j] = network->info->rate_in[j][i];
+    //     }
+    // }
 
     network->fptr->n_old = malloc(sizeof(real_t) * network->info->num_groups);
 

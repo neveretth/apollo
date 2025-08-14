@@ -4,7 +4,6 @@
 #include <stdlib.h>
 
 #define THIRD 0.3333333333333333
-#define ECON 9.5768e17 // Convert MeV/nucleon/s to erg/g/s
 
 // This code has a remarkably bad habit of nan/inf-ing out.
 int tnn_integration_kernel(

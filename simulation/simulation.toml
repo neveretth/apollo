@@ -42,5 +42,5 @@ networkfile = "data/network-alpha.aad"
 ratefile = "data/ratelibrary-alpha.aad"
 
 [simulation.neutrino]
-use = false
+use = true
 opacityfile = "data/FENNData40M186.h5"

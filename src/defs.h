@@ -25,5 +25,7 @@ enum DIMENSION {
 
 #define BOLTZMANN_CONSTANT 1.380658e-16
 #define AMU 1.380649e-16
+#define C 2.99792458e10
+#define ECON 9.5768e17 // Convert MeV/nucleon/s to erg/g/s
 
 #endif
