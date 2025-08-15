@@ -1,22 +1,16 @@
-# Apollo (PRE-BETA)
+# Apollo
 
-Astrophysics solver.
-
-## PRE-BETA WARNING!
-This code is in PRE-BETA, meaning basic structure and code philosophy WILL
-change regularly.
+In pursuit of stellar simulation.
 
 ## Documentation
 Documentation for Apollo exists in the Documentation/ directory.
 
-WARNING: It is not up to date. (Apollo is pre-beta... that's the excuse.)
-
 ## Contributors
-- Nicholas Everett Howard (https://neveretth.xyz)
+- Nicholas Everett Howard (University of Tennessee, Knoxville)
+- Adam Cole (University of Tennessee, Knoxville)
 
 ## Acknowledgment
 - Dr. Michael Guidry (University of Tennessee, Knoxville)
-- Adam Cole (University of Tennessee, Knoxville)
 
 ## Code Credits
 - [cktan](https://github.com/cktan/tomlc17/blob/main/LICENSE) for the TOML parsing library
