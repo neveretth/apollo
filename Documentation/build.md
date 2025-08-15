@@ -7,7 +7,7 @@ make
 # OR
 make apollo
 ```
-for the (very incomplete) rocm-enabled version:
+for the (experimental, untested) rocm-enabled version:
 ```
 make apollo-rocm
 ```

@@ -3,50 +3,105 @@
 Simulation setup for Apollo is done with the simulation.toml file, specified 
 by `-S <file>.toml`.
 
-## Options
+## TOML
+TOML (Tom's Obvious Markup Language) is a simple user-facing config language
+designed to map to a hash table.
+```TOML
+[foo]
+bar = OxDEADBEEF
 
-### simulation
+[foobar]
+[foobar.foo]
+bar = "APOLLO"
 
-#### simulation.time
-- endtime `bool` (the time the simulation runs in seconds)
-- tres `int` (temporal resolution, increases clarity of output,
-  does not change physical behavior)
-- printkerneltime `bool` (print the time to execute the compute kernel(s))
+```
+This would be represented as a string by:
+```
+foo.bar
+# and
+foobar.foo.bar
+```
+The last value ("bar" in the example) after is the only part of the
+expression, the rest is the section header.
+```
+[foo] <-- Section header
+bar = "VAL" <-- expression
 
-#### simulation.output
-- output `bool` (whether or not output will be generated)
-- outputdir `string` (path of the output directory)
+foobar.foo.bar
+---------- ___
+     |       L this is the "left = right"
+     L this is the [section header]
+```
 
-#### simulation.resolution
-- x `int`
-- y `int`
-- z `int` (this should be set to 1 for 2D simulation)
+Finally, the documentation uses the following:
+- The header is the section header
+- The values in the table are the left hand of the expression
 
-#### simulation.hydro
-- use `bool` (is hydro sim used)
-- outputfile `string` (filename for output)
-- effect `bool` (is an effect to be used?)
 
-#### simulation.hydroeffect
+## Simulation
 
-##### simulation.hydroeffect.temp
-- effect `string` (options: radial, gradient, random)
-- base `float` (value to initialize the data with)
+### simulation.time
 
-##### simulation.hydroeffect.density
-- effect `string` (options: radial, gradient, random)
-- base `float` (value to initialize the data with)
+| Value | Type | Description |
+|-------|------|-------------|
+| __endtime__ | `float` | The total runtime of the simulation. |
+| __tres__ | `int` | The temporal resolution (data output). |
+| __printkerneltime__ | `bool` | Print intermediate kernel time. |
+| __initdt__ | `float` | The initial timestep of the hydrodynamic code. |
 
-#### simulation.thermo
-- use `bool` (is thermo sim used)
-- networkfile `string` (location of network file)
-- ratefile `string` (location of rate file)
+### simulation.output
 
-#### simulation.neutrino
-- use `bool` (is neutrino sim used)
-- opacityfile `string` (location of opacity file)
+| Value | Type | Description |
+|-------|------|-------------|
+| __output__ | `bool` | Write output to files. |
+| __outputdir__ | `string` | Output directory path. |
+| __temp__ | `bool` | Output temp. |
+| __density__ | `bool` | Output density. |
+| __entropy__ | `bool` | Output entropy. |
 
-### visualization 
-These are only used by the python `runner.py` script.
-- save `bool` (should the final fig/animation be saved?)
-- saveas `string` (what should it be saved as?)
+### simulation.resolution
+
+| Value | Type | Description |
+|-------|------|-------------|
+| __x__ | `int` | X dimension size. |
+| __y__ | `int` | Y dimension size. (1 for linear) |
+| __z__ | `int` | Z dimension size. (1 for 2D) |
+
+### simulation.hydro
+
+| Value | Type | Description |
+|-------|------|-------------|
+| __use__ | `bool` | Trigger hydro compute kernel. |
+| __effect__ | `bool` | Use hydro effect. |
+| __ttc__ | `float` | Thermal transfer coefficient. |
+| __volume__ | `float` | Volume of star. (not implemented) |
+
+### simulation.hydroeffect
+#### simulation.hydroeffect.temp
+
+| Value | Type | Description |
+|-------|------|-------------|
+| __base__ | `float` | Base temperature value |
+| __effect__ | `string` | random, gradient, radial1, radial2, radial3 |
+
+#### simulation.hydroeffect.density
+
+| Value | Type | Description |
+|-------|------|-------------|
+| __base__ | `float` | Base density value |
+| __effect__ | `string` | random, gradient, radial1, radial2, radial3 |
+
+### simulation.thermo
+
+| Value | Type | Description |
+|-------|------|-------------|
+| __use__ | `bool` | Trigger thermo compute kernel. |
+| __networkfile__ | `string` | Filepath of network data. |
+| __ratefile__ | `string` | Filepath of rate data. |
+
+### simulation.neutrino
+
+| Value | Type | Description |
+|-------|------|-------------|
+| __use__ | `bool` | Trigger neutrino compute kernel. |
+| __opacityfile__ | `string` | Filepath of neutrino opacity data. |
