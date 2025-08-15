@@ -403,7 +403,6 @@ int neunet_data_preprocess(struct neunet**** neunet, struct rt_hydro_mesh* mesh,
             }
         }
     }
-    // Parameters need to be updated here... and then sent to GPU...
 
 #ifdef __MP_ROCM
     // This is not ideal with how streams _should_ work.

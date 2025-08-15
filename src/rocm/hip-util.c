@@ -148,22 +148,3 @@ int devbuf_read(void* hostptr, void** devptr, int size) {
     }
     return EXIT_SUCCESS;
 }
-
-// Obviously this is terrible, but it works?
-int devbuf_write_flatten(void** devptr, void** hostptr, int len, int size) {
-    float** host_ = (float**)hostptr;
-    float* host__ = malloc(len * len * size);
-
-    for (int i = 0; i < len; i++) {
-        for (int j = 0; j < len; j++) {
-            host__[(i * len) + j] = host_[i][j];
-        }
-    }
-
-    if (hipMemcpy(*devptr, host__, len * len * size, hipMemcpyHostToDevice) !=
-        HIP_SUCCESS) {
-        return EXIT_FAILURE;
-    }
-    free(host__);
-    return EXIT_SUCCESS;
-}

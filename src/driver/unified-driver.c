@@ -163,9 +163,9 @@ int unified_driver(struct simulation_properties sim_prop,
         neutrino[0][0][0]->f->g_c = sqrt(50.0);
         neutrino[0][0][0]->f->dt = 1e-15;
         neutrino[0][0][0]->f->dt_new = neutrino[0][0][0]->f->dt;
-        for (int i = 0; i < sim_prop.resolution[0]; i++) {
-            for (int j = 0; j < sim_prop.resolution[1]; j++) {
-                for (int k = 0; k < sim_prop.resolution[2]; k++) {
+        for (int i = 0; i < sim_prop.resolution[XDIM]; i++) {
+            for (int j = 0; j < sim_prop.resolution[YDIM]; j++) {
+                for (int k = 0; k < sim_prop.resolution[ZDIM]; k++) {
                     if ((i + j + k) > 0) {
                         neutrino[i][j][k] = neunet_clone(neutrino[0][0][0]);
                     }

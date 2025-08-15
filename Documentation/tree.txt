@@ -1,11 +1,11 @@
 Apollo
 ├── build/                         # Build artifacts (consider .gitignore here)
-│   └── src/
+│   └── src/                       # Source object files
 │       └── rocm/                  # Compiled ROCm/HIP objects (GPU)
 ├── config/                        # Configuration files (input decks, params)
-├── data/                          # Simulation input/output data
-├── Documentation/                # Project documentation (README, design notes)
-├── simulation/                    # (Suggest: entry points or main runners?)
+├── data/                          # Simulation input data
+├── Documentation/                 # Project documentation (design notes)
+├── simulation/                    # Simulation TOML files
 ├── src/                           # Main source code
 │   ├── driver/                    # High-level simulation control / main loop
 │   ├── kernel/                    # Core physics kernels
@@ -15,8 +15,8 @@ Apollo
 │   ├── parser/                    # Config parsing (likely TOML)
 │   ├── rocm/                      # ROCm/HIP GPU-specific wrappers
 │   ├── toml/                      # TOML config utilities (parser or bindings)
-│   └── types/                     # Type definitions, structs, units
-├── tests/                         # All tests
+│   └── types/                     # Type definitions, structs (to be moved)
+├── tests/                         # All tests (NOT IMPLEMENTED)
 │   ├── hydro-test/                # Unit/integration tests for hydro module
 │   ├── neutrino-test/             # Unit/integration tests for neutrino module
 │   └── thermo-test/               # Unit/integration tests for thermonuclear
