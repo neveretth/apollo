@@ -1,0 +1,76 @@
+\newcommand{\addfig}[4]{
+\begin{figure}[H]
+\vspace{0mm}
+\noindent\minipage{\linewidth}
+\begin{center}
+  \scalebox{#2}{
+    \includegraphics[angle=#3, width=\textwidth]{#1}
+  }\\
+\end{center}
+\endminipage
+\vspace{0mm}
+\caption{#4}
+\vspace{-2mm}
+\end{figure}
+}
+
+\renewcommand{\table}[4]{
+\begin{figure}[H]
+\vspace{0mm}
+\noindent\minipage{\linewidth}
+\begin{center}
+  \scalebox{#1}{
+    \begin{tabular}{#2}
+      #3
+    \end{tabular}
+  }\\
+\end{center}
+\endminipage
+\vspace{0mm}
+\caption{#4}
+\vspace{-2mm}
+\end{figure}
+}
+
+\newcommand{\eq}[1]{
+\vspace{-4mm}
+\begin{equation}
+\begin{split}
+  #1
+\end{split}
+\end{equation}
+}
+
+\renewcommand{\l}[0]{
+  \left(
+}
+
+\renewcommand{\r}[0]{
+  \right)
+}
+
+\newcommand{\circuit}[2]{
+\begin{figure}[H]
+\vspace{0mm}
+\noindent\minipage{\linewidth}
+\begin{center}
+  \scalebox{1}{
+    \begin{circuitikz}[american voltages] \draw
+      #1
+    ;
+    \end{circuitikz}
+  }\\
+\end{center}
+\endminipage
+\vspace{0mm}
+\caption{#2}
+\vspace{-2mm}
+\end{figure}
+}
+
+% I cannot fucking _believe_ this is the syntax for hrule.
+\renewcommand{\rule}{
+  \vspace{4mm}
+  \hrule height 0.25pt
+  \vspace{4mm}
+}

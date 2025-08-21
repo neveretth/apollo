@@ -1,0 +1,123 @@
+\input{preamble}
+\input{macros}
+
+\begin{document}
+
+% Settings that have to be inside the \begin...
+\settings
+\usetagform{sectiontag}
+
+\title{Formal Outline of APOLLO Software Logic}
+\author{\Large{APOLLO Contributors}
+\smallskip\\ % <== This shit is so stupid, why LaTeX, why?
+% Dr. Michael Guidry\\
+% Nicholas Everett Howard\\
+% Adam Cole\\
+}
+\date{\today}
+\maketitle
+
+\thispagestyle{titlepage}
+
+% % \hrule
+% \vspace{4mm}
+% \hrule
+% \vspace{4mm}
+% \begin{abstract}
+% \normalsize
+% \end{abstract}
+
+\rule
+
+\tableofcontents
+
+\settings
+% \normalsize
+\newpage
+
+\section{Understanding This Documentation}
+
+The idea of this documentation is simple. Any physical or mathematical logic
+used by the APOLLO code should be documented here. 
+
+\subsection{Example}
+
+To write a formal outline you would first explain
+what you are doing and why (where it comes from, sources, etc). Then you would
+write out the mathematical logic (so far this is exactly how a normal paper
+would do things). Then if the logic is sufficiently complex, or we are
+employing some trickery, we would explain how we implement it in code.
+
+Here's a simple equation for an example.
+
+\eq {
+  \vec{V} = \vec{V}_x \lambda
+}
+
+Pseudocode to explain logic if necessary (only for complex or non-intuitive
+things).
+
+\begin{code}
+for (elem in V):
+  v[idx] = v_x[idx] * lambda
+\end{code}
+
+Finally, the \emph{most important thing.} Each equation is given a unique 
+number, put that number in a comment above the code that implements the
+logic of that equation.
+
+\begin{code}
+// [formal 1.1.1]
+for (int i = 0; i < 100; i++) {
+    // Code that performs the logic...
+    // Code that performs the logic...
+    // Code that performs the logic...
+}
+\end{code}
+
+The comment should follow this standard template.
+
+\begin{code}
+// [formal <equation>]
+// examples
+// [formal 1.2.3]
+// [formal 2.1.9]
+// [formal 1.2.5]
+\end{code}
+
+
+
+\newpage
+\section{Hydrodymanics}
+\subsection{Advection}
+
+Lorem ipsum dolor sit amet, qui minim labore adipisicing minim sint cillum sint
+consectetur cupidatat.
+
+\eq {
+  F = ma
+}
+
+
+\newpage
+\section{Thermonuclear Evolution}
+
+Lorem ipsum dolor sit amet, qui minim labore adipisicing minim sint cillum sint
+consectetur cupidatat.
+
+\newpage
+\section{Neutrino Interaction}
+
+Lorem ipsum dolor sit amet, qui minim labore adipisicing minim sint cillum sint
+consectetur cupidatat.
+
+% \begin{code}{language=c}{
+% for () {
+%   MATH = MATH;
+% }
+% \end{code}
+
+\newpage
+\printbibliography
+
+\end{document}

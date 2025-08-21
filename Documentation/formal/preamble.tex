@@ -1,0 +1,97 @@
+\documentclass[]{article}
+
+% ====== FONT ======
+\usepackage{fontspec}
+% \setmainfont{EBGaramond-Regular.ttf}
+\newfontfamily{\berkeleymono}[Path=./font/]{BerkeleyMono-Regular.ttf}
+
+% ====== PAGE SIZE & MARGINS ======
+\usepackage{geometry}
+% \geometry{a4paper, left=32mm, right=32mm, top=36mm, bottom=36mm}
+\geometry{letterpaper, left=28mm, right=28mm, top=36mm, bottom=36mm}
+
+% ====== SETTINGS ======
+\pagenumbering{arabic}
+
+% ====== IN-DOCUMENT SETTINGS ======
+% These settings have to be dont this way because they need to come after \begin{document}
+\newcommand{\settings}[0]{
+% ====== BEGIN INTERNAL SETTINGS ======
+\fontsize{10.4pt}{14.8pt}\selectfont
+% ====== END INTERNAL SETTINGS ======
+}
+
+% ====== STANDARD PACKAGE IMPORTS ======
+\usepackage{amsmath}
+\usepackage{fancybox}
+\usepackage{float}
+\usepackage{mathtools}
+\usepackage{enumitem}
+\setlist{noitemsep, topsep=6pt, parsep=1pt, partopsep=0pt}
+
+% Equation tags (1.1.2) <-- this thing on the right.
+\makeatletter
+% \newtagform{sectiontag}[\thesubsection\alph{equation}\@gobble]{(}{)}
+\newtagform{sectiontag}[\numberwithin{equation}{subsection}]{(}{)}
+\makeatother
+
+% ====== CODE ======
+\usepackage{minted}
+% These look like this.
+% \inputminted[frame=lines, linenos, firstline=3, lastline=6]{c}{example.c}
+%
+% Inline, but actual code (ish). (minted)
+% \begin{minted}[frame=lines, linenos]{c}
+% int func(int* type) {
+%   for (int i = 0; i < SIZE; i++) {
+%     type[i] *= FLUX;
+%   }
+% }
+% \end{minted}
+% ====== LISTINGS ====== 
+% This is also for code, I'm not sure which one I hate more. 
+% The intention is for the maximum width of this box to be 80COL.
+% In truth it's more like 79...
+\usepackage{listings}
+\lstset{
+    frame=tbrl,
+    tabsize=4,
+    showstringspaces=false,
+    % numbers=left,
+    basicstyle=\berkeleymono\footnotesize,
+    xleftmargin=2mm,
+    xrightmargin=2mm,
+} 
+\lstnewenvironment{code}{}{}
+
+
+% ====== GRAPHICS ======
+\usepackage{graphicx}
+\graphicspath{ {./img/} }
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\usepackage{circuitikz}
+
+% ====== BIBLIOGRAPHY ======
+\usepackage[style=authoryear, backend=biber]{biblatex}
+\addbibresource{bibliography.bib}
+
+% ====== HEADER & FOOTER ======
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+% L -> left | C -> center | R -> right 
+% O -> odd | E -> even <== This doesn't seem to work properly
+\fancyhead[L]{}
+\fancyhead[C]{}
+\fancyhead[R]{}
+\fancyfoot[L]{APOLLO Contributors}
+\fancyfoot[C]{\thepage}
+\fancyfoot[R]{University of Tennessee}
+\renewcommand{\headrulewidth}{0.25pt}
+\renewcommand{\footrulewidth}{0.25pt}
+\fancypagestyle{titlepage}{
+  \fancyfoot[L]{APOLLO Contributors}
+  \fancyfoot[C]{\thepage}
+  \fancyfoot[R]{University of Tennessee}
+}
