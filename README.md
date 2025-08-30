@@ -5,6 +5,11 @@ In pursuit of stellar simulation.
 ## Documentation
 Documentation for Apollo exists in the Documentation/ directory.
 
+## Quickstart
+The Apollo build system expects a file `Makefile.user` to exist in the root 
+directory. This file can be empty, and does not _need_ to exist. This file
+is used to specify non-default build options for `GCC, CFLAGS, etc`.
+
 ## Contributors
 - Nicholas Everett Howard (University of Tennessee, Knoxville)
 - Adam Cole (University of Tennessee, Knoxville)
@@ -13,4 +18,5 @@ Documentation for Apollo exists in the Documentation/ directory.
 - Dr. Michael Guidry (University of Tennessee, Knoxville)
 
 ## Code Credits
-- [cktan](https://github.com/cktan/tomlc17/blob/main/LICENSE) for the TOML parsing library
+- [cktan](https://github.com/cktan/tomlc17/blob/main/LICENSE) for the TOML
+parsing library
