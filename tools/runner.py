@@ -5,6 +5,18 @@ import matplotlib.animation as aplt
 import pandas as pd
 import numpy as np
 import sys
+# Argument parsing
+import argparse
+
+parser = argparse.ArgumentParser(
+                prog='ApolloVis',
+                description='What does ApolloVis do?',
+                epilog='')
+parser.add_argument('--simulation-file', nargs=1, help='simulation run file', required=True)
+parser.add_argument('--run-simulation', help='run new Apollo simulation', action='store_true')
+
+
+
 
 fig, ax = plt.subplots()
 
@@ -161,22 +173,25 @@ def gen_graph(sim_prop, datafile, label):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("error: incorrect usage of runner.py")
-        print("    python runner.py <simulation-file>.toml")
-        exit(1)
+    
+    args = parser.parse_args()
+    print(args)
+    simulation_file = args.simulation_file[0]    
 
-    with open(sys.argv[1], "rb") as f:
+
+    with open(simulation_file, "rb") as f:
         sim_prop = tomllib.load(f)
 
-    popen = subprocess.run(
-        ["rm", "-rf", "../" + sim_prop["simulation"]["output"]["outputdir"]])
-    popen = subprocess.run(
-        ["mkdir", "-p", "../" + sim_prop["simulation"]["output"]["outputdir"]])
+    
 
     # -P passes a relative path to fix issues with data location and whatnot.
-    popen = subprocess.run(
-        ["../build/apollo", "-C", "../config/config.toml", "-S", sys.argv[1], "-P", "../"])
+    if args.run_simulation:
+        popen = subprocess.run(
+            ["rm", "-rf", "../" + sim_prop["simulation"]["output"]["outputdir"]])
+        popen = subprocess.run(
+            ["mkdir", "-p", "../" + sim_prop["simulation"]["output"]["outputdir"]])
+        popen = subprocess.run(
+            ["../build/apollo", "-C", "../config/config.toml", "-S", simulation_file, "-P", "../"])
 
     datafile_temp = "../" + \
         sim_prop["simulation"]["output"]["outputdir"] + "/temp.out"
