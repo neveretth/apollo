@@ -1,6 +1,3 @@
-# Custom user make variable setup.
--include Makefile.user
-
 # Define all vars that are not already defined.
 CC ?= /bin/gcc
 HIPCC ?= /opt/rocm/bin/hipcc
@@ -15,7 +12,16 @@ HIPCC ?= /opt/rocm/bin/hipcc
 GCCOPTS ?= -O3 -fno-math-errno -ffinite-math-only -frounding-math
 CFLAGS ?= -std=c99 -Wall -Wextra --pedantic -g3 -D__REAL_TYPE_FLOAT $(GCCOPTS)
 HIPFLAGS ?= -x c
-CLIBS ?= -lm -lhdf5 -lc
+CLIBS ?= -lhdf5 -lhdf5_hl -lc -lm
+
+# Custom user make variable setup.
+-include Makefile.user
+
+# Export user-overrides so sub-makefiles can see them
+export CLIBS
+export CFLAGS
+export LDFLAGS
+
 
 # Comment out TIME_CMD if you don't want to time Apollo
 TIME_CMD = /bin/time -f "\n| Time: %e | CPU: %P | User: %U | Kernel: %S | MinPF: %R | MajPF: %F |"
@@ -40,7 +46,7 @@ apollo: builddir source kernel driver types parser toml
 	$(CC) $(BUILD_DIR)/src/*.o -o $(BUILD_DIR)/apollo $(CLIBS)
 	
 apollo-rocm: rocm-defs builddir rocm source kernel-rocm driver types parser toml
-	$(HIPCC) $(BUILD_DIR)/src/*.o -o $(BUILD_DIR)/apollo-rocm $(CLIBS)
+	$(HIPCC) $(BUILD_DIR)/src/*.o -o $(BUILD_DIR)/apollo-rocm $(LDFLAGS) $(CLIBS)
 
 rocm-defs: 
 	$(eval CFLAGS += -D__MP_ROCM)
