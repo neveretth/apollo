@@ -3,7 +3,7 @@
 ## runner.py
 Simple interactive runner and visualizer for Apollo.
 ```
-python runner.py ../simulation/<name>.toml
+python runner.py --help
 ```
 
 ## profiler.py

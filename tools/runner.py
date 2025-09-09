@@ -18,8 +18,21 @@ parser.add_argument('--run-simulation', help='run new Apollo simulation', action
 
 
 
-fig, ax = plt.subplots()
+#fig, ax = plt.subplots()
 
+def display_menu():
+    menu = """
+    ===========================
+         Simulation Options
+    ===========================
+    1. Temperature
+    2. Density
+    3. Entropy
+    0. Quit
+    ===========================
+    """
+    print(menu)
+    
 
 def get_bool_input(msg):
     while 1:
@@ -181,18 +194,8 @@ if __name__ == "__main__":
 
     with open(simulation_file, "rb") as f:
         sim_prop = tomllib.load(f)
-
     
-
-    # -P passes a relative path to fix issues with data location and whatnot.
-    if args.run_simulation:
-        popen = subprocess.run(
-            ["rm", "-rf", "../" + sim_prop["simulation"]["output"]["outputdir"]])
-        popen = subprocess.run(
-            ["mkdir", "-p", "../" + sim_prop["simulation"]["output"]["outputdir"]])
-        popen = subprocess.run(
-            ["../build/apollo", "-C", "../config/config.toml", "-S", simulation_file, "-P", "../"])
-
+    
     datafile_temp = "../" + \
         sim_prop["simulation"]["output"]["outputdir"] + "/temp.out"
     datafile_density = "../" + \
@@ -200,23 +203,39 @@ if __name__ == "__main__":
     datafile_entropy = "../" + \
         sim_prop["simulation"]["output"]["outputdir"] + "/entropy.out"
 
-    while 1:
-        print(":: . . . . . . . . . .")
-        print(":: temperature . . (1)")
-        print(":: density . . . . (2)")
-        print(":: entropy . . . . (3)")
-        print(":: . . . . . . . . . .")
-        print(":: quit  . . . . . (0)")
-        val = get_int_input(":: select type . . (#)")
-        if val == 0:
+    option_map = {
+        1: ("Temperature", datafile_temp),
+        2: ("Density", datafile_density),
+        3: ("Entropy", datafile_entropy),
+        }
+    
+    if args.run_simulation:
+        popen = subprocess.run(
+            ["rm", "-rf", "../" + sim_prop["simulation"]["output"]["outputdir"]])
+        popen = subprocess.run(
+            ["mkdir", "-p", "../" + sim_prop["simulation"]["output"]["outputdir"]])
+        # -P passes a relative path to fix issues with data location and whatnot.
+        popen = subprocess.run(
+            ["../build/apollo", "-C", "../config/config.toml", "-S", simulation_file, "-P", "../"])
+
+    
+
+    while True:
+        display_menu()
+        choice = int(input("Select an option [0–3]: ") or "0")
+        if choice == 0:
+            print("Exiting the program.")
             break
-        elif val == 1:
-            gen_graph(sim_prop, datafile_temp, "Temperature")
-        elif val == 2:
-            gen_graph(sim_prop, datafile_density, "Density")
-        elif val == 3:
-            gen_graph(sim_prop, datafile_entropy, "Entropy")
+        
+        if choice in option_map:
+            label, datafile = option_map[choice]
+            fig, ax = plt.subplots()
+            gen_graph(sim_prop, datafile, label)
         else:
-            print(":: invalid input: " + str(val))
-            continue
-        fig, ax = plt.subplots()
+            print(f"Invalid input: {choice}. Please enter a number between 0 and 3.")
+            
+            
+
+
+    
+    
