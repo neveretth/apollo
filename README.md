@@ -13,6 +13,7 @@ is used to specify non-default build options for `GCC, CFLAGS, etc`.
 ## Contributors
 - Nicholas Everett Howard (University of Tennessee, Knoxville)
 - Adam Cole (University of Tennessee, Knoxville)
+- Nicholas Robinson (University of Tennessee, Knoxville)
 
 ## Acknowledgment
 - Dr. Michael Guidry (University of Tennessee, Knoxville)
