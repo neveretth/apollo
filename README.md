@@ -2,6 +2,10 @@
 
 In pursuit of stellar simulation.
 
+## DISCLAIMER
+_APOLLO is largely a testing ground and learning environment!
+Things here are largely unpolished and all unfinished!_
+
 ## Documentation
 Documentation for Apollo exists in the Documentation/ directory.
 
