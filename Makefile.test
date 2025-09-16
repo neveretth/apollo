@@ -1,5 +1,4 @@
 test: apollo
-	$(TIME_CMD) \
 	$(APOLLO_RUN_CMD)
 	
 test-mem: apollo
@@ -29,7 +28,6 @@ test-rocm-gdb: apollo-rocm
 	rocgdb --args $(APOLLO_ROCM_RUN_CMD)
 	
 test-rocm: apollo-rocm
-	$(TIME_CMD) \
 	$(APOLLO_ROCM_RUN_CMD)
 
 test-full: 

@@ -17,9 +17,6 @@ CFLAGS ?= -std=c99 -Wall -Wextra --pedantic -g3 -D__REAL_TYPE_FLOAT $(GCCOPTS)
 HIPFLAGS ?= -x c
 CLIBS ?= -lm -lhdf5 -lc
 
-# Comment out TIME_CMD if you don't want to time Apollo
-TIME_CMD = /bin/time -f "\n| Time: %e | CPU: %P | User: %U | Kernel: %S | MinPF: %R | MajPF: %F |"
-
 APOLLO_RUN_CMD = $(BUILD_DIR)/apollo \
 	-C config/config.toml \
 	-S simulation/simulation.toml \
