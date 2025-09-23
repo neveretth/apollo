@@ -1,0 +1,46 @@
+[simulation]
+
+[simulation.time]
+endtime = 1.4e0
+tres = 100
+timescale = "linear"
+printkerneltime = true
+initdt = 2e-3
+
+[simulation.output]
+output = false
+outputdir = "output"
+temp = true
+density = true
+entropy = true
+
+[simulation.resolution]
+x = 2
+y = 1
+z = 1
+
+[simulation.hydro]
+use = true
+effect = true
+ttc = 1.2e18 # h in code
+volume = 1e0
+
+# Use of hydroeffect is required at the moment since we cannot import data.
+[simulation.hydroeffect]
+
+[simulation.hydroeffect.temp]
+base = 7.9e08 # Higher than this and the code is likely to nan/inf out.
+effect = "radial1"
+
+[simulation.hydroeffect.density]
+base = 8.5e08
+effect = "radial1"
+
+[simulation.thermo]
+use = true
+networkfile = "../data/network-alpha.aad"
+ratefile = "../data/ratelibrary-alpha.aad"
+
+[simulation.neutrino]
+use = false
+opacityfile = "data/FENNData40M186.h5"
