@@ -160,6 +160,7 @@ simulation_properties_create(toml_result_t simulation_toml,
     sim_prop.network_file = NULL;
     sim_prop.print_kernel_time = false;
     sim_prop.hydro_density_effect = NULL;
+    sim_prop.timescale = TIMESCALE_LINEAR;
 
     // CONFIG INFO
     opts->rocm_accel = toml_bool(config_toml, "base.enablerocm");

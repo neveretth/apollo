@@ -1,4 +1,4 @@
-CC = /bin/gcc
+CC = h5cc
 HIPCC = /opt/rocm/bin/hipcc
 # GCCOPTS is for optimization. We can do away with
 # much of strict compliance, but we _cannot_ use
